@@ -86,22 +86,24 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "Aetherfall Online é um RPG Idle de fantasia medieval mágica. Forme sua party, explore regiões, derrote chefes e progrida mesmo offline — direto do navegador.",
+          "Sua jornada continua, mesmo quando você está offline. Aetherfall Online é um RPG Idle de fantasia medieval mágica, jogável direto do navegador.",
       },
-      { property: "og:title", content: "Aetherfall Online" },
+      { property: "og:title", content: "Aetherfall Online — RPG Idle direto do navegador" },
       {
         property: "og:description",
         content:
-          "Sua jornada continua, mesmo quando você está offline. RPG Idle inspirado nos JRPGs clássicos, com identidade própria.",
+          "Sua jornada continua, mesmo quando você está offline. Aetherfall Online é um RPG Idle de fantasia medieval mágica, jogável direto do navegador.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Aetherfall Online" },
+      { name: "twitter:title", content: "Aetherfall Online — RPG Idle direto do navegador" },
       {
         name: "twitter:description",
         content:
-          "RPG Idle de fantasia medieval mágica. Progrida enquanto está offline.",
+          "Sua jornada continua, mesmo quando você está offline. Aetherfall Online é um RPG Idle de fantasia medieval mágica, jogável direto do navegador.",
       },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a0f0d792-a6bc-4495-8c86-994770ad9e05/id-preview-c07053ae--e185b686-d3b6-4e10-826b-d0c475bc93c9.lovable.app-1784731421418.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a0f0d792-a6bc-4495-8c86-994770ad9e05/id-preview-c07053ae--e185b686-d3b6-4e10-826b-d0c475bc93c9.lovable.app-1784731421418.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },

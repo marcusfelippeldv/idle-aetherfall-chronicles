@@ -35,11 +35,11 @@ export const Route = createFileRoute("/")({
         content:
           "Sua jornada continua, mesmo quando você está offline. Aetherfall Online é um RPG Idle de fantasia medieval mágica, jogável direto do navegador.",
       },
-      { property: "og:title", content: "Aetherfall Online" },
+      { property: "og:title", content: "Aetherfall Online — RPG Idle direto do navegador" },
       {
         property: "og:description",
         content:
-          "RPG Idle inspirado nos JRPGs clássicos. Explore, evolua, derrote chefes — mesmo enquanto está offline.",
+          "Sua jornada continua, mesmo quando você está offline. Aetherfall Online é um RPG Idle de fantasia medieval mágica, jogável direto do navegador.",
       },
     ],
   }),
