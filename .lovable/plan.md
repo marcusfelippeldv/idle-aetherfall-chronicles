@@ -1,31 +1,37 @@
-## Causa raiz
+## 1) Criação de herói em `/jogo/novo`
 
-O `createCharacter` (e praticamente toda a lógica de jogo) usa `context.supabase` do middleware `requireSupabaseAuth`, ou seja, escreve **como o usuário logado, com RLS ativa**. Mas na migração inicial as tabelas do jogador receberam **apenas policies de `SELECT`** — nunca `INSERT`/`UPDATE`/`DELETE`. Resultado: o insert em `characters` é bloqueado silenciosamente pela RLS e a criação de herói falha.
+O que já foi feito antes: policies de `INSERT/UPDATE/DELETE` por `auth.uid()` foram adicionadas em `characters` (e demais tabelas do jogador), e o `UNIQUE` global de `characters.name` virou `UNIQUE (user_id, name)`. Confirmei no banco que as policies estão ativas.
 
-Tabelas afetadas hoje (só têm SELECT, sem write policies):
-`characters`, `expeditions`, `inventory_items`, `currency_transactions`, `orders`, `wallets`, `user_roles`, `raids`, `raid_contributions`, `raid_rewards`, `guilds` (falta INSERT), `guild_members` (falta INSERT/UPDATE), `guild_invites` (falta INSERT), `profiles` (falta INSERT — hoje só o trigger cria).
+O que ainda pode estar travando (a investigar em build):
 
-Bônus encontrado: `characters_name_key` é **UNIQUE global no nome** — dois jogadores nunca poderiam usar o mesmo nome, e o erro genérico apareceria como "falha ao criar herói".
+- Nos logs do worker da última hora não aparece nenhum `POST /_serverFn/...` para `createCharacter` — só GETs (listagem de classes, perfil, etc.). Ou o clique em "Iniciar jornada" não está disparando, ou o botão fica desabilitado, ou o POST está falhando antes de chegar ao servidor.
+- O site publicado (`idle.alphoracubo.com`) pode estar rodando um build anterior; a correção anterior mexeu em código + banco, e sem republish o binário no ar pode não bater com o esquema atual.
 
-## O que fazer
+Plano de execução:
 
-Uma única migração SQL que:
+1. Abrir `/jogo/novo` no preview com Playwright autenticado, escolher classe, preencher nome, clicar "Iniciar jornada" e capturar:
+   - screenshot do estado final,
+   - console/network para ver a resposta do `createCharacter` (status + corpo),
+   - toast de erro, se houver.
+2. Diagnosticar a partir do sinal real:
+   - Se o POST nunca sai → problema de UI/estado (ex.: `classId` não sendo setado, botão preso em `disabled`, mutation não montada). Corrigir em `src/routes/_authenticated/jogo.novo.tsx`.
+   - Se o POST volta com erro de RLS/permissão → checar `requireSupabaseAuth` e o bearer sendo anexado em `src/start.ts` (a sessão do usuário precisa chegar como `Authorization: Bearer <jwt>`).
+   - Se volta erro de FK/campo (ex.: `class_id` inválido) → ajustar o handler em `src/lib/character.functions.ts`.
+   - Se o erro só ocorre em produção → orientar republish após o fix.
+3. Aplicar o fix mínimo que a causa apontar (sem migração nova, a menos que o sinal exija). Rodar o fluxo de novo no preview para confirmar que o herói é criado e a rota redireciona para `/jogo/arena`.
 
-1. **Adiciona policies de escrita** escopadas por `auth.uid()` para todas as tabelas do jogador. Padrão:
-   - `characters`, `expeditions`, `inventory_items`, `currency_transactions`, `orders`, `wallets`, `daily_quests`, `season_progress`, `achievements`, `raid_contributions`, `raid_rewards`: `INSERT/UPDATE/DELETE` só quando `user_id = auth.uid()`.
-   - `profiles`: `INSERT` quando `id = auth.uid()` (o trigger `handle_new_user` roda como SECURITY DEFINER e não precisa, mas evita surpresas futuras).
-   - `guilds`: `INSERT` autenticado (leader_id = auth.uid()); `UPDATE`/`DELETE` já cobertos pelo policy do líder.
-   - `guild_members`: `INSERT` do próprio usuário (`user_id = auth.uid()`); `UPDATE` do líder da guilda.
-   - `guild_invites`: `INSERT` por membro/líder da guilda; `DELETE` pelo convidado (já existe).
-   - `chat_messages`: já OK.
-   - `user_roles`, `admin_audit_logs`: **sem** policies de escrita para usuários — só service_role (mantém segurança; o bootstrap admin e o `handle_new_user` já usam SECURITY DEFINER / admin client).
+## 2) Favicon Aetherfall Online
 
-2. **Remove o UNIQUE global de `characters.name`** e o substitui por unique parcial por usuário (`UNIQUE (user_id, name)`), permitindo que jogadores diferentes usem nomes iguais. O `createCharacter` continua validando comprimento/regex.
+Hoje `public/favicon.ico` é o favicon padrão do Lovable. Vou substituir por uma marca própria do jogo.
 
-3. **Melhora a mensagem de erro** em `createCharacter` para converter violação de policy/unique em um texto amigável ("Nome já usado por você" / "Você já possui um herói ativo").
+Passos:
 
-Nenhuma mudança de UI é necessária — o fluxo atual (`/jogo` → botão "Criar herói" → `/jogo/novo`) volta a funcionar assim que a RLS de INSERT existir.
+1. Gerar `public/favicon.png` com o `imagegen` (modelo `premium`, fundo transparente, 512×512) — marca simbólica em dourado/roxo alinhada ao design system (ex.: cristal/asa estilizada, sem texto, leitura limpa em 16–32 px).
+2. Atualizar `src/routes/__root.tsx` para referenciar `/favicon.png` (`type: "image/png"`) no lugar de `/favicon.ico`.
+3. Remover o arquivo padrão `public/favicon.ico` para não servir o ícone antigo para crawlers que ignoram o `<link>`.
 
-## Verificação
+## Verificação final
 
-Depois de aplicar: entrar como usuário logado, ir em `/jogo/novo`, escolher classe, dar nome, clicar "Iniciar jornada". Herói é criado e a rota redireciona para `/jogo/arena`. Confirmar também que uma expedição pode ser iniciada (mesmo bug de RLS afetaria `expeditions.insert`).
+- Preview: `/jogo/novo` cria herói e redireciona para `/jogo/arena` (screenshot).
+- Aba do navegador mostra o novo favicon (screenshot do preview em desktop).
+- Aviso ao usuário: o favicon só aparece no domínio publicado depois de republicar, e previews sociais têm cache próprio.
