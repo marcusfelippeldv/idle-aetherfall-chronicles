@@ -61,6 +61,39 @@ export type Database = {
           },
         ]
       }
+      achievements: {
+        Row: {
+          description: string
+          metric: string
+          name: string
+          reward_gold: number
+          reward_premium: number
+          slug: string
+          sort_order: number
+          target: number
+        }
+        Insert: {
+          description: string
+          metric: string
+          name: string
+          reward_gold?: number
+          reward_premium?: number
+          slug: string
+          sort_order?: number
+          target: number
+        }
+        Update: {
+          description?: string
+          metric?: string
+          name?: string
+          reward_gold?: number
+          reward_premium?: number
+          slug?: string
+          sort_order?: number
+          target?: number
+        }
+        Relationships: []
+      }
       admin_audit_logs: {
         Row: {
           action: string
@@ -127,6 +160,33 @@ export type Database = {
           name?: string
           portrait_url?: string | null
           slug?: string
+        }
+        Relationships: []
+      }
+      chat_messages: {
+        Row: {
+          body: string
+          channel: string
+          created_at: string
+          id: string
+          user_id: string
+          username: string
+        }
+        Insert: {
+          body: string
+          channel?: string
+          created_at?: string
+          id?: string
+          user_id: string
+          username: string
+        }
+        Update: {
+          body?: string
+          channel?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+          username?: string
         }
         Relationships: []
       }
@@ -206,6 +266,39 @@ export type Database = {
             referencedColumns: ["slug"]
           },
         ]
+      }
+      daily_missions: {
+        Row: {
+          description: string
+          metric: string
+          name: string
+          reward_gold: number
+          reward_xp: number
+          slug: string
+          sort_order: number
+          target: number
+        }
+        Insert: {
+          description: string
+          metric: string
+          name: string
+          reward_gold?: number
+          reward_xp?: number
+          slug: string
+          sort_order?: number
+          target: number
+        }
+        Update: {
+          description?: string
+          metric?: string
+          name?: string
+          reward_gold?: number
+          reward_xp?: number
+          slug?: string
+          sort_order?: number
+          target?: number
+        }
+        Relationships: []
       }
       element_matchups: {
         Row: {
@@ -319,6 +412,65 @@ export type Database = {
             referencedColumns: ["slug"]
           },
         ]
+      }
+      guild_members: {
+        Row: {
+          guild_id: string
+          joined_at: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          guild_id: string
+          joined_at?: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          guild_id?: string
+          joined_at?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guild_members_guild_id_fkey"
+            columns: ["guild_id"]
+            isOneToOne: false
+            referencedRelation: "guilds"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guilds: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          leader_id: string
+          member_count: number
+          name: string
+          tag: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          id?: string
+          leader_id: string
+          member_count?: number
+          name: string
+          tag: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          leader_id?: string
+          member_count?: number
+          name?: string
+          tag?: string
+        }
+        Relationships: []
       }
       heroes: {
         Row: {
@@ -717,6 +869,73 @@ export type Database = {
         }
         Relationships: []
       }
+      user_achievements: {
+        Row: {
+          claimed: boolean
+          completed_at: string | null
+          progress: number
+          slug: string
+          user_id: string
+        }
+        Insert: {
+          claimed?: boolean
+          completed_at?: string | null
+          progress?: number
+          slug: string
+          user_id: string
+        }
+        Update: {
+          claimed?: boolean
+          completed_at?: string | null
+          progress?: number
+          slug?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_achievements_slug_fkey"
+            columns: ["slug"]
+            isOneToOne: false
+            referencedRelation: "achievements"
+            referencedColumns: ["slug"]
+          },
+        ]
+      }
+      user_daily_progress: {
+        Row: {
+          claimed: boolean
+          day: string
+          mission_slug: string
+          progress: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          claimed?: boolean
+          day?: string
+          mission_slug: string
+          progress?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          claimed?: boolean
+          day?: string
+          mission_slug?: string
+          progress?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_daily_progress_mission_slug_fkey"
+            columns: ["mission_slug"]
+            isOneToOne: false
+            referencedRelation: "daily_missions"
+            referencedColumns: ["slug"]
+          },
+        ]
+      }
       user_entities: {
         Row: {
           cooldown_until: string | null
@@ -811,6 +1030,80 @@ export type Database = {
           premium_balance?: number
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      world_boss_hits: {
+        Row: {
+          boss_slug: string
+          created_at: string
+          damage: number
+          id: string
+          user_id: string
+          username: string
+        }
+        Insert: {
+          boss_slug: string
+          created_at?: string
+          damage: number
+          id?: string
+          user_id: string
+          username: string
+        }
+        Update: {
+          boss_slug?: string
+          created_at?: string
+          damage?: number
+          id?: string
+          user_id?: string
+          username?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "world_boss_hits_boss_slug_fkey"
+            columns: ["boss_slug"]
+            isOneToOne: false
+            referencedRelation: "world_bosses"
+            referencedColumns: ["slug"]
+          },
+        ]
+      }
+      world_bosses: {
+        Row: {
+          current_hp: number
+          description: string
+          element: Database["public"]["Enums"]["element"]
+          max_hp: number
+          name: string
+          reset_at: string | null
+          reward_gold: number
+          reward_xp: number
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          current_hp: number
+          description: string
+          element?: Database["public"]["Enums"]["element"]
+          max_hp: number
+          name: string
+          reset_at?: string | null
+          reward_gold?: number
+          reward_xp?: number
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          current_hp?: number
+          description?: string
+          element?: Database["public"]["Enums"]["element"]
+          max_hp?: number
+          name?: string
+          reset_at?: string | null
+          reward_gold?: number
+          reward_xp?: number
+          slug?: string
+          updated_at?: string
         }
         Relationships: []
       }
