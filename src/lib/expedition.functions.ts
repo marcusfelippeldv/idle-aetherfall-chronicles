@@ -87,7 +87,7 @@ export const cancelExpedition = createServerFn({ method: "POST" })
     const character = await loadCharacter(context.supabase, context.userId);
     const { error } = await context.supabase
       .from("expeditions")
-      .update({ status: "abandoned" })
+      .update({ status: "cancelled" })
       .eq("id", data.expeditionId)
       .eq("character_id", character.id)
       .eq("status", "running");
@@ -190,7 +190,7 @@ export const claimExpedition = createServerFn({ method: "POST" })
     await context.supabase
       .from("expeditions")
       .update({
-        status: "completed",
+        status: "claimed",
         claimed_at: new Date().toISOString(),
         generated_xp: totalXp,
         generated_gold: totalGold,
@@ -226,11 +226,14 @@ export const claimExpedition = createServerFn({ method: "POST" })
         .eq("user_id", context.userId);
       await context.supabase.from("currency_transactions").insert({
         user_id: context.userId,
-        currency: "gold",
+        currency_type: "gold",
+        transaction_kind: "credit",
         amount: totalGold,
-        reason: "expedition_reward",
-        reference_id: exp.id,
+        balance_before: newBalance - totalGold,
         balance_after: newBalance,
+        source_type: "expedition_reward",
+        source_id: exp.id,
+        description: "Recompensa de expedição",
       });
     }
 

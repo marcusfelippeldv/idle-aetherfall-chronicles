@@ -130,11 +130,14 @@ export const fightBoss = createServerFn({ method: "POST" })
           .eq("user_id", context.userId);
         await context.supabase.from("currency_transactions").insert({
           user_id: context.userId,
-          currency: "gold",
+          currency_type: "gold",
+          transaction_kind: "credit",
           amount: rewardGold,
-          reason: "boss_reward",
-          reference_id: region.id,
+          balance_before: newBalance - rewardGold,
           balance_after: newBalance,
+          source_type: "boss_reward",
+          source_id: region.id,
+          description: "Recompensa por derrotar chefe",
         });
       }
     } else {

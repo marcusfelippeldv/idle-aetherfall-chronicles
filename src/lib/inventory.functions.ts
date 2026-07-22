@@ -207,11 +207,14 @@ export const sellItem = createServerFn({ method: "POST" })
         .eq("user_id", context.userId);
       await context.supabase.from("currency_transactions").insert({
         user_id: context.userId,
-        currency: "gold",
+        currency_type: "gold",
+        transaction_kind: "credit",
         amount: total,
-        reason: "sell_item",
-        reference_id: data.inventoryItemId,
+        balance_before: newBalance - total,
         balance_after: newBalance,
+        source_type: "sell_item",
+        source_id: data.inventoryItemId,
+        description: "Venda de item",
       });
     }
 
