@@ -23,6 +23,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedJogoRouteImport } from './routes/_authenticated/jogo'
 import { Route as AuthenticatedCriarHeroiRouteImport } from './routes/_authenticated/criar-heroi'
 import { Route as AuthenticatedJogoIndexRouteImport } from './routes/_authenticated/jogo.index'
+import { Route as AuthenticatedJogoEquipeRouteImport } from './routes/_authenticated/jogo.equipe'
 
 const TermosRoute = TermosRouteImport.update({
   id: '/termos',
@@ -93,6 +94,11 @@ const AuthenticatedJogoIndexRoute = AuthenticatedJogoIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedJogoRoute,
 } as any)
+const AuthenticatedJogoEquipeRoute = AuthenticatedJogoEquipeRouteImport.update({
+  id: '/equipe',
+  path: '/equipe',
+  getParentRoute: () => AuthenticatedJogoRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -107,6 +113,7 @@ export interface FileRoutesByFullPath {
   '/termos': typeof TermosRoute
   '/criar-heroi': typeof AuthenticatedCriarHeroiRoute
   '/jogo': typeof AuthenticatedJogoRouteWithChildren
+  '/jogo/equipe': typeof AuthenticatedJogoEquipeRoute
   '/jogo/': typeof AuthenticatedJogoIndexRoute
 }
 export interface FileRoutesByTo {
@@ -121,6 +128,7 @@ export interface FileRoutesByTo {
   '/roadmap': typeof RoadmapRoute
   '/termos': typeof TermosRoute
   '/criar-heroi': typeof AuthenticatedCriarHeroiRoute
+  '/jogo/equipe': typeof AuthenticatedJogoEquipeRoute
   '/jogo': typeof AuthenticatedJogoIndexRoute
 }
 export interface FileRoutesById {
@@ -138,6 +146,7 @@ export interface FileRoutesById {
   '/termos': typeof TermosRoute
   '/_authenticated/criar-heroi': typeof AuthenticatedCriarHeroiRoute
   '/_authenticated/jogo': typeof AuthenticatedJogoRouteWithChildren
+  '/_authenticated/jogo/equipe': typeof AuthenticatedJogoEquipeRoute
   '/_authenticated/jogo/': typeof AuthenticatedJogoIndexRoute
 }
 export interface FileRouteTypes {
@@ -155,6 +164,7 @@ export interface FileRouteTypes {
     | '/termos'
     | '/criar-heroi'
     | '/jogo'
+    | '/jogo/equipe'
     | '/jogo/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -169,6 +179,7 @@ export interface FileRouteTypes {
     | '/roadmap'
     | '/termos'
     | '/criar-heroi'
+    | '/jogo/equipe'
     | '/jogo'
   id:
     | '__root__'
@@ -185,6 +196,7 @@ export interface FileRouteTypes {
     | '/termos'
     | '/_authenticated/criar-heroi'
     | '/_authenticated/jogo'
+    | '/_authenticated/jogo/equipe'
     | '/_authenticated/jogo/'
   fileRoutesById: FileRoutesById
 }
@@ -302,14 +314,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedJogoIndexRouteImport
       parentRoute: typeof AuthenticatedJogoRoute
     }
+    '/_authenticated/jogo/equipe': {
+      id: '/_authenticated/jogo/equipe'
+      path: '/equipe'
+      fullPath: '/jogo/equipe'
+      preLoaderRoute: typeof AuthenticatedJogoEquipeRouteImport
+      parentRoute: typeof AuthenticatedJogoRoute
+    }
   }
 }
 
 interface AuthenticatedJogoRouteChildren {
+  AuthenticatedJogoEquipeRoute: typeof AuthenticatedJogoEquipeRoute
   AuthenticatedJogoIndexRoute: typeof AuthenticatedJogoIndexRoute
 }
 
 const AuthenticatedJogoRouteChildren: AuthenticatedJogoRouteChildren = {
+  AuthenticatedJogoEquipeRoute: AuthenticatedJogoEquipeRoute,
   AuthenticatedJogoIndexRoute: AuthenticatedJogoIndexRoute,
 }
 
