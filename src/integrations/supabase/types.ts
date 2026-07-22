@@ -655,6 +655,7 @@ export type Database = {
         | "season_pass"
         | "founder_pack"
         | "subscription"
+        | "shop_item"
       transaction_kind: "credit" | "debit"
     }
     CompositeTypes: {
@@ -802,6 +803,7 @@ export const Constants = {
         "season_pass",
         "founder_pack",
         "subscription",
+        "shop_item",
       ],
       transaction_kind: ["credit", "debit"],
     },
