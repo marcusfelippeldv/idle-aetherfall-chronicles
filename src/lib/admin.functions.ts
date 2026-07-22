@@ -443,7 +443,7 @@ export const adminUpdateCharacter = createServerFn({ method: "POST" })
 
     const { error } = await supabaseAdmin
       .from("characters")
-      .update(patch)
+      .update(patch as any)
       .eq("id", data.character_id);
     if (error) throw new Error(error.message);
 
