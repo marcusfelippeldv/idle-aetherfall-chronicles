@@ -1,65 +1,70 @@
-# Restaurar menus do jogo e a cena de combate animada
 
-## Diagnóstico
+# Loja, Inventário Ativo e Equipamento do Herói
 
-Durante o "Reboot" para o novo schema (arquétipos, coortes, incursões), duas coisas se perderam:
+Vamos entregar o loop "matar → dropar → equipar → vender/comprar" que dá valor de mercado aos itens.
 
-1. **Menus internos do jogo**: as rotas `loja`, `carteira`, `chat`, `guilda`, `raides`, `diario`, `conquistas`, `temporada` foram apagadas. O header só mostra `Início / Roadmap / Ranking / Painel`, e o Bastião (`/jogo`) só linka pra `criar-heroi` e `arena`.
-2. **Batalha animada (herói vs monstro)**: `src/components/arena/CombatStage.tsx` e `PatrolScene.tsx` ainda existem, mas a nova `jogo.arena.tsx` foi reescrita para mostrar apenas cronômetro + barra de progresso, sem invocar essas cenas.
+## 1. Catálogo de itens (seed)
 
-## O que este plano faz
+Ampliar `public.items` com ~40 itens cobrindo todos os slots (`arma`, `elmo`, `peito`, `pernas`, `pes`, `amuleto`, `anel`, `ofmao`, `consumivel`, `material`) em todas as raridades (`comum` → `mitico`). Escala de bônus por tier + raridade:
 
-Foco só em **UI/apresentação** — sem mexer em schema nem lógica de servidor. Restaurar o que sumiu, adaptando ao novo modelo (Incursão + Ondas 1–10).
+```text
+comum      x1.0    incomum   x1.4    raro      x2.0
+epico      x3.0    lendario  x4.5    mitico    x6.5
+```
 
-### 1. Cena de combate animada na Incursão
+Preços na loja: só `comum`/`incomum` disponíveis para compra direta; raridades altas só via drop ou revenda entre jogadores (fase futura). Todo item ganha `sell_price` (metade do `gold_value`).
 
-Na `src/routes/_authenticated/jogo.arena.tsx`, quando houver `incursion` ativa (status `em_andamento`):
+Schema pequeno via migração:
+- `items`: adicionar `sell_price int not null default 0`, `buyable boolean not null default false`.
+- `characters`: adicionar colunas de slot equipado (`equipped_arma`, `equipped_elmo`, ... `equipped_anel`) como `uuid null` referenciando `inventory(id)` com `on delete set null`. Assim o "equipar" é atômico e a mesma linha de inventário só pode estar num slot.
+- Índice único parcial garantindo que cada `inventory.id` só apareça uma vez entre os slots do herói (via trigger de validação).
 
-- Renderizar `<PatrolScene />` como fundo em paralaxe da zona escolhida.
-- Sobrepor `<CombatStage />` mostrando o herói (sprite baseado no arquétipo) vs o inimigo da onda atual (derivado de `zone_waves` + `enemies`).
-- Derivar a **onda atual** a partir do tempo decorrido / duração total (`ondaAtual = floor(progresso * 10) + 1`), puramente client-side — sem novas queries.
-- Manter HP simulado do herói e do mob com `AnimatedNumber`, floaters de dano periódicos (tick a cada ~1.5s), e "morte" do mob ao virar a onda, avançando para o próximo sprite.
-- Quando `status = concluida`, trocar a cena por um painel de "Vitória — reclamar recompensas" (o `claim` atual continua funcionando).
-- Quando `status = null` (sem incursão), manter o seletor de zonas atual.
+## 2. Drops na Incursão
 
-Ajustes necessários nos componentes existentes (só props/typings):
-- `sprites.tsx`: mapear os 5 arquétipos novos (`guardiao`, `arqueiro_astral`, `arcanista`, `vidente`, `punho_aurora`) para sprites — reaproveitar os existentes por role (`tank/dps/support/healer`).
-- `CombatStage.tsx` / `PatrolScene.tsx`: aceitar `zoneSlug` e `archetypeSlug` como entrada.
+Em `claimIncursion`:
+- Roll determinístico por onda usando o PRNG já existente (`seed = incursion.id + wave`).
+- Tabela de loot por zona (tier 1: comum 70% / incomum 25% / raro 5%; tier 2 sobe; boss da onda 10 sempre dropa 1 item ≥ raro).
+- Cria linhas em `inventory` e devolve resumo `{ gold, xp, drops: [{name, rarity, slot}] }` para exibir no modal de resgate.
 
-Pequena server function opcional (só leitura, sem novo schema): `listZoneWaves(zoneId)` para saber quais mobs aparecem em cada onda e mostrar o sprite/nome certo. Sem isso, cai num placeholder genérico "Inimigo da Onda N".
+## 3. Server functions novas
 
-### 2. Menus do jogo (Bastião)
+`src/lib/shop.functions.ts`:
+- `listShop()` — itens `buyable=true` agrupados por slot.
+- `buyItem({ itemId, quantity })` — debita ouro em `wallets`, insere em `inventory` (com bypass RLS via `supabaseAdmin` após checar `auth.uid()`).
+- `sellItem({ inventoryId, quantity })` — desequipa se necessário, decrementa/remove linha, credita `sell_price`.
 
-Repor uma navegação clara dentro de `/jogo`. Duas partes:
+`src/lib/inventory.functions.ts`:
+- `listInventory()` — join `inventory` + `items`, marca `equippedSlot`.
+- `equipItem({ inventoryId })` — valida slot compatível com o item, desequipa o anterior, grava `characters.equipped_<slot>`.
+- `unequipItem({ slot })`.
 
-**a) Sub-header com abas** dentro do layout `src/routes/_authenticated/jogo.tsx` (que hoje é só `<Outlet />`). Abas visíveis:
-- Incursão (`/jogo/arena`)
-- Carteira (`/jogo/carteira`) — já existe
-- Coorte (`/jogo/coorte`) — nova, placeholder listando membros da `cohorts` do herói
-- Inventário (`/jogo/inventario`) — nova, placeholder lendo `inventory`
-- Ranking (`/jogo/ranking` ou reaproveita `/ranking`)
+Todas usam `requireSupabaseAuth`; escritas críticas usam `supabaseAdmin` após validação do `userId`.
 
-**b) Dropdown "Jogar" no `site-header.tsx`** (quando logado) com os mesmos links, para acesso rápido de qualquer página.
+## 4. UI
 
-As rotas novas (`coorte`, `inventario`) entram como **placeholders funcionais** — listam dados do herói atual (via `getMyCharacter` já existente ou uma leitura simples nova) e explicitam "em construção" para os sistemas ainda não portados (loja, guildas, chat, raides, diário, conquistas, temporada). Sem reconstruir a lógica desses sistemas nesta iteração — eles foram removidos junto com o schema antigo e voltarão em ciclos próprios.
+- `src/routes/_authenticated/jogo.loja.tsx` (nova aba "Loja"): grid por categoria, badge de raridade colorida, preço em ouro, botão Comprar.
+- `src/routes/_authenticated/jogo.inventario.tsx` (reescrita): grid com filtros por slot/raridade, ações Equipar / Desequipar / Vender. Item equipado destacado.
+- `src/routes/_authenticated/jogo.heroi.tsx` (nova aba "Herói"): silhueta com 8 slots ao redor (arma, ofmao, elmo, peito, pernas, pes, amuleto, anel). Clicar num slot abre modal com itens compatíveis do inventário. Mostra atributos totais (base + equipamentos).
+- Sub-header de `jogo.tsx`: adicionar "Herói" e "Loja" às tabs.
+- Componente `RarityBadge` reutilizável com cores: cinza / verde / azul / roxo / dourado / vermelho-cristal.
+- Modal de resgate da Incursão passa a listar drops com raridade.
 
-### 3. Bastião (`jogo.index.tsx`)
+## 5. Cálculo de atributos
 
-Adicionar cards de atalho para as mesmas abas (Incursão / Coorte / Inventário / Carteira / Ranking / Admin), com o herói ativo em destaque no topo. Sem mudar dados carregados.
+Helper `computeCharacterStats(character, equippedItems)` usado tanto no cliente (exibição) quanto no servidor (combate/incursão) — soma bônus dos itens equipados aos atributos base. `formulas.server.ts` (arquivo do PRNG que já existe em `src/lib/game`) é atualizado para receber stats efetivos.
 
-## Fora de escopo (fica pra ciclos seguintes)
+## Detalhes técnicos
 
-- Reconstruir loja, guildas, chat, raides, diário, conquistas, temporada sobre o novo schema — cada um é um sistema próprio.
-- Novos sprites/arte por arquétipo — reaproveitar os existentes.
-- Sons/música.
+- Migração única: adiciona colunas, GRANTs mantidos, políticas RLS existentes cobrem (inventory já é `auth.uid() = user_id`).
+- Seed de itens via `INSERT` na mesma migração (dados determinísticos).
+- Trigger `validate_equip_slots` em `characters` garante integridade: o `inventory.id` referenciado pertence ao mesmo `user_id` e o `items.slot` bate com a coluna.
+- Enum `item_slot` já existe; não muda.
+- Sem mudança nas telas Bastião/Coorte/Ranking.
 
 ## Ordem de execução
 
-1. Ajustar `sprites.tsx` para os novos arquétipos.
-2. Reescrever `jogo.arena.tsx` para embutir `PatrolScene` + `CombatStage` durante a incursão.
-3. Converter `jogo.tsx` num layout com sub-header de abas.
-4. Criar `jogo.coorte.tsx` e `jogo.inventario.tsx` (placeholders com dados reais).
-5. Adicionar dropdown "Jogar" no `site-header.tsx`.
-6. Refrescar `jogo.index.tsx` com cards de atalho.
-
-Confirma que posso seguir com esse escopo (menus + animação de combate, sem reconstruir loja/guilda/etc)?
+1. Migração (colunas + trigger + seed de itens + `sell_price`/`buyable`).
+2. Server functions (shop, inventory) + atualização de `incursion.functions.ts` para drops.
+3. Componente `RarityBadge` + helper de stats.
+4. Rotas `jogo.loja.tsx`, `jogo.heroi.tsx`, reescrita de `jogo.inventario.tsx`.
+5. Atualizar tabs em `jogo.tsx` e modal de resgate em `jogo.arena.tsx`.
