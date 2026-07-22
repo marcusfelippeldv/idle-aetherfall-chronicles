@@ -24,6 +24,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedJogoRouteImport } from './routes/_authenticated/jogo'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/_admin/route'
 import { Route as AuthenticatedJogoNovoRouteImport } from './routes/_authenticated/jogo.novo'
+import { Route as AuthenticatedJogoArenaRouteImport } from './routes/_authenticated/jogo.arena'
 import { Route as AuthenticatedAdminAdminRouteImport } from './routes/_authenticated/_admin/admin'
 import { Route as AuthenticatedAdminAdminJogadoresRouteImport } from './routes/_authenticated/_admin/admin.jogadores'
 
@@ -100,6 +101,11 @@ const AuthenticatedJogoNovoRoute = AuthenticatedJogoNovoRouteImport.update({
   path: '/novo',
   getParentRoute: () => AuthenticatedJogoRoute,
 } as any)
+const AuthenticatedJogoArenaRoute = AuthenticatedJogoArenaRouteImport.update({
+  id: '/arena',
+  path: '/arena',
+  getParentRoute: () => AuthenticatedJogoRoute,
+} as any)
 const AuthenticatedAdminAdminRoute = AuthenticatedAdminAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -126,6 +132,7 @@ export interface FileRoutesByFullPath {
   '/termos': typeof TermosRoute
   '/jogo': typeof AuthenticatedJogoRouteWithChildren
   '/admin': typeof AuthenticatedAdminAdminRouteWithChildren
+  '/jogo/arena': typeof AuthenticatedJogoArenaRoute
   '/jogo/novo': typeof AuthenticatedJogoNovoRoute
   '/admin/jogadores': typeof AuthenticatedAdminAdminJogadoresRoute
 }
@@ -143,6 +150,7 @@ export interface FileRoutesByTo {
   '/termos': typeof TermosRoute
   '/jogo': typeof AuthenticatedJogoRouteWithChildren
   '/admin': typeof AuthenticatedAdminAdminRouteWithChildren
+  '/jogo/arena': typeof AuthenticatedJogoArenaRoute
   '/jogo/novo': typeof AuthenticatedJogoNovoRoute
   '/admin/jogadores': typeof AuthenticatedAdminAdminJogadoresRoute
 }
@@ -163,6 +171,7 @@ export interface FileRoutesById {
   '/_authenticated/_admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/_authenticated/jogo': typeof AuthenticatedJogoRouteWithChildren
   '/_authenticated/_admin/admin': typeof AuthenticatedAdminAdminRouteWithChildren
+  '/_authenticated/jogo/arena': typeof AuthenticatedJogoArenaRoute
   '/_authenticated/jogo/novo': typeof AuthenticatedJogoNovoRoute
   '/_authenticated/_admin/admin/jogadores': typeof AuthenticatedAdminAdminJogadoresRoute
 }
@@ -182,6 +191,7 @@ export interface FileRouteTypes {
     | '/termos'
     | '/jogo'
     | '/admin'
+    | '/jogo/arena'
     | '/jogo/novo'
     | '/admin/jogadores'
   fileRoutesByTo: FileRoutesByTo
@@ -199,6 +209,7 @@ export interface FileRouteTypes {
     | '/termos'
     | '/jogo'
     | '/admin'
+    | '/jogo/arena'
     | '/jogo/novo'
     | '/admin/jogadores'
   id:
@@ -218,6 +229,7 @@ export interface FileRouteTypes {
     | '/_authenticated/_admin'
     | '/_authenticated/jogo'
     | '/_authenticated/_admin/admin'
+    | '/_authenticated/jogo/arena'
     | '/_authenticated/jogo/novo'
     | '/_authenticated/_admin/admin/jogadores'
   fileRoutesById: FileRoutesById
@@ -344,6 +356,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedJogoNovoRouteImport
       parentRoute: typeof AuthenticatedJogoRoute
     }
+    '/_authenticated/jogo/arena': {
+      id: '/_authenticated/jogo/arena'
+      path: '/arena'
+      fullPath: '/jogo/arena'
+      preLoaderRoute: typeof AuthenticatedJogoArenaRouteImport
+      parentRoute: typeof AuthenticatedJogoRoute
+    }
     '/_authenticated/_admin/admin': {
       id: '/_authenticated/_admin/admin'
       path: '/admin'
@@ -391,10 +410,12 @@ const AuthenticatedAdminRouteRouteWithChildren =
   )
 
 interface AuthenticatedJogoRouteChildren {
+  AuthenticatedJogoArenaRoute: typeof AuthenticatedJogoArenaRoute
   AuthenticatedJogoNovoRoute: typeof AuthenticatedJogoNovoRoute
 }
 
 const AuthenticatedJogoRouteChildren: AuthenticatedJogoRouteChildren = {
+  AuthenticatedJogoArenaRoute: AuthenticatedJogoArenaRoute,
   AuthenticatedJogoNovoRoute: AuthenticatedJogoNovoRoute,
 }
 
