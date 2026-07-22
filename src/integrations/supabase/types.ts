@@ -467,6 +467,7 @@ export type Database = {
       }
       items: {
         Row: {
+          allowed_archetypes: string[]
           attack_bonus: number
           buyable: boolean
           created_at: string
@@ -474,6 +475,7 @@ export type Database = {
           description: string
           gold_value: number
           hp_bonus: number
+          icon_url: string | null
           id: string
           mana_bonus: number
           name: string
@@ -485,6 +487,7 @@ export type Database = {
           tier: number
         }
         Insert: {
+          allowed_archetypes?: string[]
           attack_bonus?: number
           buyable?: boolean
           created_at?: string
@@ -492,6 +495,7 @@ export type Database = {
           description?: string
           gold_value?: number
           hp_bonus?: number
+          icon_url?: string | null
           id?: string
           mana_bonus?: number
           name: string
@@ -503,6 +507,7 @@ export type Database = {
           tier?: number
         }
         Update: {
+          allowed_archetypes?: string[]
           attack_bonus?: number
           buyable?: boolean
           created_at?: string
@@ -510,6 +515,7 @@ export type Database = {
           description?: string
           gold_value?: number
           hp_bonus?: number
+          icon_url?: string | null
           id?: string
           mana_bonus?: number
           name?: string

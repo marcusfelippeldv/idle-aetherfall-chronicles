@@ -145,17 +145,35 @@ function InventarioPage() {
             return (
               <Card key={row.id} className={cn("border bg-card/60", cls.border, row.equippedSlot && "ring-1", row.equippedSlot && cls.ring)}>
                 <CardContent className="space-y-3 p-4">
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className={cn("font-display text-base", cls.text)}>{row.item.name}</span>
-                        {row.quantity > 1 && <span className="text-xs text-muted-foreground">×{row.quantity}</span>}
+                  <div className="flex items-start gap-3">
+                    {row.item.icon_url ? (
+                      <img
+                        src={row.item.icon_url}
+                        alt=""
+                        className={cn("h-14 w-14 shrink-0 rounded border bg-background/40 object-contain p-1", cls.border)}
+                      />
+                    ) : (
+                      <div className={cn("h-14 w-14 shrink-0 rounded border bg-background/40", cls.border)} />
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className={cn("truncate font-display text-base", cls.text)}>{row.item.name}</span>
+                            {row.quantity > 1 && <span className="text-xs text-muted-foreground">×{row.quantity}</span>}
+                          </div>
+                          <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                            {SLOT_LABELS[row.item.slot as keyof typeof SLOT_LABELS] ?? row.item.slot} · Tier {row.item.tier}
+                          </p>
+                          {row.item.allowed_archetypes && row.item.allowed_archetypes.length > 0 ? (
+                            <p className="mt-0.5 text-[10px] uppercase tracking-wider text-primary/80">
+                              Exclusivo · {row.item.allowed_archetypes.join(", ")}
+                            </p>
+                          ) : null}
+                        </div>
+                        <RarityBadge rarity={row.item.rarity as Rarity} />
                       </div>
-                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                        {SLOT_LABELS[row.item.slot as keyof typeof SLOT_LABELS] ?? row.item.slot} · Tier {row.item.tier}
-                      </p>
                     </div>
-                    <RarityBadge rarity={row.item.rarity as Rarity} />
                   </div>
 
                   <div className="flex flex-wrap gap-1 text-[10px] text-muted-foreground">
@@ -187,6 +205,7 @@ function InventarioPage() {
                   </div>
                 </CardContent>
               </Card>
+
             );
           })}
         </div>

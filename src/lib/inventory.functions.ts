@@ -33,8 +33,11 @@ export type InventoryRow = {
     speed_bonus: number;
     gold_value: number;
     sell_price: number;
+    icon_url: string | null;
+    allowed_archetypes: string[] | null;
   };
 };
+
 
 export const listInventory = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -43,7 +46,7 @@ export const listInventory = createServerFn({ method: "GET" })
       context.supabase
         .from("inventory")
         .select(
-          "id, quantity, items(id, slug, name, description, slot, tier, rarity, attack_bonus, defense_bonus, hp_bonus, mana_bonus, speed_bonus, gold_value, sell_price)",
+          "id, quantity, items(id, slug, name, description, slot, tier, rarity, attack_bonus, defense_bonus, hp_bonus, mana_bonus, speed_bonus, gold_value, sell_price, icon_url, allowed_archetypes)",
         )
         .eq("user_id", context.userId)
         .order("created_at", { ascending: false }),
@@ -85,7 +88,7 @@ export const equipItem = createServerFn({ method: "POST" })
 
     const { data: inv } = await supabaseAdmin
       .from("inventory")
-      .select("id, user_id, items(slot)")
+      .select("id, user_id, items(slot, name, allowed_archetypes)")
       .eq("id", data.inventoryId)
       .maybeSingle();
     if (!inv || inv.user_id !== context.userId) throw new Error("Item não encontrado.");
@@ -97,11 +100,20 @@ export const equipItem = createServerFn({ method: "POST" })
 
     const { data: char } = await supabaseAdmin
       .from("characters")
-      .select("id, " + EQUIP_SLOTS.map((s) => EQUIP_COLS[s]).join(", "))
+      .select("id, archetypes(slug), " + EQUIP_SLOTS.map((s) => EQUIP_COLS[s]).join(", "))
       .eq("user_id", context.userId)
       .eq("is_active", true)
       .maybeSingle();
     if (!char) throw new Error("Nenhum herói ativo.");
+
+    const allowed: string[] = item?.allowed_archetypes ?? [];
+    if (allowed.length > 0) {
+      const arche: any = Array.isArray((char as any).archetypes) ? (char as any).archetypes[0] : (char as any).archetypes;
+      if (!arche || !allowed.includes(arche.slug)) {
+        throw new Error(`${item?.name ?? "Este item"} é exclusivo de outro arquétipo.`);
+      }
+    }
+
 
     // Se este inventoryId já está em outro slot, limpa-o antes.
     const patch: any = {};
