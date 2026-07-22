@@ -13,7 +13,7 @@ import { listClasses } from "@/lib/catalog.functions";
 import { createCharacter } from "@/lib/character.functions";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/_authenticated/jogo/novo")({
+export const Route = createFileRoute("/_authenticated/criar-heroi")({
   head: () => ({
     meta: [
       { title: "Criar herói — Aetherfall Online" },
