@@ -130,7 +130,7 @@ export const createProtagonist = createServerFn({ method: "POST" })
 
     const { data: classes, error: clsErr } = await context.supabase
       .from("classes")
-      .select("slug, base_hp, base_mana, base_atk, base_def, base_spd")
+      .select("slug, role, base_hp, base_mana, base_atk, base_def, base_spd")
       .in("slug", allSlugs)
       .eq("tier", 1);
     if (clsErr) throw new Error(clsErr.message);
@@ -155,9 +155,10 @@ export const createProtagonist = createServerFn({ method: "POST" })
         def: c.base_def,
         spd: c.base_spd,
         awakening_energy: 0,
-        priorities: [],
+        priorities: defaultPrioritiesForRole(c.role) as unknown as Database["public"]["Tables"]["heroes"]["Insert"]["priorities"],
       };
     });
+
 
     const { data: inserted, error: insErr } = await context.supabase
       .from("heroes")
