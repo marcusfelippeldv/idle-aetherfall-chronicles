@@ -15,6 +15,8 @@ import {
   Package,
   MapPin,
   Skull,
+  Award,
+  CalendarDays,
 } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -90,6 +92,15 @@ function ArenaPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 md:px-6 md:py-14">
       <div className="mb-4 flex flex-wrap justify-end gap-2">
+        <Button asChild variant="outline" size="sm">
+          <Link to="/jogo/diario"><CalendarDays className="mr-2 h-4 w-4" /> Diário</Link>
+        </Button>
+        <Button asChild variant="outline" size="sm">
+          <Link to="/jogo/conquistas"><Award className="mr-2 h-4 w-4" /> Conquistas</Link>
+        </Button>
+        <Button asChild variant="outline" size="sm">
+          <Link to="/jogo/temporada"><Sparkles className="mr-2 h-4 w-4" /> Temporada</Link>
+        </Button>
         <Button asChild variant="outline" size="sm">
           <Link to="/jogo/loja"><Gem className="mr-2 h-4 w-4" /> Loja</Link>
         </Button>

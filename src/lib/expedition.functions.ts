@@ -261,6 +261,23 @@ export const claimExpedition = createServerFn({ method: "POST" })
       }
     }
 
+    // Hooks: missões diárias, conquistas e xp de temporada.
+    try {
+      const { trackProgress, checkAchievements, addSeasonXp } = await import(
+        "@/lib/progression.server"
+      );
+      await trackProgress(context.supabase, context.userId, {
+        kind: "expedition_completed",
+        gold: totalGold,
+        leveledUp: leveled.leveledUp,
+        newLevel: leveled.level,
+      });
+      await addSeasonXp(context.supabase, context.userId, Math.floor(totalXp / 2));
+      await checkAchievements(context.supabase, context.userId);
+    } catch (e) {
+      console.error("progression hooks (expedition)", e);
+    }
+
     return {
       alreadyClaimed: false,
       xp: totalXp,

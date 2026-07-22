@@ -1,16 +1,18 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { z } from "zod";
 
 import { listRanking } from "@/lib/catalog.functions";
 import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Trophy } from "lucide-react";
 
-const rankingQuery = queryOptions({
-  queryKey: ["public", "ranking"],
-  queryFn: () => listRanking(),
+const searchSchema = z.object({
+  sort: z.enum(["power", "level", "bosses"]).catch("power"),
 });
 
 export const Route = createFileRoute("/ranking")({
+  validateSearch: (s) => searchSchema.parse(s),
   head: () => ({
     meta: [
       { title: "Ranking — Aetherfall Online" },
@@ -26,12 +28,24 @@ export const Route = createFileRoute("/ranking")({
       },
     ],
   }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(rankingQuery),
   component: RankingPage,
 });
 
 function RankingPage() {
-  const { data: ranking } = useSuspenseQuery(rankingQuery);
+  const { sort } = Route.useSearch();
+  const navigate = useNavigate({ from: Route.fullPath });
+  const rankingQ = useQuery({
+    queryKey: ["public", "ranking", sort],
+    queryFn: () => listRanking({ data: { sortBy: sort } }),
+  });
+  const ranking = rankingQ.data ?? [];
+
+  const valueOf = (r: any) => {
+    if (sort === "level") return `Nv. ${r.level}`;
+    if (sort === "bosses") return `${r.bossesCount} chefes`;
+    return r.power.toLocaleString("pt-BR");
+  };
+
   return (
     <div className="mx-auto max-w-3xl px-4 py-16 md:px-6 md:py-24">
       <div className="text-center">
@@ -40,17 +54,28 @@ function RankingPage() {
         </div>
         <h1 className="mt-4 font-display text-4xl md:text-5xl">Ranking Global</h1>
         <p className="mt-3 text-muted-foreground">
-          Os heróis mais poderosos do reino. Atualizado a cada expedição
-          concluída.
+          Os heróis mais poderosos do reino. Atualizado a cada expedição concluída.
         </p>
       </div>
 
-      <Card className="mt-10 border-border/60 bg-card/60">
+      <Tabs
+        value={sort}
+        onValueChange={(v) => navigate({ search: { sort: v as any } })}
+        className="mt-8"
+      >
+        <TabsList className="grid w-full grid-cols-3 max-w-md mx-auto">
+          <TabsTrigger value="power">Poder</TabsTrigger>
+          <TabsTrigger value="level">Nível</TabsTrigger>
+          <TabsTrigger value="bosses">Chefes</TabsTrigger>
+        </TabsList>
+      </Tabs>
+
+      <Card className="mt-6 border-border/60 bg-card/60">
         <CardContent className="p-0">
           {ranking.length === 0 ? (
             <div className="py-16 text-center text-sm text-muted-foreground">
-              Ainda não há heróis registrados. Seja o primeiro a criar sua
-              conta e reservar seu lugar no topo.
+              Ainda não há heróis registrados. Seja o primeiro a criar sua conta e
+              reservar seu lugar no topo.
             </div>
           ) : (
             <ul className="divide-y divide-border/60">
@@ -74,12 +99,11 @@ function RankingPage() {
                   <div className="flex-1">
                     <div className="font-medium">{r.name}</div>
                     <div className="text-xs text-muted-foreground">
-                      {r.className ?? "—"} · Nível {r.level}
+                      {r.className ?? "—"} · Nível {r.level} · Poder{" "}
+                      {r.power.toLocaleString("pt-BR")}
                     </div>
                   </div>
-                  <div className="font-display text-primary">
-                    {r.power.toLocaleString("pt-BR")}
-                  </div>
+                  <div className="font-display text-primary">{valueOf(r)}</div>
                 </li>
               ))}
             </ul>

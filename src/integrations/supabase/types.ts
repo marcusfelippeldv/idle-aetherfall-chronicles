@@ -14,6 +14,83 @@ export type Database = {
   }
   public: {
     Tables: {
+      achievement_templates: {
+        Row: {
+          active: boolean
+          category: string
+          created_at: string
+          description: string | null
+          goal_type: string
+          id: string
+          order_index: number
+          reward_gold: number
+          reward_premium: number
+          slug: string
+          threshold: number
+          title: string
+        }
+        Insert: {
+          active?: boolean
+          category?: string
+          created_at?: string
+          description?: string | null
+          goal_type: string
+          id?: string
+          order_index?: number
+          reward_gold?: number
+          reward_premium?: number
+          slug: string
+          threshold: number
+          title: string
+        }
+        Update: {
+          active?: boolean
+          category?: string
+          created_at?: string
+          description?: string | null
+          goal_type?: string
+          id?: string
+          order_index?: number
+          reward_gold?: number
+          reward_premium?: number
+          slug?: string
+          threshold?: number
+          title?: string
+        }
+        Relationships: []
+      }
+      achievements: {
+        Row: {
+          claimed_at: string | null
+          id: string
+          template_id: string
+          unlocked_at: string
+          user_id: string
+        }
+        Insert: {
+          claimed_at?: string | null
+          id?: string
+          template_id: string
+          unlocked_at?: string
+          user_id: string
+        }
+        Update: {
+          claimed_at?: string | null
+          id?: string
+          template_id?: string
+          unlocked_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "achievements_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "achievement_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_audit_logs: {
         Row: {
           action: string
@@ -204,6 +281,92 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      daily_quest_templates: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string | null
+          goal_type: string
+          id: string
+          reward_gold: number
+          reward_season_xp: number
+          reward_xp: number
+          slug: string
+          target: number
+          title: string
+          weight: number
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          goal_type: string
+          id?: string
+          reward_gold?: number
+          reward_season_xp?: number
+          reward_xp?: number
+          slug: string
+          target: number
+          title: string
+          weight?: number
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          goal_type?: string
+          id?: string
+          reward_gold?: number
+          reward_season_xp?: number
+          reward_xp?: number
+          slug?: string
+          target?: number
+          title?: string
+          weight?: number
+        }
+        Relationships: []
+      }
+      daily_quests: {
+        Row: {
+          claimed_at: string | null
+          created_at: string
+          id: string
+          progress: number
+          quest_date: string
+          target: number
+          template_id: string
+          user_id: string
+        }
+        Insert: {
+          claimed_at?: string | null
+          created_at?: string
+          id?: string
+          progress?: number
+          quest_date?: string
+          target: number
+          template_id: string
+          user_id: string
+        }
+        Update: {
+          claimed_at?: string | null
+          created_at?: string
+          id?: string
+          progress?: number
+          quest_date?: string
+          target?: number
+          template_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_quests_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "daily_quest_templates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       enemies: {
         Row: {
@@ -578,6 +741,119 @@ export type Database = {
           order_index?: number
           required_level?: number
           slug?: string
+        }
+        Relationships: []
+      }
+      season_progress: {
+        Row: {
+          claimed_levels: number[]
+          id: string
+          season_id: string
+          season_xp: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          claimed_levels?: number[]
+          id?: string
+          season_id: string
+          season_xp?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          claimed_levels?: number[]
+          id?: string
+          season_id?: string
+          season_xp?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "season_progress_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "seasons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      season_rewards: {
+        Row: {
+          id: string
+          level: number
+          reward_gold: number
+          reward_item_id: string | null
+          reward_premium: number
+          season_id: string
+          xp_required: number
+        }
+        Insert: {
+          id?: string
+          level: number
+          reward_gold?: number
+          reward_item_id?: string | null
+          reward_premium?: number
+          season_id: string
+          xp_required: number
+        }
+        Update: {
+          id?: string
+          level?: number
+          reward_gold?: number
+          reward_item_id?: string | null
+          reward_premium?: number
+          season_id?: string
+          xp_required?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "season_rewards_reward_item_id_fkey"
+            columns: ["reward_item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "season_rewards_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "seasons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seasons: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string | null
+          ends_at: string
+          id: string
+          name: string
+          slug: string
+          starts_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          ends_at: string
+          id?: string
+          name: string
+          slug: string
+          starts_at: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          ends_at?: string
+          id?: string
+          name?: string
+          slug?: string
+          starts_at?: string
         }
         Relationships: []
       }
