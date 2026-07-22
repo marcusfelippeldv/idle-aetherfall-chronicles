@@ -36,9 +36,9 @@ export const equipItem = createServerFn({ method: "POST" })
     if (!inv?.items) throw new Error("Item inválido.");
     const slot = inv.items.slot as EquipCol;
     if (!EQUIP_COLS.includes(slot)) throw new Error("Este item não é equipável.");
-    const col = `equipped_${slot}`;
+    const update = equipUpdate(slot, inv.id);
     const { error: uErr } = await context.supabase
-      .from("heroes").update({ [col]: inv.id }).eq("id", data.heroId).eq("user_id", context.userId);
+      .from("heroes").update(update).eq("id", data.heroId).eq("user_id", context.userId);
     if (uErr) throw new Error(uErr.message);
     return { ok: true };
   });
@@ -49,9 +49,22 @@ export const unequipItem = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => unequipSchema.parse(d))
   .handler(async ({ data, context }) => {
-    const col = `equipped_${data.slot}`;
+    const update = equipUpdate(data.slot, null);
     const { error } = await context.supabase
-      .from("heroes").update({ [col]: null }).eq("id", data.heroId).eq("user_id", context.userId);
+      .from("heroes").update(update).eq("id", data.heroId).eq("user_id", context.userId);
     if (error) throw new Error(error.message);
+
+function equipUpdate(slot: EquipCol, value: string | null) {
+  switch (slot) {
+    case "arma": return { equipped_arma: value };
+    case "ofmao": return { equipped_ofmao: value };
+    case "elmo": return { equipped_elmo: value };
+    case "peito": return { equipped_peito: value };
+    case "pernas": return { equipped_pernas: value };
+    case "pes": return { equipped_pes: value };
+    case "amuleto": return { equipped_amuleto: value };
+    case "anel": return { equipped_anel: value };
+  }
+}
     return { ok: true };
   });
