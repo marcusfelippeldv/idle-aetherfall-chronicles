@@ -327,6 +327,7 @@ function ActiveExpeditionCard({ expedition, onClaim, onCancel, loading, classSlu
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
+        <PatrolScene regionSlug={region?.slug} classSlug={classSlug} progress={pct / 100} />
         <Progress value={pct} className="h-2" />
         <p className="text-sm text-muted-foreground">
           Seu herói explora <strong className="text-foreground">{region?.name}</strong> por {expedition.duration_minutes} minutos.
