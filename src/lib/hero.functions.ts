@@ -54,7 +54,7 @@ export const getMyHeroes = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("heroes")
-      .select("id, name, class_slug, is_protagonist, level, hp, mana, atk, def, spd, awakening_energy")
+      .select("id, name, class_slug, is_protagonist, level, hp, mana, atk, def, spd, awakening_energy, priorities")
       .eq("user_id", context.userId)
       .order("is_protagonist", { ascending: false })
       .order("created_at", { ascending: true });
