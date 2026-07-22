@@ -48,6 +48,26 @@
   --color-arcane-foreground: var(--arcane-foreground);
   --color-stone: var(--stone);
   --color-ember: var(--ember);
+
+  /* Paleta Éter Nobre (landing) */
+  --color-aether-night: #0B1024;
+  --color-aether-violet-deep: #1B1147;
+  --color-aether-violet: #6A3DF5;
+  --color-aether-violet-hi: #7B52F7;
+  --color-aether-violet-lo: #4C28B5;
+  --color-aether-gold: #F4C15A;
+
+  --font-display-syne: "Syne", "Cinzel", ui-serif, Georgia, serif;
+  --font-jakarta: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+@keyframes aether-halo {
+  0%, 100% { filter: drop-shadow(0 0 12px rgba(244,193,90,0.25)); }
+  50% { filter: drop-shadow(0 0 28px rgba(244,193,90,0.55)); }
+}
+
+@utility aether-halo {
+  animation: aether-halo 4.5s ease-in-out infinite;
 }
 
 /* Único tema: fantasia escura. */
