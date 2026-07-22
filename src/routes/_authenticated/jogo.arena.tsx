@@ -89,7 +89,18 @@ function ArenaPage() {
   }
 
   const character = characterQ.data?.character;
-  if (!character) return <Navigate to="/criar-heroi" replace />;
+  if (!character) {
+    if (characterQ.isFetching) {
+      return (
+        <div className="mx-auto max-w-6xl px-4 py-10 md:px-6 md:py-14 space-y-4">
+          <Skeleton className="h-40 w-full" />
+          <Skeleton className="h-96 w-full" />
+        </div>
+      );
+    }
+    return <Navigate to="/criar-heroi" replace />;
+  }
+
 
   const expedition = characterQ.data?.expedition ?? null;
   const wallet = profileQ.data?.wallet;
