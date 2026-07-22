@@ -57,9 +57,11 @@ export type Database = {
           created_at: string
           current_hp: number
           current_xp: number
+          defeated_bosses: string[]
           defense: number
           id: string
           is_active: boolean
+          last_combat: Json | null
           level: number
           max_hp: number
           name: string
@@ -74,9 +76,11 @@ export type Database = {
           created_at?: string
           current_hp?: number
           current_xp?: number
+          defeated_bosses?: string[]
           defense?: number
           id?: string
           is_active?: boolean
+          last_combat?: Json | null
           level?: number
           max_hp?: number
           name: string
@@ -91,9 +95,11 @@ export type Database = {
           created_at?: string
           current_hp?: number
           current_xp?: number
+          defeated_bosses?: string[]
           defense?: number
           id?: string
           is_active?: boolean
+          last_combat?: Json | null
           level?: number
           max_hp?: number
           name?: string
@@ -266,6 +272,7 @@ export type Database = {
           id: string
           region_id: string
           result_data: Json | null
+          rng_seed: number
           started_at: string
           status: Database["public"]["Enums"]["expedition_status"]
         }
@@ -279,6 +286,7 @@ export type Database = {
           id?: string
           region_id: string
           result_data?: Json | null
+          rng_seed?: number
           started_at?: string
           status?: Database["public"]["Enums"]["expedition_status"]
         }
@@ -292,6 +300,7 @@ export type Database = {
           id?: string
           region_id?: string
           result_data?: Json | null
+          rng_seed?: number
           started_at?: string
           status?: Database["public"]["Enums"]["expedition_status"]
         }
