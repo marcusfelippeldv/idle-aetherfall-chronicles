@@ -53,6 +53,8 @@ export const unequipItem = createServerFn({ method: "POST" })
     const { error } = await context.supabase
       .from("heroes").update(update).eq("id", data.heroId).eq("user_id", context.userId);
     if (error) throw new Error(error.message);
+    return { ok: true };
+  });
 
 function equipUpdate(slot: EquipCol, value: string | null) {
   switch (slot) {
@@ -66,5 +68,3 @@ function equipUpdate(slot: EquipCol, value: string | null) {
     case "anel": return { equipped_anel: value };
   }
 }
-    return { ok: true };
-  });
