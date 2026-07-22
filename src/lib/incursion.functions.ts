@@ -193,7 +193,7 @@ export const claimIncursion = createServerFn({ method: "POST" })
       const { data: pool } = await supabaseAdmin
         .from("items")
         .select("id, name, slot, rarity")
-        .eq("rarity", rarity)
+        .eq("rarity", rarity as any)
         .lte("tier", maxTier)
         .limit(50);
       if (!pool || pool.length === 0) continue;
