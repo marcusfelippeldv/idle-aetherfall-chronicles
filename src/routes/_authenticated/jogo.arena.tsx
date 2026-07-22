@@ -17,6 +17,8 @@ import {
   Skull,
   Award,
   CalendarDays,
+  MessageCircle,
+  Flame,
 } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
