@@ -43,6 +43,9 @@ import {
   unequipItem,
 } from "@/lib/inventory.functions";
 import { fightBoss } from "@/lib/combat.functions";
+import { CombatStage } from "@/components/arena/CombatStage";
+import { PatrolScene } from "@/components/arena/PatrolScene";
+import { AnimatedNumber } from "@/components/ui/animated-number";
 
 export const Route = createFileRoute("/_authenticated/jogo/arena")({
   head: () => ({
