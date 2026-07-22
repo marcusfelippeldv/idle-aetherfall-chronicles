@@ -89,6 +89,14 @@ function ArenaPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 md:px-6 md:py-14">
+      <div className="mb-4 flex flex-wrap justify-end gap-2">
+        <Button asChild variant="outline" size="sm">
+          <Link to="/jogo/loja"><Gem className="mr-2 h-4 w-4" /> Loja</Link>
+        </Button>
+        <Button asChild variant="outline" size="sm">
+          <Link to="/jogo/carteira"><Coins className="mr-2 h-4 w-4" /> Carteira</Link>
+        </Button>
+      </div>
       <HeroHeader character={character} wallet={wallet} />
 
       <Tabs defaultValue="expedicoes" className="mt-8">
