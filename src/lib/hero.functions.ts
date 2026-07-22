@@ -3,11 +3,14 @@ import { z } from "zod";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { defaultPrioritiesForRole } from "./combat/defaults";
+import type { PriorityRule } from "./combat/types";
 
 const createSchema = z.object({
   name: z.string().trim().min(2).max(24),
   classSlug: z.string().trim().min(2).max(40),
 });
+
 
 const COMPANION_MAP: Record<string, string[]> = {
   guardiao: ["vidente", "arqueiro", "arcanista"],
