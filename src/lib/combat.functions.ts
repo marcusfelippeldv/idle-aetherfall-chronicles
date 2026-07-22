@@ -168,5 +168,18 @@ export const fightBoss = createServerFn({ method: "POST" })
       .update({ last_combat: combatLog })
       .eq("id", character.id);
 
+    if (result.winner === "hero") {
+      try {
+        const { trackProgress, checkAchievements, addSeasonXp } = await import(
+          "@/lib/progression.server"
+        );
+        await trackProgress(context.supabase, context.userId, { kind: "boss_killed" });
+        await addSeasonXp(context.supabase, context.userId, Math.max(50, Math.floor(rewardXp / 2)));
+        await checkAchievements(context.supabase, context.userId);
+      } catch (e) {
+        console.error("progression hooks (boss)", e);
+      }
+    }
+
     return combatLog;
   });
