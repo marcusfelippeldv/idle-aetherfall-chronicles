@@ -70,26 +70,39 @@ export const listProducts = createServerFn({ method: "GET" }).handler(
   },
 );
 
-export const listRanking = createServerFn({ method: "GET" }).handler(
-  async () => {
+export const listRanking = createServerFn({ method: "GET" })
+  .inputValidator((input?: { sortBy?: "power" | "level" | "bosses" }) => {
+    const v = input?.sortBy ?? "power";
+    if (!["power", "level", "bosses"].includes(v))
+      throw new Error("sortBy inválido");
+    return { sortBy: v as "power" | "level" | "bosses" };
+  })
+  .handler(async ({ data }) => {
     const supabase = serverPublicClient();
-    const { data, error } = await supabase
+    const sortBy = data?.sortBy ?? "power";
+    let query = supabase
       .from("characters")
-      .select(
-        "id, name, level, power, classes(name)",
-      )
-      .order("power", { ascending: false })
-      .order("level", { ascending: false })
+      .select("id, name, level, power, defeated_bosses, classes(name)")
       .limit(50);
+    if (sortBy === "level") {
+      query = query.order("level", { ascending: false }).order("power", { ascending: false });
+    } else {
+      query = query.order("power", { ascending: false }).order("level", { ascending: false });
+    }
+    const { data: rows, error } = await query;
     if (error) throw new Error(error.message);
-    return (data ?? []).map((c) => ({
+    let mapped = (rows ?? []).map((c) => ({
       id: c.id,
       name: c.name,
       level: c.level,
       power: c.power,
+      bossesCount: Array.isArray(c.defeated_bosses) ? c.defeated_bosses.length : 0,
       className:
         (c.classes as { name: string } | { name: string }[] | null) &&
         (Array.isArray(c.classes) ? c.classes[0]?.name : c.classes?.name),
     }));
-  },
-);
+    if (sortBy === "bosses") {
+      mapped = mapped.sort((a, b) => b.bossesCount - a.bossesCount || b.power - a.power);
+    }
+    return mapped;
+  });
