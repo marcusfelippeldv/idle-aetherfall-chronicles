@@ -298,7 +298,7 @@ function ExpeditionsPanel({ character, expedition, classSlug }: { character: any
   );
 }
 
-function ActiveExpeditionCard({ expedition, onClaim, onCancel, loading }: { expedition: any; onClaim: () => void; onCancel: () => void; loading: boolean }) {
+function ActiveExpeditionCard({ expedition, onClaim, onCancel, loading, classSlug }: { expedition: any; onClaim: () => void; onCancel: () => void; loading: boolean; classSlug?: string }) {
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 1000);
