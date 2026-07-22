@@ -150,33 +150,29 @@ export function simulate(
           applyDamage(t, dmg);
           evTargets.push({ side: t.side, index: t.index, name: t.name, damage: dmg, healing: 0, hpAfter: t.hp });
         }
-      } else if (choice.ability.slug === "vidente_s1" || (choice.ability.kind === "skill" && choice.ability.target === "lowest_hp_ally" && choice.ability.slug.startsWith("guardiao"))) {
-        // Healing / support fallback -> treat as heal
-        if (choice.ability.slug === "vidente_s1") {
-          for (const t of targets) {
-            const heal = Math.round(actor.atk * choice.ability.power);
-            t.hp = Math.min(t.maxHp, t.hp + heal);
-            evTargets.push({ side: t.side, index: t.index, name: t.name, damage: 0, healing: heal, hpAfter: t.hp });
-          }
-          actor.mana = Math.max(0, actor.mana - choice.ability.manaCost);
-          actor.awakening = Math.min(100, actor.awakening + 10);
-        } else {
-          // guardiao_s1: shield ally (small heal + defending flag)
-          for (const t of targets) {
-            const heal = Math.round(actor.atk * 0.5);
-            t.hp = Math.min(t.maxHp, t.hp + heal);
-            t.defending = true;
-            evTargets.push({ side: t.side, index: t.index, name: t.name, damage: 0, healing: heal, hpAfter: t.hp });
-          }
-          actor.mana = Math.max(0, actor.mana - choice.ability.manaCost);
-          actor.awakening = Math.min(100, actor.awakening + 10);
+      } else if (choice.ability.slug === "vidente_s1") {
+        for (const t of targets) {
+          const heal = Math.round(actor.atk * choice.ability.power);
+          t.hp = Math.min(t.maxHp, t.hp + heal);
+          evTargets.push({ side: t.side, index: t.index, name: t.name, damage: 0, healing: heal, hpAfter: t.hp });
         }
-      } else if (choice.ability.kind === "skill" && choice.ability.target === "self") {
-        // Self buff: small heal + awakening gain
+        actor.mana = Math.max(0, actor.mana - choice.ability.manaCost);
+        actor.awakening = Math.min(100, actor.awakening + 10);
+      } else if (choice.ability.slug === "guardiao_s1") {
+        for (const t of targets) {
+          const heal = Math.round(actor.atk * 0.5);
+          t.hp = Math.min(t.maxHp, t.hp + heal);
+          t.defending = true;
+          evTargets.push({ side: t.side, index: t.index, name: t.name, damage: 0, healing: heal, hpAfter: t.hp });
+        }
+        actor.mana = Math.max(0, actor.mana - choice.ability.manaCost);
+        actor.awakening = Math.min(100, actor.awakening + 10);
+      } else if (choice.ability.target === "self" && (choice.ability.kind === "skill_1" || choice.ability.kind === "skill_2")) {
         actor.hp = Math.min(actor.maxHp, actor.hp + Math.round(actor.atk * choice.ability.power));
         actor.mana = Math.max(0, actor.mana - choice.ability.manaCost);
         actor.awakening = Math.min(100, actor.awakening + 20);
         evTargets.push({ side: actor.side, index: actor.index, name: actor.name, damage: 0, healing: Math.round(actor.atk * choice.ability.power), hpAfter: actor.hp });
+
       } else {
         // Damage skill or basic
         actor.mana = Math.max(0, actor.mana - choice.ability.manaCost);
