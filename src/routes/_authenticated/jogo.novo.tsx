@@ -1,6 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
-
-import { NewCharacterPage } from "./criar-heroi";
+import { createFileRoute, Navigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_authenticated/jogo/novo")({
   head: () => ({
@@ -9,5 +7,5 @@ export const Route = createFileRoute("/_authenticated/jogo/novo")({
       { name: "robots", content: "noindex" },
     ],
   }),
-  component: NewCharacterPage,
+  component: () => <Navigate to="/criar-heroi" replace />,
 });
