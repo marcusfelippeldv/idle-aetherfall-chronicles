@@ -251,7 +251,7 @@ function ExpeditionsPanel({ character, expedition, classSlug }: { character: any
   });
 
   if (expedition) {
-    return <ActiveExpeditionCard expedition={expedition} onClaim={() => claimMut.mutate(expedition.id)} onCancel={() => cancelMut.mutate(expedition.id)} loading={claimMut.isPending || cancelMut.isPending} />;
+    return <ActiveExpeditionCard expedition={expedition} classSlug={classSlug} onClaim={() => claimMut.mutate(expedition.id)} onCancel={() => cancelMut.mutate(expedition.id)} loading={claimMut.isPending || cancelMut.isPending} />;
   }
 
   const durations = [1, 5, 15, 30];
