@@ -25,6 +25,7 @@ import { cn } from "@/lib/utils";
 import { getMyCharacter } from "@/lib/character.functions";
 import { listZones } from "@/lib/catalog.functions";
 import { startIncursion, claimIncursion, cancelIncursion } from "@/lib/incursion.functions";
+import { PatrolScene } from "@/components/arena/PatrolScene";
 
 export const Route = createFileRoute("/_authenticated/jogo/arena")({
   head: () => ({
@@ -70,17 +71,11 @@ function ArenaPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 md:px-6 md:py-14">
-      <div className="mb-4 flex flex-wrap justify-end gap-2">
-        <Button asChild variant="outline" size="sm">
-          <Link to="/jogo/carteira"><Coins className="mr-2 h-4 w-4" /> Carteira</Link>
-        </Button>
-      </div>
-
       <HeroHeader character={character} wallet={wallet} />
 
       <div className="mt-8">
         {incursion ? (
-          <ActiveIncursionCard incursion={incursion} />
+          <ActiveIncursionCard incursion={incursion} character={character} />
         ) : (
           <ZoneSelector characterLevel={character.level} />
         )}
@@ -194,7 +189,7 @@ function ZoneSelector({ characterLevel }: { characterLevel: number }) {
   );
 }
 
-function ActiveIncursionCard({ incursion }: { incursion: any }) {
+function ActiveIncursionCard({ incursion, character }: { incursion: any; character: any }) {
   const qc = useQueryClient();
   const claimFn = useServerFn(claimIncursion);
   const cancelFn = useServerFn(cancelIncursion);
@@ -205,9 +200,10 @@ function ActiveIncursionCard({ incursion }: { incursion: any }) {
   }, []);
 
   const zone = Array.isArray(incursion.zones) ? incursion.zones[0] : incursion.zones;
+  const arche = Array.isArray(character.archetypes) ? character.archetypes[0] : character.archetypes;
   const endMs = new Date(incursion.expected_end_at).getTime();
   const startMs = new Date(incursion.started_at).getTime();
-  const total = endMs - startMs;
+  const total = Math.max(1, endMs - startMs);
   const elapsed = Math.min(total, now - startMs);
   const remainingS = Math.max(0, Math.ceil((endMs - now) / 1000));
   const pct = Math.min(100, (elapsed / total) * 100);
@@ -248,13 +244,28 @@ function ActiveIncursionCard({ incursion }: { incursion: any }) {
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="relative overflow-hidden rounded-lg border border-border/60 bg-background/40 p-6 text-center">
-          <div className="text-5xl">{done ? "🏆" : "⚔️"}</div>
-          <p className="mt-3 font-display text-lg">Onda {currentWave} de 10</p>
-          <p className="text-xs text-muted-foreground">
-            Sua coorte avança pela {zone?.name}. Volte quando o cronômetro chegar a zero.
-          </p>
-        </div>
+        {done ? (
+          <div className="rounded-lg border border-primary/40 bg-background/40 p-8 text-center">
+            <div className="text-6xl">🏆</div>
+            <p className="mt-4 font-display text-2xl text-amber-300">Vitória!</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Sua coorte completou as 10 ondas de {zone?.name}. Reclame as recompensas.
+            </p>
+          </div>
+        ) : (
+          <div className="relative">
+            <PatrolScene
+              regionSlug={zone?.slug}
+              classSlug={arche?.slug}
+              progress={elapsed / total}
+            />
+            <div className="pointer-events-none absolute inset-x-0 bottom-2 flex justify-center">
+              <span className="rounded-md bg-black/60 px-3 py-1 font-display text-sm text-white shadow-lg">
+                Onda {currentWave} / 10
+              </span>
+            </div>
+          </div>
+        )}
         <Progress value={pct} className="h-2" />
         <div className="flex gap-2">
           <Button onClick={() => claimMut.mutate()} disabled={!done || claimMut.isPending} className="flex-1">
@@ -265,6 +276,9 @@ function ActiveIncursionCard({ incursion }: { incursion: any }) {
               Abortar
             </Button>
           )}
+          <Button asChild variant="outline" size="icon" title="Carteira">
+            <Link to="/jogo/carteira"><Coins className="h-4 w-4" /></Link>
+          </Button>
         </div>
         {done ? (
           <p className="text-center text-xs text-muted-foreground">

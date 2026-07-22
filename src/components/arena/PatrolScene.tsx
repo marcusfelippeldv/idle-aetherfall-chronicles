@@ -140,6 +140,7 @@ function ParallaxLayer({
 
 function bgFor(slug?: string) {
   switch (slug) {
+    case "vilarejo-esquecido":
     case "bosque-cinza":
       return {
         sky: "linear-gradient(to bottom, #0f1a1c, #1e2f2a 60%, #0b1310)",
@@ -147,6 +148,7 @@ function bgFor(slug?: string) {
         mid: "#243b32",
         near: "#0f1a15",
       };
+    case "ruinas-de-veyr":
     case "areias-do-crepusculo":
       return {
         sky: "linear-gradient(to bottom, #2a1a10, #6b3520 60%, #1a0d07)",
@@ -154,6 +156,7 @@ function bgFor(slug?: string) {
         mid: "#5a2c15",
         near: "#180a04",
       };
+    case "floresta-sombria":
     case "torre-arcana":
       return {
         sky: "linear-gradient(to bottom, #10102a, #241a44 60%, #08061a)",

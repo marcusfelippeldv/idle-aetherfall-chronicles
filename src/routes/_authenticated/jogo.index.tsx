@@ -1,12 +1,23 @@
-import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Coins, Gem, ShieldCheck, Sparkles, Swords } from "lucide-react";
+import {
+  Backpack,
+  Coins,
+  Gem,
+  Heart,
+  ShieldCheck,
+  Sparkles,
+  Swords,
+  Trophy,
+  Users,
+} from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   claimBootstrapAdmin,
   getMyProfile,
@@ -24,6 +35,14 @@ export const Route = createFileRoute("/_authenticated/jogo/")({
   }),
   component: BastionDashboard,
 });
+
+const SHORTCUTS = [
+  { to: "/jogo/arena", label: "Incursão", desc: "Envie sua coorte às 10 ondas.", icon: Swords },
+  { to: "/jogo/coorte", label: "Coorte", desc: "Composição do seu grupo.", icon: Users },
+  { to: "/jogo/inventario", label: "Inventário", desc: "Loot e equipamentos.", icon: Backpack },
+  { to: "/jogo/carteira", label: "Carteira", desc: "Ouro e cristais.", icon: Coins },
+  { to: "/ranking", label: "Ranking", desc: "Top heróis de Aetherfall.", icon: Trophy },
+] as const;
 
 function BastionDashboard() {
   const profileFn = useServerFn(getMyProfile);
@@ -48,11 +67,9 @@ function BastionDashboard() {
 
   const roles = rolesQ.data?.roles ?? [];
   const isAdmin = roles.includes("admin");
-  const character = characterQ.data?.character;
-
-  if (characterQ.isSuccess && character) {
-    return <Navigate to="/jogo/arena" replace />;
-  }
+  const character = characterQ.data?.character as any;
+  const wallet = characterQ.data?.wallet as any;
+  const arche = character && (Array.isArray(character.archetypes) ? character.archetypes[0] : character.archetypes);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 md:px-6 md:py-14">
@@ -63,7 +80,9 @@ function BastionDashboard() {
             Olá, {profileQ.data?.profile?.display_name ?? "herói"}
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Forje seu primeiro herói para desbravar as Zonas de Aetherfall.
+            {character
+              ? "Seu bastião central. Acesse Incursão, Coorte, Inventário e Carteira."
+              : "Forje seu primeiro herói para desbravar as Zonas de Aetherfall."}
           </p>
         </div>
         {isAdmin ? (
@@ -75,27 +94,65 @@ function BastionDashboard() {
         ) : null}
       </header>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <StatCard icon={<Coins className="h-5 w-5" />} label="Ouro" value={Number(profileQ.data?.wallet.gold_balance ?? 0)} />
-        <StatCard icon={<Gem className="h-5 w-5" />} label="Cristais" value={Number(profileQ.data?.wallet.premium_balance ?? 0)} />
-        <StatCard icon={<Sparkles className="h-5 w-5" />} label="Heróis" value={0} hint="Nenhum criado" />
-      </div>
+      {characterQ.isLoading ? (
+        <Skeleton className="h-32 w-full" />
+      ) : character ? (
+        <Card className="border-primary/40 bg-gradient-to-br from-card via-card to-primary/10">
+          <CardContent className="grid gap-4 p-6 md:grid-cols-[1fr_auto]">
+            <div>
+              <p className="font-display text-xs uppercase tracking-[0.3em] text-primary">
+                {arche?.name} · Nível {character.level}
+              </p>
+              <p className="font-display text-3xl">{character.name}</p>
+              <div className="mt-3 flex flex-wrap gap-2 text-xs">
+                <Badge variant="outline"><Heart className="mr-1 h-3 w-3" /> {character.current_hp}/{character.max_hp}</Badge>
+                <Badge variant="outline"><Swords className="mr-1 h-3 w-3" /> ATK {character.attack}</Badge>
+                <Badge variant="outline"><Coins className="mr-1 h-3 w-3 text-amber-400" /> {Number(wallet?.gold_balance ?? 0).toLocaleString("pt-BR")}</Badge>
+                <Badge variant="outline"><Gem className="mr-1 h-3 w-3 text-violet-400" /> {Number(wallet?.premium_balance ?? 0).toLocaleString("pt-BR")}</Badge>
+              </div>
+            </div>
+            <div className="flex items-center md:justify-end">
+              <Button asChild size="lg">
+                <Link to="/jogo/arena"><Swords className="mr-2 h-4 w-4" /> Ir à Incursão</Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card className="border-primary/40 bg-gradient-to-br from-card via-card to-primary/10">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 font-display text-2xl">
+              <Swords className="h-6 w-6 text-primary" /> Comece sua jornada
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Escolha um dos cinco arquétipos originais, dê nome ao seu herói e envie-o para a primeira Zona.
+            </p>
+            <Button asChild size="lg">
+              <Link to="/criar-heroi">Forjar herói</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
-      <Card className="mt-8 border-primary/40 bg-gradient-to-br from-card via-card to-primary/10">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 font-display text-2xl">
-            <Swords className="h-6 w-6 text-primary" /> Comece sua jornada
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            Escolha um dos cinco arquétipos originais, dê nome ao seu herói e envie-o para a primeira Zona.
-          </p>
-          <Button asChild size="lg">
-            <Link to="/criar-heroi">Forjar herói</Link>
-          </Button>
-        </CardContent>
-      </Card>
+      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {SHORTCUTS.map((s) => (
+          <Link key={s.to} to={s.to} className="group">
+            <Card className="h-full border-border/60 bg-card/60 transition group-hover:-translate-y-0.5 group-hover:border-primary/40 group-hover:bg-card">
+              <CardContent className="flex items-start gap-4 p-6">
+                <div className="grid h-11 w-11 place-items-center rounded-md bg-gold-gradient text-primary-foreground shadow-gold">
+                  <s.icon className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="font-display text-lg">{s.label}</p>
+                  <p className="text-sm text-muted-foreground">{s.desc}</p>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+        ))}
+      </div>
 
       {!isAdmin ? (
         <Card className="mt-6 border-dashed border-primary/40 bg-card/40">
@@ -116,25 +173,11 @@ function BastionDashboard() {
           <Badge className="bg-primary/20 text-primary" variant="outline">
             <ShieldCheck className="mr-1 h-3 w-3" /> Você é administrador
           </Badge>
+          <p className="mt-2 text-xs text-muted-foreground">
+            <Sparkles className="mr-1 inline h-3 w-3" /> Recompensas, loja e guildas retornam nos próximos ciclos.
+          </p>
         </div>
       )}
     </div>
-  );
-}
-
-function StatCard({ icon, label, value, hint }: { icon: React.ReactNode; label: string; value: number; hint?: string }) {
-  return (
-    <Card className="border-border/60 bg-card/60">
-      <CardContent className="flex items-center gap-4 p-6">
-        <div className="grid h-11 w-11 place-items-center rounded-md bg-gold-gradient text-primary-foreground shadow-gold">
-          {icon}
-        </div>
-        <div>
-          <p className="text-xs uppercase tracking-wider text-muted-foreground">{label}</p>
-          <p className="font-display text-2xl">{value.toLocaleString("pt-BR")}</p>
-          {hint ? <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{hint}</p> : null}
-        </div>
-      </CardContent>
-    </Card>
   );
 }

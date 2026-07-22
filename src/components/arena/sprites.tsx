@@ -3,8 +3,13 @@ import { cn } from "@/lib/utils";
 type Pose = "idle" | "attack" | "hurt";
 
 const CLASS_ACCENT: Record<string, string> = {
+  // arquétipos Aetherfall
   guardiao: "#f7c56b",
+  "arqueiro-astral": "#5ce0a4",
   arcanista: "#8b7cff",
+  vidente: "#f2e9c9",
+  "punho-da-aurora": "#ff8888",
+  // aliases antigos (compat)
   cacador: "#5ce0a4",
   clerigo: "#f2e9c9",
   duelista: "#ff8888",
@@ -125,6 +130,14 @@ export function EnemySprite({
 
 function paletteFor(slug?: string) {
   switch (slug) {
+    // zonas Aetherfall (novas)
+    case "vilarejo-esquecido":
+      return { body: "#3a4a3a", armor: "#25311f", horn: "#c0b280", eye: "#f5c15c" };
+    case "ruinas-de-veyr":
+      return { body: "#7a4a2a", armor: "#4a2812", horn: "#f2d199", eye: "#ff6a3a" };
+    case "floresta-sombria":
+      return { body: "#3a2f5c", armor: "#231a3a", horn: "#c9b0ff", eye: "#a86bff" };
+    // aliases antigos
     case "bosque-cinza":
       return { body: "#3a4a3a", armor: "#25311f", horn: "#c0b280", eye: "#f5c15c" };
     case "areias-do-crepusculo":
