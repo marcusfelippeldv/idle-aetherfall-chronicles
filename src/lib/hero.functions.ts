@@ -3,11 +3,14 @@ import { z } from "zod";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { defaultPrioritiesForRole } from "./combat/defaults";
+import type { PriorityRule } from "./combat/types";
 
 const createSchema = z.object({
   name: z.string().trim().min(2).max(24),
   classSlug: z.string().trim().min(2).max(40),
 });
+
 
 const COMPANION_MAP: Record<string, string[]> = {
   guardiao: ["vidente", "arqueiro", "arcanista"],
@@ -51,7 +54,7 @@ export const getMyHeroes = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("heroes")
-      .select("id, name, class_slug, is_protagonist, level, hp, mana, atk, def, spd, awakening_energy")
+      .select("id, name, class_slug, is_protagonist, level, hp, mana, atk, def, spd, awakening_energy, priorities")
       .eq("user_id", context.userId)
       .order("is_protagonist", { ascending: false })
       .order("created_at", { ascending: true });
@@ -127,7 +130,7 @@ export const createProtagonist = createServerFn({ method: "POST" })
 
     const { data: classes, error: clsErr } = await context.supabase
       .from("classes")
-      .select("slug, base_hp, base_mana, base_atk, base_def, base_spd")
+      .select("slug, role, base_hp, base_mana, base_atk, base_def, base_spd")
       .in("slug", allSlugs)
       .eq("tier", 1);
     if (clsErr) throw new Error(clsErr.message);
@@ -152,9 +155,10 @@ export const createProtagonist = createServerFn({ method: "POST" })
         def: c.base_def,
         spd: c.base_spd,
         awakening_energy: 0,
-        priorities: [],
+        priorities: defaultPrioritiesForRole(c.role) as unknown as Database["public"]["Tables"]["heroes"]["Insert"]["priorities"],
       };
     });
+
 
     const { data: inserted, error: insErr } = await context.supabase
       .from("heroes")
@@ -177,3 +181,50 @@ export const createProtagonist = createServerFn({ method: "POST" })
 
     return { id: h1.id };
   });
+
+const updatePrioritiesSchema = z.object({
+  heroId: z.string().uuid(),
+  priorities: z.array(
+    z.object({
+      ability: z.enum(["basic", "skill_1", "skill_2", "awakening", "defend"]),
+      target: z.enum(["lowest_hp_ally", "lowest_hp_enemy", "highest_atk_enemy", "self", "random_enemy"]),
+      condition: z.enum(["always", "hp_below_50", "hp_below_25", "mana_ok", "awakening_ready"]),
+    }),
+  ).max(8),
+});
+
+export const updateHeroPriorities = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => updatePrioritiesSchema.parse(data))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("heroes")
+      .update({ priorities: data.priorities as unknown as Database["public"]["Tables"]["heroes"]["Update"]["priorities"] })
+      .eq("id", data.heroId)
+      .eq("user_id", context.userId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const resetHeroPriorities = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ heroId: z.string().uuid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { data: hero, error: hErr } = await context.supabase
+      .from("heroes")
+      .select("id, class_slug")
+      .eq("id", data.heroId)
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    if (hErr) throw new Error(hErr.message);
+    if (!hero) throw new Error("Herói não encontrado.");
+    const { data: cls } = await context.supabase.from("classes").select("role").eq("slug", hero.class_slug).maybeSingle();
+    const priorities = defaultPrioritiesForRole(cls?.role ?? "fisico") as PriorityRule[];
+    const { error } = await context.supabase
+      .from("heroes")
+      .update({ priorities: priorities as unknown as Database["public"]["Tables"]["heroes"]["Update"]["priorities"] })
+      .eq("id", data.heroId);
+    if (error) throw new Error(error.message);
+    return { priorities };
+  });
+
