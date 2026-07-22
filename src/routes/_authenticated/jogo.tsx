@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate, Outlet, useMatchRoute } from "@tanstack/react-router";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -26,6 +26,8 @@ export const Route = createFileRoute("/_authenticated/jogo")({
 });
 
 function GameDashboard() {
+  const matchRoute = useMatchRoute();
+  const isGameIndex = Boolean(matchRoute({ to: "/jogo", fuzzy: false }));
   const profileFn = useServerFn(getMyProfile);
   const rolesFn = useServerFn(getMyRoles);
   const characterFn = useServerFn(getMyCharacter);
@@ -49,6 +51,10 @@ function GameDashboard() {
   const roles = rolesQ.data?.roles ?? [];
   const isAdmin = roles.includes("admin");
   const character = characterQ.data?.character;
+
+  if (!isGameIndex) {
+    return <Outlet />;
+  }
 
   // Se já tem herói, manda para a arena.
   if (characterQ.isSuccess && character) {
