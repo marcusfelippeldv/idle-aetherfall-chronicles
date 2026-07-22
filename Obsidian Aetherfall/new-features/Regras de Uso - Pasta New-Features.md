@@ -1,0 +1,1 @@
+Nessa pasta ficam os arquivos e/ou subpastas relacionados a NOVAS features.
