@@ -116,6 +116,14 @@ export type Database = {
           current_mana: number
           current_xp: number
           defense: number
+          equipped_amuleto: string | null
+          equipped_anel: string | null
+          equipped_arma: string | null
+          equipped_elmo: string | null
+          equipped_ofmao: string | null
+          equipped_peito: string | null
+          equipped_pernas: string | null
+          equipped_pes: string | null
           id: string
           is_active: boolean
           level: number
@@ -139,6 +147,14 @@ export type Database = {
           current_mana: number
           current_xp?: number
           defense: number
+          equipped_amuleto?: string | null
+          equipped_anel?: string | null
+          equipped_arma?: string | null
+          equipped_elmo?: string | null
+          equipped_ofmao?: string | null
+          equipped_peito?: string | null
+          equipped_pernas?: string | null
+          equipped_pes?: string | null
           id?: string
           is_active?: boolean
           level?: number
@@ -162,6 +178,14 @@ export type Database = {
           current_mana?: number
           current_xp?: number
           defense?: number
+          equipped_amuleto?: string | null
+          equipped_anel?: string | null
+          equipped_arma?: string | null
+          equipped_elmo?: string | null
+          equipped_ofmao?: string | null
+          equipped_peito?: string | null
+          equipped_pernas?: string | null
+          equipped_pes?: string | null
           id?: string
           is_active?: boolean
           level?: number
@@ -183,6 +207,62 @@ export type Database = {
             columns: ["archetype_id"]
             isOneToOne: false
             referencedRelation: "archetypes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "characters_equipped_amuleto_fkey"
+            columns: ["equipped_amuleto"]
+            isOneToOne: false
+            referencedRelation: "inventory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "characters_equipped_anel_fkey"
+            columns: ["equipped_anel"]
+            isOneToOne: false
+            referencedRelation: "inventory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "characters_equipped_arma_fkey"
+            columns: ["equipped_arma"]
+            isOneToOne: false
+            referencedRelation: "inventory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "characters_equipped_elmo_fkey"
+            columns: ["equipped_elmo"]
+            isOneToOne: false
+            referencedRelation: "inventory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "characters_equipped_ofmao_fkey"
+            columns: ["equipped_ofmao"]
+            isOneToOne: false
+            referencedRelation: "inventory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "characters_equipped_peito_fkey"
+            columns: ["equipped_peito"]
+            isOneToOne: false
+            referencedRelation: "inventory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "characters_equipped_pernas_fkey"
+            columns: ["equipped_pernas"]
+            isOneToOne: false
+            referencedRelation: "inventory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "characters_equipped_pes_fkey"
+            columns: ["equipped_pes"]
+            isOneToOne: false
+            referencedRelation: "inventory"
             referencedColumns: ["id"]
           },
         ]
@@ -388,6 +468,7 @@ export type Database = {
       items: {
         Row: {
           attack_bonus: number
+          buyable: boolean
           created_at: string
           defense_bonus: number
           description: string
@@ -397,6 +478,7 @@ export type Database = {
           mana_bonus: number
           name: string
           rarity: Database["public"]["Enums"]["item_rarity"]
+          sell_price: number
           slot: Database["public"]["Enums"]["item_slot"]
           slug: string
           speed_bonus: number
@@ -404,6 +486,7 @@ export type Database = {
         }
         Insert: {
           attack_bonus?: number
+          buyable?: boolean
           created_at?: string
           defense_bonus?: number
           description?: string
@@ -413,6 +496,7 @@ export type Database = {
           mana_bonus?: number
           name: string
           rarity?: Database["public"]["Enums"]["item_rarity"]
+          sell_price?: number
           slot: Database["public"]["Enums"]["item_slot"]
           slug: string
           speed_bonus?: number
@@ -420,6 +504,7 @@ export type Database = {
         }
         Update: {
           attack_bonus?: number
+          buyable?: boolean
           created_at?: string
           defense_bonus?: number
           description?: string
@@ -429,6 +514,7 @@ export type Database = {
           mana_bonus?: number
           name?: string
           rarity?: Database["public"]["Enums"]["item_rarity"]
+          sell_price?: number
           slot?: Database["public"]["Enums"]["item_slot"]
           slug?: string
           speed_bonus?: number

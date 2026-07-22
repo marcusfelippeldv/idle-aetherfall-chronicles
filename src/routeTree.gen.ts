@@ -24,7 +24,9 @@ import { Route as AuthenticatedJogoRouteImport } from './routes/_authenticated/j
 import { Route as AuthenticatedCriarHeroiRouteImport } from './routes/_authenticated/criar-heroi'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/_admin/route'
 import { Route as AuthenticatedJogoIndexRouteImport } from './routes/_authenticated/jogo.index'
+import { Route as AuthenticatedJogoLojaRouteImport } from './routes/_authenticated/jogo.loja'
 import { Route as AuthenticatedJogoInventarioRouteImport } from './routes/_authenticated/jogo.inventario'
+import { Route as AuthenticatedJogoHeroiRouteImport } from './routes/_authenticated/jogo.heroi'
 import { Route as AuthenticatedJogoCoorteRouteImport } from './routes/_authenticated/jogo.coorte'
 import { Route as AuthenticatedJogoCarteiraRouteImport } from './routes/_authenticated/jogo.carteira'
 import { Route as AuthenticatedJogoArenaRouteImport } from './routes/_authenticated/jogo.arena'
@@ -104,12 +106,22 @@ const AuthenticatedJogoIndexRoute = AuthenticatedJogoIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedJogoRoute,
 } as any)
+const AuthenticatedJogoLojaRoute = AuthenticatedJogoLojaRouteImport.update({
+  id: '/loja',
+  path: '/loja',
+  getParentRoute: () => AuthenticatedJogoRoute,
+} as any)
 const AuthenticatedJogoInventarioRoute =
   AuthenticatedJogoInventarioRouteImport.update({
     id: '/inventario',
     path: '/inventario',
     getParentRoute: () => AuthenticatedJogoRoute,
   } as any)
+const AuthenticatedJogoHeroiRoute = AuthenticatedJogoHeroiRouteImport.update({
+  id: '/heroi',
+  path: '/heroi',
+  getParentRoute: () => AuthenticatedJogoRoute,
+} as any)
 const AuthenticatedJogoCoorteRoute = AuthenticatedJogoCoorteRouteImport.update({
   id: '/coorte',
   path: '/coorte',
@@ -155,7 +167,9 @@ export interface FileRoutesByFullPath {
   '/jogo/arena': typeof AuthenticatedJogoArenaRoute
   '/jogo/carteira': typeof AuthenticatedJogoCarteiraRoute
   '/jogo/coorte': typeof AuthenticatedJogoCoorteRoute
+  '/jogo/heroi': typeof AuthenticatedJogoHeroiRoute
   '/jogo/inventario': typeof AuthenticatedJogoInventarioRoute
+  '/jogo/loja': typeof AuthenticatedJogoLojaRoute
   '/jogo/': typeof AuthenticatedJogoIndexRoute
   '/admin/auditoria': typeof AuthenticatedAdminAdminAuditoriaRoute
 }
@@ -175,7 +189,9 @@ export interface FileRoutesByTo {
   '/jogo/arena': typeof AuthenticatedJogoArenaRoute
   '/jogo/carteira': typeof AuthenticatedJogoCarteiraRoute
   '/jogo/coorte': typeof AuthenticatedJogoCoorteRoute
+  '/jogo/heroi': typeof AuthenticatedJogoHeroiRoute
   '/jogo/inventario': typeof AuthenticatedJogoInventarioRoute
+  '/jogo/loja': typeof AuthenticatedJogoLojaRoute
   '/jogo': typeof AuthenticatedJogoIndexRoute
   '/admin/auditoria': typeof AuthenticatedAdminAdminAuditoriaRoute
 }
@@ -199,7 +215,9 @@ export interface FileRoutesById {
   '/_authenticated/jogo/arena': typeof AuthenticatedJogoArenaRoute
   '/_authenticated/jogo/carteira': typeof AuthenticatedJogoCarteiraRoute
   '/_authenticated/jogo/coorte': typeof AuthenticatedJogoCoorteRoute
+  '/_authenticated/jogo/heroi': typeof AuthenticatedJogoHeroiRoute
   '/_authenticated/jogo/inventario': typeof AuthenticatedJogoInventarioRoute
+  '/_authenticated/jogo/loja': typeof AuthenticatedJogoLojaRoute
   '/_authenticated/jogo/': typeof AuthenticatedJogoIndexRoute
   '/_authenticated/_admin/admin/auditoria': typeof AuthenticatedAdminAdminAuditoriaRoute
 }
@@ -222,7 +240,9 @@ export interface FileRouteTypes {
     | '/jogo/arena'
     | '/jogo/carteira'
     | '/jogo/coorte'
+    | '/jogo/heroi'
     | '/jogo/inventario'
+    | '/jogo/loja'
     | '/jogo/'
     | '/admin/auditoria'
   fileRoutesByTo: FileRoutesByTo
@@ -242,7 +262,9 @@ export interface FileRouteTypes {
     | '/jogo/arena'
     | '/jogo/carteira'
     | '/jogo/coorte'
+    | '/jogo/heroi'
     | '/jogo/inventario'
+    | '/jogo/loja'
     | '/jogo'
     | '/admin/auditoria'
   id:
@@ -265,7 +287,9 @@ export interface FileRouteTypes {
     | '/_authenticated/jogo/arena'
     | '/_authenticated/jogo/carteira'
     | '/_authenticated/jogo/coorte'
+    | '/_authenticated/jogo/heroi'
     | '/_authenticated/jogo/inventario'
+    | '/_authenticated/jogo/loja'
     | '/_authenticated/jogo/'
     | '/_authenticated/_admin/admin/auditoria'
   fileRoutesById: FileRoutesById
@@ -391,11 +415,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedJogoIndexRouteImport
       parentRoute: typeof AuthenticatedJogoRoute
     }
+    '/_authenticated/jogo/loja': {
+      id: '/_authenticated/jogo/loja'
+      path: '/loja'
+      fullPath: '/jogo/loja'
+      preLoaderRoute: typeof AuthenticatedJogoLojaRouteImport
+      parentRoute: typeof AuthenticatedJogoRoute
+    }
     '/_authenticated/jogo/inventario': {
       id: '/_authenticated/jogo/inventario'
       path: '/inventario'
       fullPath: '/jogo/inventario'
       preLoaderRoute: typeof AuthenticatedJogoInventarioRouteImport
+      parentRoute: typeof AuthenticatedJogoRoute
+    }
+    '/_authenticated/jogo/heroi': {
+      id: '/_authenticated/jogo/heroi'
+      path: '/heroi'
+      fullPath: '/jogo/heroi'
+      preLoaderRoute: typeof AuthenticatedJogoHeroiRouteImport
       parentRoute: typeof AuthenticatedJogoRoute
     }
     '/_authenticated/jogo/coorte': {
@@ -469,7 +507,9 @@ interface AuthenticatedJogoRouteChildren {
   AuthenticatedJogoArenaRoute: typeof AuthenticatedJogoArenaRoute
   AuthenticatedJogoCarteiraRoute: typeof AuthenticatedJogoCarteiraRoute
   AuthenticatedJogoCoorteRoute: typeof AuthenticatedJogoCoorteRoute
+  AuthenticatedJogoHeroiRoute: typeof AuthenticatedJogoHeroiRoute
   AuthenticatedJogoInventarioRoute: typeof AuthenticatedJogoInventarioRoute
+  AuthenticatedJogoLojaRoute: typeof AuthenticatedJogoLojaRoute
   AuthenticatedJogoIndexRoute: typeof AuthenticatedJogoIndexRoute
 }
 
@@ -477,7 +517,9 @@ const AuthenticatedJogoRouteChildren: AuthenticatedJogoRouteChildren = {
   AuthenticatedJogoArenaRoute: AuthenticatedJogoArenaRoute,
   AuthenticatedJogoCarteiraRoute: AuthenticatedJogoCarteiraRoute,
   AuthenticatedJogoCoorteRoute: AuthenticatedJogoCoorteRoute,
+  AuthenticatedJogoHeroiRoute: AuthenticatedJogoHeroiRoute,
   AuthenticatedJogoInventarioRoute: AuthenticatedJogoInventarioRoute,
+  AuthenticatedJogoLojaRoute: AuthenticatedJogoLojaRoute,
   AuthenticatedJogoIndexRoute: AuthenticatedJogoIndexRoute,
 }
 

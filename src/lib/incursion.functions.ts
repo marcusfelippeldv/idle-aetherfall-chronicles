@@ -169,15 +169,63 @@ export const claimIncursion = createServerFn({ method: "POST" })
         .eq("id", char.id);
     }
 
+    // Drops: 2 + estrelas rolls; raridade ponderada.
+    const drops: Array<{ id: string; name: string; rarity: string; slot: string }> = [];
+    const rollCount = 2 + stars;
+    const maxTier = Math.min(3, Math.max(1, Math.ceil(stars / 2)));
+
+    // Distribuição de raridade por dificuldade.
+    const table: Array<{ r: string; w: number }> =
+      stars <= 2
+        ? [{ r: "comum", w: 65 }, { r: "incomum", w: 27 }, { r: "raro", w: 7 }, { r: "epico", w: 1 }]
+        : stars <= 4
+        ? [{ r: "comum", w: 35 }, { r: "incomum", w: 38 }, { r: "raro", w: 20 }, { r: "epico", w: 6 }, { r: "lendario", w: 1 }]
+        : [{ r: "incomum", w: 25 }, { r: "raro", w: 38 }, { r: "epico", w: 25 }, { r: "lendario", w: 10 }, { r: "mitico", w: 2 }];
+    const totalW = table.reduce((s, t) => s + t.w, 0);
+    const pick = () => {
+      let r = Math.random() * totalW;
+      for (const t of table) { if ((r -= t.w) <= 0) return t.r; }
+      return "comum";
+    };
+
+    for (let i = 0; i < rollCount; i++) {
+      const rarity = pick();
+      const { data: pool } = await supabaseAdmin
+        .from("items")
+        .select("id, name, slot, rarity")
+        .eq("rarity", rarity as any)
+        .lte("tier", maxTier)
+        .limit(50);
+      if (!pool || pool.length === 0) continue;
+      const chosen = pool[Math.floor(Math.random() * pool.length)] as any;
+      const isStack = chosen.slot === "consumivel" || chosen.slot === "material";
+      if (isStack) {
+        const { data: existing } = await supabaseAdmin
+          .from("inventory")
+          .select("id, quantity")
+          .eq("user_id", context.userId)
+          .eq("item_id", chosen.id)
+          .maybeSingle();
+        if (existing) {
+          await supabaseAdmin.from("inventory").update({ quantity: existing.quantity + 1 }).eq("id", existing.id);
+        } else {
+          await supabaseAdmin.from("inventory").insert({ user_id: context.userId, item_id: chosen.id, quantity: 1 });
+        }
+      } else {
+        await supabaseAdmin.from("inventory").insert({ user_id: context.userId, item_id: chosen.id, quantity: 1 });
+      }
+      drops.push({ id: chosen.id, name: chosen.name, rarity: chosen.rarity, slot: chosen.slot });
+    }
+
     await supabaseAdmin
       .from("incursions")
       .update({
         status: "concluida",
         ended_at: new Date().toISOString(),
         current_wave: 10,
-        rewards_json: { xp: xpGain, gold: goldGain } as any,
+        rewards_json: { xp: xpGain, gold: goldGain, drops } as any,
       })
       .eq("id", inc.id);
 
-    return { xp: xpGain, gold: goldGain, leveledUp, newLevel };
+    return { xp: xpGain, gold: goldGain, leveledUp, newLevel, drops };
   });
