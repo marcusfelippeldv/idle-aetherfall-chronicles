@@ -24,10 +24,13 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedJogoRouteImport } from './routes/_authenticated/jogo'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/_admin/route'
 import { Route as AuthenticatedJogoTemporadaRouteImport } from './routes/_authenticated/jogo.temporada'
+import { Route as AuthenticatedJogoRaidesRouteImport } from './routes/_authenticated/jogo.raides'
 import { Route as AuthenticatedJogoNovoRouteImport } from './routes/_authenticated/jogo.novo'
 import { Route as AuthenticatedJogoLojaRouteImport } from './routes/_authenticated/jogo.loja'
+import { Route as AuthenticatedJogoGuildaRouteImport } from './routes/_authenticated/jogo.guilda'
 import { Route as AuthenticatedJogoDiarioRouteImport } from './routes/_authenticated/jogo.diario'
 import { Route as AuthenticatedJogoConquistasRouteImport } from './routes/_authenticated/jogo.conquistas'
+import { Route as AuthenticatedJogoChatRouteImport } from './routes/_authenticated/jogo.chat'
 import { Route as AuthenticatedJogoCarteiraRouteImport } from './routes/_authenticated/jogo.carteira'
 import { Route as AuthenticatedJogoArenaRouteImport } from './routes/_authenticated/jogo.arena'
 import { Route as AuthenticatedAdminAdminRouteImport } from './routes/_authenticated/_admin/admin'
@@ -107,6 +110,11 @@ const AuthenticatedJogoTemporadaRoute =
     path: '/temporada',
     getParentRoute: () => AuthenticatedJogoRoute,
   } as any)
+const AuthenticatedJogoRaidesRoute = AuthenticatedJogoRaidesRouteImport.update({
+  id: '/raides',
+  path: '/raides',
+  getParentRoute: () => AuthenticatedJogoRoute,
+} as any)
 const AuthenticatedJogoNovoRoute = AuthenticatedJogoNovoRouteImport.update({
   id: '/novo',
   path: '/novo',
@@ -115,6 +123,11 @@ const AuthenticatedJogoNovoRoute = AuthenticatedJogoNovoRouteImport.update({
 const AuthenticatedJogoLojaRoute = AuthenticatedJogoLojaRouteImport.update({
   id: '/loja',
   path: '/loja',
+  getParentRoute: () => AuthenticatedJogoRoute,
+} as any)
+const AuthenticatedJogoGuildaRoute = AuthenticatedJogoGuildaRouteImport.update({
+  id: '/guilda',
+  path: '/guilda',
   getParentRoute: () => AuthenticatedJogoRoute,
 } as any)
 const AuthenticatedJogoDiarioRoute = AuthenticatedJogoDiarioRouteImport.update({
@@ -128,6 +141,11 @@ const AuthenticatedJogoConquistasRoute =
     path: '/conquistas',
     getParentRoute: () => AuthenticatedJogoRoute,
   } as any)
+const AuthenticatedJogoChatRoute = AuthenticatedJogoChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => AuthenticatedJogoRoute,
+} as any)
 const AuthenticatedJogoCarteiraRoute =
   AuthenticatedJogoCarteiraRouteImport.update({
     id: '/carteira',
@@ -167,10 +185,13 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminAdminRouteWithChildren
   '/jogo/arena': typeof AuthenticatedJogoArenaRoute
   '/jogo/carteira': typeof AuthenticatedJogoCarteiraRoute
+  '/jogo/chat': typeof AuthenticatedJogoChatRoute
   '/jogo/conquistas': typeof AuthenticatedJogoConquistasRoute
   '/jogo/diario': typeof AuthenticatedJogoDiarioRoute
+  '/jogo/guilda': typeof AuthenticatedJogoGuildaRoute
   '/jogo/loja': typeof AuthenticatedJogoLojaRoute
   '/jogo/novo': typeof AuthenticatedJogoNovoRoute
+  '/jogo/raides': typeof AuthenticatedJogoRaidesRoute
   '/jogo/temporada': typeof AuthenticatedJogoTemporadaRoute
   '/admin/jogadores': typeof AuthenticatedAdminAdminJogadoresRoute
 }
@@ -190,10 +211,13 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminAdminRouteWithChildren
   '/jogo/arena': typeof AuthenticatedJogoArenaRoute
   '/jogo/carteira': typeof AuthenticatedJogoCarteiraRoute
+  '/jogo/chat': typeof AuthenticatedJogoChatRoute
   '/jogo/conquistas': typeof AuthenticatedJogoConquistasRoute
   '/jogo/diario': typeof AuthenticatedJogoDiarioRoute
+  '/jogo/guilda': typeof AuthenticatedJogoGuildaRoute
   '/jogo/loja': typeof AuthenticatedJogoLojaRoute
   '/jogo/novo': typeof AuthenticatedJogoNovoRoute
+  '/jogo/raides': typeof AuthenticatedJogoRaidesRoute
   '/jogo/temporada': typeof AuthenticatedJogoTemporadaRoute
   '/admin/jogadores': typeof AuthenticatedAdminAdminJogadoresRoute
 }
@@ -216,10 +240,13 @@ export interface FileRoutesById {
   '/_authenticated/_admin/admin': typeof AuthenticatedAdminAdminRouteWithChildren
   '/_authenticated/jogo/arena': typeof AuthenticatedJogoArenaRoute
   '/_authenticated/jogo/carteira': typeof AuthenticatedJogoCarteiraRoute
+  '/_authenticated/jogo/chat': typeof AuthenticatedJogoChatRoute
   '/_authenticated/jogo/conquistas': typeof AuthenticatedJogoConquistasRoute
   '/_authenticated/jogo/diario': typeof AuthenticatedJogoDiarioRoute
+  '/_authenticated/jogo/guilda': typeof AuthenticatedJogoGuildaRoute
   '/_authenticated/jogo/loja': typeof AuthenticatedJogoLojaRoute
   '/_authenticated/jogo/novo': typeof AuthenticatedJogoNovoRoute
+  '/_authenticated/jogo/raides': typeof AuthenticatedJogoRaidesRoute
   '/_authenticated/jogo/temporada': typeof AuthenticatedJogoTemporadaRoute
   '/_authenticated/_admin/admin/jogadores': typeof AuthenticatedAdminAdminJogadoresRoute
 }
@@ -241,10 +268,13 @@ export interface FileRouteTypes {
     | '/admin'
     | '/jogo/arena'
     | '/jogo/carteira'
+    | '/jogo/chat'
     | '/jogo/conquistas'
     | '/jogo/diario'
+    | '/jogo/guilda'
     | '/jogo/loja'
     | '/jogo/novo'
+    | '/jogo/raides'
     | '/jogo/temporada'
     | '/admin/jogadores'
   fileRoutesByTo: FileRoutesByTo
@@ -264,10 +294,13 @@ export interface FileRouteTypes {
     | '/admin'
     | '/jogo/arena'
     | '/jogo/carteira'
+    | '/jogo/chat'
     | '/jogo/conquistas'
     | '/jogo/diario'
+    | '/jogo/guilda'
     | '/jogo/loja'
     | '/jogo/novo'
+    | '/jogo/raides'
     | '/jogo/temporada'
     | '/admin/jogadores'
   id:
@@ -289,10 +322,13 @@ export interface FileRouteTypes {
     | '/_authenticated/_admin/admin'
     | '/_authenticated/jogo/arena'
     | '/_authenticated/jogo/carteira'
+    | '/_authenticated/jogo/chat'
     | '/_authenticated/jogo/conquistas'
     | '/_authenticated/jogo/diario'
+    | '/_authenticated/jogo/guilda'
     | '/_authenticated/jogo/loja'
     | '/_authenticated/jogo/novo'
+    | '/_authenticated/jogo/raides'
     | '/_authenticated/jogo/temporada'
     | '/_authenticated/_admin/admin/jogadores'
   fileRoutesById: FileRoutesById
@@ -419,6 +455,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedJogoTemporadaRouteImport
       parentRoute: typeof AuthenticatedJogoRoute
     }
+    '/_authenticated/jogo/raides': {
+      id: '/_authenticated/jogo/raides'
+      path: '/raides'
+      fullPath: '/jogo/raides'
+      preLoaderRoute: typeof AuthenticatedJogoRaidesRouteImport
+      parentRoute: typeof AuthenticatedJogoRoute
+    }
     '/_authenticated/jogo/novo': {
       id: '/_authenticated/jogo/novo'
       path: '/novo'
@@ -433,6 +476,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedJogoLojaRouteImport
       parentRoute: typeof AuthenticatedJogoRoute
     }
+    '/_authenticated/jogo/guilda': {
+      id: '/_authenticated/jogo/guilda'
+      path: '/guilda'
+      fullPath: '/jogo/guilda'
+      preLoaderRoute: typeof AuthenticatedJogoGuildaRouteImport
+      parentRoute: typeof AuthenticatedJogoRoute
+    }
     '/_authenticated/jogo/diario': {
       id: '/_authenticated/jogo/diario'
       path: '/diario'
@@ -445,6 +495,13 @@ declare module '@tanstack/react-router' {
       path: '/conquistas'
       fullPath: '/jogo/conquistas'
       preLoaderRoute: typeof AuthenticatedJogoConquistasRouteImport
+      parentRoute: typeof AuthenticatedJogoRoute
+    }
+    '/_authenticated/jogo/chat': {
+      id: '/_authenticated/jogo/chat'
+      path: '/chat'
+      fullPath: '/jogo/chat'
+      preLoaderRoute: typeof AuthenticatedJogoChatRouteImport
       parentRoute: typeof AuthenticatedJogoRoute
     }
     '/_authenticated/jogo/carteira': {
@@ -510,20 +567,26 @@ const AuthenticatedAdminRouteRouteWithChildren =
 interface AuthenticatedJogoRouteChildren {
   AuthenticatedJogoArenaRoute: typeof AuthenticatedJogoArenaRoute
   AuthenticatedJogoCarteiraRoute: typeof AuthenticatedJogoCarteiraRoute
+  AuthenticatedJogoChatRoute: typeof AuthenticatedJogoChatRoute
   AuthenticatedJogoConquistasRoute: typeof AuthenticatedJogoConquistasRoute
   AuthenticatedJogoDiarioRoute: typeof AuthenticatedJogoDiarioRoute
+  AuthenticatedJogoGuildaRoute: typeof AuthenticatedJogoGuildaRoute
   AuthenticatedJogoLojaRoute: typeof AuthenticatedJogoLojaRoute
   AuthenticatedJogoNovoRoute: typeof AuthenticatedJogoNovoRoute
+  AuthenticatedJogoRaidesRoute: typeof AuthenticatedJogoRaidesRoute
   AuthenticatedJogoTemporadaRoute: typeof AuthenticatedJogoTemporadaRoute
 }
 
 const AuthenticatedJogoRouteChildren: AuthenticatedJogoRouteChildren = {
   AuthenticatedJogoArenaRoute: AuthenticatedJogoArenaRoute,
   AuthenticatedJogoCarteiraRoute: AuthenticatedJogoCarteiraRoute,
+  AuthenticatedJogoChatRoute: AuthenticatedJogoChatRoute,
   AuthenticatedJogoConquistasRoute: AuthenticatedJogoConquistasRoute,
   AuthenticatedJogoDiarioRoute: AuthenticatedJogoDiarioRoute,
+  AuthenticatedJogoGuildaRoute: AuthenticatedJogoGuildaRoute,
   AuthenticatedJogoLojaRoute: AuthenticatedJogoLojaRoute,
   AuthenticatedJogoNovoRoute: AuthenticatedJogoNovoRoute,
+  AuthenticatedJogoRaidesRoute: AuthenticatedJogoRaidesRoute,
   AuthenticatedJogoTemporadaRoute: AuthenticatedJogoTemporadaRoute,
 }
 

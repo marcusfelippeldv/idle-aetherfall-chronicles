@@ -17,6 +17,8 @@ import {
   Skull,
   Award,
   CalendarDays,
+  MessageCircle,
+  Flame,
 } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -100,6 +102,15 @@ function ArenaPage() {
         </Button>
         <Button asChild variant="outline" size="sm">
           <Link to="/jogo/temporada"><Sparkles className="mr-2 h-4 w-4" /> Temporada</Link>
+        </Button>
+        <Button asChild variant="outline" size="sm">
+          <Link to="/jogo/guilda"><Shield className="mr-2 h-4 w-4" /> Guilda</Link>
+        </Button>
+        <Button asChild variant="outline" size="sm">
+          <Link to="/jogo/chat"><MessageCircle className="mr-2 h-4 w-4" /> Chat</Link>
+        </Button>
+        <Button asChild variant="outline" size="sm">
+          <Link to="/jogo/raides"><Flame className="mr-2 h-4 w-4" /> Raides</Link>
         </Button>
         <Button asChild variant="outline" size="sm">
           <Link to="/jogo/loja"><Gem className="mr-2 h-4 w-4" /> Loja</Link>

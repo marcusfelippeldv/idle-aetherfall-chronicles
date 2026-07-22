@@ -93,12 +93,21 @@ export async function checkAchievements(sb: Sb, userId: string) {
     .eq("transaction_kind", "credit");
   const goldEarned = (goldTx ?? []).reduce((a: number, r: any) => a + Number(r.amount ?? 0), 0);
 
+  const [{ data: raidHitsRows }, { data: guildRow }] = await Promise.all([
+    sb.from("raid_contributions").select("hits").eq("user_id", userId),
+    sb.from("guilds").select("id").eq("leader_id", userId).maybeSingle(),
+  ]);
+  const raidHits = (raidHitsRows ?? []).reduce((a: number, r: any) => a + Number(r.hits ?? 0), 0);
+  const guildFounded = guildRow ? 1 : 0;
+
   const stats: Record<string, number> = {
     level: character?.level ?? 0,
     expeditions: expeditionsDone,
     boss_kills: bossKills,
     gold_earned: goldEarned,
     items_owned: itemsOwned,
+    raid_hits: raidHits,
+    guild_founded: guildFounded,
   };
 
   const toInsert = (templates as any[])
