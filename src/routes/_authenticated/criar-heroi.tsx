@@ -46,12 +46,13 @@ export function NewCharacterPage() {
   const mut = useMutation({
     mutationFn: (input: { name: string; classId: string }) => createFn({ data: input }),
     onSuccess: async () => {
-      await qc.invalidateQueries({ queryKey: ["me", "character"] });
+      await qc.refetchQueries({ queryKey: ["me", "character"] });
       toast.success("Herói criado! Bem-vindo(a) a Aetherfall.");
       navigate({ to: "/jogo/arena" });
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
   });
+
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
