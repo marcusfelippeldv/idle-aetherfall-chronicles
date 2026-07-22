@@ -567,6 +567,53 @@ export type Database = {
           },
         ]
       }
+      idle_runs: {
+        Row: {
+          created_at: string
+          last_seen_at: string
+          last_tick_at: string
+          pending_drops: Json
+          pending_gold: number
+          pending_xp: number
+          stage_id: string
+          started_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          last_seen_at?: string
+          last_tick_at?: string
+          pending_drops?: Json
+          pending_gold?: number
+          pending_xp?: number
+          stage_id: string
+          started_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          last_seen_at?: string
+          last_tick_at?: string
+          pending_drops?: Json
+          pending_gold?: number
+          pending_xp?: number
+          stage_id?: string
+          started_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "idle_runs_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inventory: {
         Row: {
           acquired_at: string
