@@ -32,7 +32,7 @@ export const getMyCharacter = createServerFn({ method: "GET" })
           "id, zone_id, mode, status, current_wave, started_at, expected_end_at, rewards_json, zones(name, slug, duration_minutes, required_level)",
         )
         .eq("user_id", context.userId)
-        .eq("status", "running")
+        .eq("status", "em_andamento")
         .maybeSingle(),
     ]);
 

@@ -19,7 +19,7 @@ export const startIncursion = createServerFn({ method: "POST" })
       .from("incursions")
       .select("id")
       .eq("user_id", context.userId)
-      .eq("status", "running")
+      .eq("status", "em_andamento")
       .maybeSingle();
     if (active) throw new Error("Você já tem uma incursão ativa.");
 
@@ -50,8 +50,8 @@ export const startIncursion = createServerFn({ method: "POST" })
       .insert({
         user_id: context.userId,
         zone_id: zone.id,
-        mode: "active",
-        status: "running",
+        mode: "ativa",
+        status: "em_andamento",
         current_wave: 0,
         started_at: now.toISOString(),
         expected_end_at: end.toISOString(),
@@ -72,10 +72,10 @@ export const cancelIncursion = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin
       .from("incursions")
-      .update({ status: "cancelled", ended_at: new Date().toISOString() })
+      .update({ status: "cancelada", ended_at: new Date().toISOString() })
       .eq("id", data.incursionId)
       .eq("user_id", context.userId)
-      .eq("status", "running");
+      .eq("status", "em_andamento");
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -172,7 +172,7 @@ export const claimIncursion = createServerFn({ method: "POST" })
     await supabaseAdmin
       .from("incursions")
       .update({
-        status: "completed",
+        status: "concluida",
         ended_at: new Date().toISOString(),
         current_wave: 10,
         rewards_json: { xp: xpGain, gold: goldGain } as any,
