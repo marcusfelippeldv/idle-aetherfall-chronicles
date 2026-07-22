@@ -89,7 +89,16 @@ export const createCharacter = createServerFn({ method: "POST" })
       .select("id")
       .single();
 
-    if (error) throw new Error(error.message);
+    if (error) {
+      const msg = error.message ?? "";
+      if (error.code === "23505" || /duplicate key|unique/i.test(msg)) {
+        throw new Error("Você já usou esse nome em outro herói.");
+      }
+      if (error.code === "42501" || /row-level security|policy/i.test(msg)) {
+        throw new Error("Sem permissão para criar herói. Faça login novamente.");
+      }
+      throw new Error(msg || "Não foi possível criar o herói.");
+    }
     return { id: character.id };
   });
 
