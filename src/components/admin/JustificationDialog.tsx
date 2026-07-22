@@ -25,7 +25,7 @@ export function JustificationDialog({
   title: string;
   description?: string;
   children?: ReactNode;
-  onConfirm: (justification: string) => void | Promise<void>;
+  onConfirm: (justification: string) => unknown;
   pending?: boolean;
   confirmLabel?: string;
   destructive?: boolean;

@@ -67,7 +67,7 @@ function AuditPage() {
                         {adminInfo?.username ?? r.admin_user_id.slice(0, 8)}
                       </strong>
                       {adminInfo?.email ? ` (${adminInfo.email})` : ""} · alvo{" "}
-                      <code className="text-[10px]">{r.target_id.slice(0, 8)}</code>
+                      <code className="text-[10px]">{(r.target_id ?? "").slice(0, 8)}</code>
                     </div>
                     <p className="mt-2 text-sm">{r.justification}</p>
                     {(r.previous_data || r.new_data) && (
