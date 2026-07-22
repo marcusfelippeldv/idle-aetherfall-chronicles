@@ -124,13 +124,17 @@ function HeroiPage() {
                     </span>
                     {row ? (
                       <>
-                        <span className={cn("font-display text-xs", cls?.text)}>{row.item.name}</span>
+                        {row.item.icon_url ? (
+                          <img src={row.item.icon_url} alt="" className="h-10 w-10 object-contain" />
+                        ) : null}
+                        <span className={cn("line-clamp-1 font-display text-xs", cls?.text)}>{row.item.name}</span>
                         <RarityBadge rarity={row.item.rarity as Rarity} />
                       </>
                     ) : (
                       <span className="font-display text-xs text-muted-foreground">Vazio</span>
                     )}
                   </button>
+
                 );
               })}
             </div>
@@ -202,25 +206,31 @@ function HeroiPage() {
                     return (
                       <div
                         key={row.id}
-                        className={cn("flex items-center justify-between rounded border p-2", cls.border, cls.bg)}
+                        className={cn("flex items-center justify-between gap-2 rounded border p-2", cls.border, cls.bg)}
                       >
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className={cn("font-display text-sm", cls.text)}>{row.item.name}</span>
-                            <RarityBadge rarity={row.item.rarity as Rarity} />
-                          </div>
-                          <div className="mt-1 flex flex-wrap gap-1 text-[10px] text-muted-foreground">
-                            {row.item.attack_bonus  ? <span>ATK +{row.item.attack_bonus}</span> : null}
-                            {row.item.defense_bonus ? <span>DEF +{row.item.defense_bonus}</span> : null}
-                            {row.item.hp_bonus      ? <span>HP +{row.item.hp_bonus}</span> : null}
-                            {row.item.mana_bonus    ? <span>MP +{row.item.mana_bonus}</span> : null}
-                            {row.item.speed_bonus   ? <span>VEL +{row.item.speed_bonus}</span> : null}
+                        <div className="flex items-center gap-2 min-w-0">
+                          {row.item.icon_url ? (
+                            <img src={row.item.icon_url} alt="" className="h-10 w-10 shrink-0 object-contain" />
+                          ) : null}
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className={cn("truncate font-display text-sm", cls.text)}>{row.item.name}</span>
+                              <RarityBadge rarity={row.item.rarity as Rarity} />
+                            </div>
+                            <div className="mt-1 flex flex-wrap gap-1 text-[10px] text-muted-foreground">
+                              {row.item.attack_bonus  ? <span>ATK +{row.item.attack_bonus}</span> : null}
+                              {row.item.defense_bonus ? <span>DEF +{row.item.defense_bonus}</span> : null}
+                              {row.item.hp_bonus      ? <span>HP +{row.item.hp_bonus}</span> : null}
+                              {row.item.mana_bonus    ? <span>MP +{row.item.mana_bonus}</span> : null}
+                              {row.item.speed_bonus   ? <span>VEL +{row.item.speed_bonus}</span> : null}
+                            </div>
                           </div>
                         </div>
                         <Button size="sm" onClick={() => equipMut.mutate(row.id)}>Equipar</Button>
                       </div>
                     );
                   })
+
                 )}
               </div>
             </CardContent>

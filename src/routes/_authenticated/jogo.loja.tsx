@@ -91,9 +91,27 @@ function LojaPage() {
                 return (
                   <Card key={it.id} className={cn("border bg-card/60 transition", cls.border)}>
                     <CardHeader className="pb-2">
-                      <div className="flex items-start justify-between gap-2">
-                        <CardTitle className={cn("font-display text-base", cls.text)}>{it.name}</CardTitle>
-                        <RarityBadge rarity={it.rarity as Rarity} />
+                      <div className="flex items-start gap-3">
+                        {it.icon_url ? (
+                          <img
+                            src={it.icon_url}
+                            alt=""
+                            className={cn("h-12 w-12 rounded border bg-background/40 object-contain p-1", cls.border)}
+                          />
+                        ) : (
+                          <div className={cn("h-12 w-12 rounded border bg-background/40", cls.border)} />
+                        )}
+                        <div className="flex-1">
+                          <div className="flex items-start justify-between gap-2">
+                            <CardTitle className={cn("font-display text-base", cls.text)}>{it.name}</CardTitle>
+                            <RarityBadge rarity={it.rarity as Rarity} />
+                          </div>
+                          {it.allowed_archetypes && it.allowed_archetypes.length > 0 ? (
+                            <p className="mt-1 text-[10px] uppercase tracking-wider text-primary/80">
+                              Exclusivo · {it.allowed_archetypes.join(", ")}
+                            </p>
+                          ) : null}
+                        </div>
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-3">
@@ -120,6 +138,7 @@ function LojaPage() {
                       </div>
                     </CardContent>
                   </Card>
+
                 );
               })}
             </div>
