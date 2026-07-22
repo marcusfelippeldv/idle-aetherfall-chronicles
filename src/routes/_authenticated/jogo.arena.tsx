@@ -442,11 +442,14 @@ function BossPanel({ character }: { character: any }) {
   const fightFn = useServerFn(fightBoss);
   const regionsQ = useQuery({ queryKey: ["catalog", "regions"], queryFn: () => regionsFn() });
   const [log, setLog] = useState<any>(character.last_combat ?? null);
+  const [replayKey, setReplayKey] = useState(0);
+  const [showRaw, setShowRaw] = useState(false);
 
   const fightMut = useMutation({
     mutationFn: (regionId: string) => fightFn({ data: { regionId } }),
     onSuccess: (r) => {
       setLog(r);
+      setReplayKey((k) => k + 1);
       qc.invalidateQueries({ queryKey: ["me", "character"] });
       qc.invalidateQueries({ queryKey: ["me", "profile"] });
       if (r.winner === "hero") toast.success(`Vitória contra ${r.bossName}!`);
@@ -456,6 +459,11 @@ function BossPanel({ character }: { character: any }) {
   });
 
   const defeated: string[] = character.defeated_bosses ?? [];
+  const regionSlug = log
+    ? (regionsQ.data ?? []).find((r) => r.id === log.regionId)?.slug
+    : undefined;
+  const classSlug = character.classes?.slug;
+  const enrichedLog = log ? { ...log, regionSlug } : null;
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
@@ -479,30 +487,48 @@ function BossPanel({ character }: { character: any }) {
           );
         })}
       </div>
-      <Card className="border-border/60 bg-card/60">
-        <CardHeader>
-          <CardTitle className="font-display text-lg">Log de combate</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {!log ? (
-            <p className="text-sm text-muted-foreground">Nenhum combate ainda.</p>
-          ) : (
-            <div className="space-y-2 text-xs font-mono max-h-96 overflow-y-auto">
-              <p className="text-primary">
-                {log.heroName} vs {log.bossName} — {log.winner === "hero" ? "VITÓRIA" : "DERROTA"}
-              </p>
-              {log.turns.map((t: any, i: number) => (
-                <p key={i} className={t.actor === "hero" ? "text-emerald-300" : "text-rose-300"}>
-                  T{i + 1} · {t.actor === "hero" ? log.heroName : log.bossName} causa {t.damage}{t.crit ? " (CRÍTICO!)" : ""} · alvo HP: {t.targetHpAfter}
-                </p>
-              ))}
-              {log.winner === "hero" && (
-                <p className="text-amber-300 pt-2">+{log.rewardXp} XP · +{log.rewardGold} ouro{log.unlocked ? " · nova região desbloqueada" : ""}</p>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <div className="space-y-3">
+        {enrichedLog ? (
+          <>
+            <CombatStage
+              key={replayKey}
+              log={enrichedLog}
+              heroMaxHp={character.max_hp}
+              classSlug={classSlug}
+              onReplay={() => setReplayKey((k) => k + 1)}
+            />
+            <button
+              type="button"
+              onClick={() => setShowRaw((v) => !v)}
+              className="text-[11px] uppercase tracking-widest text-muted-foreground hover:text-primary"
+            >
+              {showRaw ? "Ocultar" : "Ver"} log detalhado
+            </button>
+            {showRaw && (
+              <Card className="border-border/60 bg-card/60">
+                <CardContent className="p-4">
+                  <div className="space-y-1 text-xs font-mono max-h-72 overflow-y-auto">
+                    <p className="text-primary">
+                      {enrichedLog.heroName} vs {enrichedLog.bossName} — {enrichedLog.winner === "hero" ? "VITÓRIA" : "DERROTA"}
+                    </p>
+                    {enrichedLog.turns.map((t: any, i: number) => (
+                      <p key={i} className={t.actor === "hero" ? "text-emerald-300" : "text-rose-300"}>
+                        T{i + 1} · {t.actor === "hero" ? enrichedLog.heroName : enrichedLog.bossName} causa {t.damage}{t.crit ? " (CRÍTICO!)" : ""} · alvo HP: {t.targetHpAfter}
+                      </p>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </>
+        ) : (
+          <Card className="border-dashed border-border/60 bg-card/40">
+            <CardContent className="p-10 text-center text-sm text-muted-foreground">
+              Escolha um chefe à esquerda para começar o duelo. O combate acontece em tempo real na arena.
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
 }
