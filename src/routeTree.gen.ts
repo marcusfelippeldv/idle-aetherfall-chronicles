@@ -21,6 +21,7 @@ import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedJogoRouteImport } from './routes/_authenticated/jogo'
+import { Route as AuthenticatedCriarHeroiRouteImport } from './routes/_authenticated/criar-heroi'
 import { Route as AuthenticatedJogoIndexRouteImport } from './routes/_authenticated/jogo.index'
 
 const TermosRoute = TermosRouteImport.update({
@@ -82,6 +83,11 @@ const AuthenticatedJogoRoute = AuthenticatedJogoRouteImport.update({
   path: '/jogo',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCriarHeroiRoute = AuthenticatedCriarHeroiRouteImport.update({
+  id: '/criar-heroi',
+  path: '/criar-heroi',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedJogoIndexRoute = AuthenticatedJogoIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -99,6 +105,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/roadmap': typeof RoadmapRoute
   '/termos': typeof TermosRoute
+  '/criar-heroi': typeof AuthenticatedCriarHeroiRoute
   '/jogo': typeof AuthenticatedJogoRouteWithChildren
   '/jogo/': typeof AuthenticatedJogoIndexRoute
 }
@@ -113,6 +120,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/roadmap': typeof RoadmapRoute
   '/termos': typeof TermosRoute
+  '/criar-heroi': typeof AuthenticatedCriarHeroiRoute
   '/jogo': typeof AuthenticatedJogoIndexRoute
 }
 export interface FileRoutesById {
@@ -128,6 +136,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/roadmap': typeof RoadmapRoute
   '/termos': typeof TermosRoute
+  '/_authenticated/criar-heroi': typeof AuthenticatedCriarHeroiRoute
   '/_authenticated/jogo': typeof AuthenticatedJogoRouteWithChildren
   '/_authenticated/jogo/': typeof AuthenticatedJogoIndexRoute
 }
@@ -144,6 +153,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/roadmap'
     | '/termos'
+    | '/criar-heroi'
     | '/jogo'
     | '/jogo/'
   fileRoutesByTo: FileRoutesByTo
@@ -158,6 +168,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/roadmap'
     | '/termos'
+    | '/criar-heroi'
     | '/jogo'
   id:
     | '__root__'
@@ -172,6 +183,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/roadmap'
     | '/termos'
+    | '/_authenticated/criar-heroi'
     | '/_authenticated/jogo'
     | '/_authenticated/jogo/'
   fileRoutesById: FileRoutesById
@@ -276,6 +288,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedJogoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/criar-heroi': {
+      id: '/_authenticated/criar-heroi'
+      path: '/criar-heroi'
+      fullPath: '/criar-heroi'
+      preLoaderRoute: typeof AuthenticatedCriarHeroiRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/jogo/': {
       id: '/_authenticated/jogo/'
       path: '/'
@@ -298,10 +317,12 @@ const AuthenticatedJogoRouteWithChildren =
   AuthenticatedJogoRoute._addFileChildren(AuthenticatedJogoRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedCriarHeroiRoute: typeof AuthenticatedCriarHeroiRoute
   AuthenticatedJogoRoute: typeof AuthenticatedJogoRouteWithChildren
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedCriarHeroiRoute: AuthenticatedCriarHeroiRoute,
   AuthenticatedJogoRoute: AuthenticatedJogoRouteWithChildren,
 }
 
