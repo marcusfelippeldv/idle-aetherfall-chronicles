@@ -4,7 +4,10 @@ import { cn } from "@/lib/utils";
 const tabs = [
   { to: "/jogo", label: "Bastião", exact: true },
   { to: "/jogo/equipe", label: "Equipe" },
+  { to: "/jogo/prioridades", label: "Prioridades" },
+  { to: "/jogo/combate", label: "Combate" },
 ];
+
 
 export const Route = createFileRoute("/_authenticated/jogo")({
   component: JogoLayout,
