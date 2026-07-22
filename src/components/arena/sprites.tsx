@@ -130,6 +130,14 @@ export function EnemySprite({
 
 function paletteFor(slug?: string) {
   switch (slug) {
+    // zonas Aetherfall (novas)
+    case "vilarejo-esquecido":
+      return { body: "#3a4a3a", armor: "#25311f", horn: "#c0b280", eye: "#f5c15c" };
+    case "ruinas-de-veyr":
+      return { body: "#7a4a2a", armor: "#4a2812", horn: "#f2d199", eye: "#ff6a3a" };
+    case "floresta-sombria":
+      return { body: "#3a2f5c", armor: "#231a3a", horn: "#c9b0ff", eye: "#a86bff" };
+    // aliases antigos
     case "bosque-cinza":
       return { body: "#3a4a3a", armor: "#25311f", horn: "#c0b280", eye: "#f5c15c" };
     case "areias-do-crepusculo":
