@@ -98,11 +98,21 @@ function AdminDashboard() {
             />
           </div>
 
-          <div className="mt-8">
+          <div className="mt-8 flex flex-wrap gap-3">
             <Button asChild>
               <Link to="/admin/jogadores">
-                <Users className="mr-2 h-4 w-4" /> Gerenciar jogadores{" "}
+                <Users className="mr-2 h-4 w-4" /> Jogadores{" "}
                 <ArrowRight className="ml-1 h-4 w-4" />
+              </Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link to="/admin/herois">
+                <Sparkles className="mr-2 h-4 w-4" /> Heróis
+              </Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link to="/admin/auditoria">
+                <BadgeCheck className="mr-2 h-4 w-4" /> Auditoria
               </Link>
             </Button>
           </div>
