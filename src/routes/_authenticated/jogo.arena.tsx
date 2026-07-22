@@ -138,7 +138,7 @@ function ArenaPage() {
         </TabsList>
 
         <TabsContent value="expedicoes" className="mt-6">
-          <ExpeditionsPanel character={character} expedition={expedition} />
+          <ExpeditionsPanel character={character} expedition={expedition} classSlug={character.classes?.slug} />
         </TabsContent>
         <TabsContent value="inventario" className="mt-6">
           <InventoryPanel />
