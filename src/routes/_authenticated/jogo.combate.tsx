@@ -69,8 +69,11 @@ function CombatePage() {
     <div className="mx-auto max-w-5xl px-4 py-8 md:px-6">
       <header className="mb-6">
         <h1 className="font-display text-3xl">Arena de Combate</h1>
-        <p className="text-sm text-muted-foreground">Simule um combate por iniciativa contra os inimigos das regiões.</p>
+        <p className="text-sm text-muted-foreground">Deixe sua party farmando idle 24/7 ou simule uma batalha manual.</p>
       </header>
+
+      <IdlePanel regions={regions} stages={stagesQ.data?.stages ?? []} />
+
 
       <Card className="mb-6 border-border/60 bg-card/70">
         <CardContent className="grid gap-3 p-4 md:grid-cols-[1fr_1fr_auto] md:items-end md:p-6">
