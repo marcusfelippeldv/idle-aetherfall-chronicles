@@ -5,14 +5,14 @@ export const Route = createFileRoute("/_authenticated/jogo")({
   component: JogoLayout,
 });
 
-const TABS = [
+const TABS: ReadonlyArray<{ to: string; label: string; icon: typeof Home; exact?: boolean }> = [
   { to: "/jogo", label: "Bastião", icon: Home, exact: true },
   { to: "/jogo/arena", label: "Incursão", icon: Swords },
   { to: "/jogo/coorte", label: "Coorte", icon: Users },
   { to: "/jogo/inventario", label: "Inventário", icon: Backpack },
   { to: "/jogo/carteira", label: "Carteira", icon: Coins },
   { to: "/ranking", label: "Ranking", icon: Trophy },
-] as const;
+];
 
 function JogoLayout() {
   return (
