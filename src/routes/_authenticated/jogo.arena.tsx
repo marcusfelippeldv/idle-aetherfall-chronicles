@@ -89,7 +89,7 @@ function ArenaPage() {
   }
 
   const character = characterQ.data?.character;
-  if (!character) return <Navigate to="/jogo/novo" replace />;
+  if (!character) return <Navigate to="/criar-heroi" replace />;
 
   const expedition = characterQ.data?.expedition ?? null;
   const wallet = profileQ.data?.wallet;
