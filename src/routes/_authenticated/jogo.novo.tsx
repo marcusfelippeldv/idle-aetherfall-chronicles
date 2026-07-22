@@ -104,8 +104,8 @@ function NewCharacterPage() {
         <CardHeader>
           <CardTitle className="font-display">Nome do herói</CardTitle>
         </CardHeader>
-        <CardContent asChild>
-          <form onSubmit={submit} className="space-y-4 p-6 pt-0">
+        <CardContent>
+          <form onSubmit={submit} className="space-y-4">
           <div>
             <div className="flex items-end justify-between gap-3">
               <Label htmlFor="name">Nome</Label>
