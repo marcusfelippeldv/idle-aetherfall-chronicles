@@ -186,12 +186,12 @@ function HeroHeader({ character, wallet }: { character: any; wallet: any }) {
         <div className="grid content-start gap-2 md:text-right">
           <div className="flex items-center gap-2 md:justify-end">
             <Coins className="h-4 w-4 text-amber-400" />
-            <span className="font-display text-xl">{Number(wallet?.gold_balance ?? 0).toLocaleString("pt-BR")}</span>
+            <AnimatedNumber value={Number(wallet?.gold_balance ?? 0)} className="font-display text-xl" />
             <span className="text-xs text-muted-foreground">ouro</span>
           </div>
           <div className="flex items-center gap-2 md:justify-end">
             <Gem className="h-4 w-4 text-violet-400" />
-            <span className="font-display text-xl">{Number(wallet?.premium_balance ?? 0).toLocaleString("pt-BR")}</span>
+            <AnimatedNumber value={Number(wallet?.premium_balance ?? 0)} className="font-display text-xl" />
             <span className="text-xs text-muted-foreground">cristais</span>
           </div>
         </div>
