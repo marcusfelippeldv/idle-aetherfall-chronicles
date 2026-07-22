@@ -1,5 +1,5 @@
 import { Link, useRouter } from "@tanstack/react-router";
-import { Menu, Sparkles, LogOut, LayoutDashboard, Shield, Swords, Users, Backpack, Coins, Trophy } from "lucide-react";
+import { Menu, Sparkles, LogOut, LayoutDashboard } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
@@ -104,11 +104,6 @@ export function SiteHeader() {
                       <LayoutDashboard className="mr-2 h-4 w-4" /> Painel
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/admin">
-                      <Shield className="mr-2 h-4 w-4" /> Administração
-                    </Link>
-                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut}>
                     <LogOut className="mr-2 h-4 w-4" /> Sair
@@ -158,11 +153,6 @@ export function SiteHeader() {
                     <Button asChild variant="outline">
                       <Link to="/jogo" onClick={() => setOpen(false)}>
                         Painel
-                      </Link>
-                    </Button>
-                    <Button asChild variant="outline">
-                      <Link to="/admin" onClick={() => setOpen(false)}>
-                        Administração
                       </Link>
                     </Button>
                     <Button

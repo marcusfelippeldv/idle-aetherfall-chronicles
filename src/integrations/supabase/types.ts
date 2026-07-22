@@ -14,6 +14,53 @@ export type Database = {
   }
   public: {
     Tables: {
+      abilities: {
+        Row: {
+          class_slug: string | null
+          description: string
+          element: Database["public"]["Enums"]["element"]
+          icon_url: string | null
+          kind: string
+          mana_cost: number
+          name: string
+          power: number
+          slug: string
+          target: string
+        }
+        Insert: {
+          class_slug?: string | null
+          description: string
+          element?: Database["public"]["Enums"]["element"]
+          icon_url?: string | null
+          kind: string
+          mana_cost?: number
+          name: string
+          power?: number
+          slug: string
+          target?: string
+        }
+        Update: {
+          class_slug?: string | null
+          description?: string
+          element?: Database["public"]["Enums"]["element"]
+          icon_url?: string | null
+          kind?: string
+          mana_cost?: number
+          name?: string
+          power?: number
+          slug?: string
+          target?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "abilities_class_slug_fkey"
+            columns: ["class_slug"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["slug"]
+          },
+        ]
+      }
       admin_audit_logs: {
         Row: {
           action: string
@@ -50,72 +97,237 @@ export type Database = {
         }
         Relationships: []
       }
-      archetypes: {
+      ancestral_entities: {
         Row: {
-          base_attack: number
-          base_defense: number
-          base_hp: number
-          base_mana: number
-          base_speed: number
-          created_at: string
+          cooldown_min: number
           description: string
-          hp_per_level: number
-          id: string
-          mana_per_level: number
+          effect: string
+          element: Database["public"]["Enums"]["element"]
+          icon_url: string | null
           name: string
-          role: Database["public"]["Enums"]["archetype_role"]
+          portrait_url: string | null
           slug: string
-          sort_order: number
-          starting_weapon: string
-          uses_mana_potion: boolean
         }
         Insert: {
-          base_attack: number
-          base_defense: number
-          base_hp: number
-          base_mana: number
-          base_speed: number
-          created_at?: string
+          cooldown_min?: number
           description: string
-          hp_per_level: number
-          id?: string
-          mana_per_level: number
+          effect: string
+          element: Database["public"]["Enums"]["element"]
+          icon_url?: string | null
           name: string
-          role: Database["public"]["Enums"]["archetype_role"]
+          portrait_url?: string | null
           slug: string
-          sort_order?: number
-          starting_weapon: string
-          uses_mana_potion?: boolean
         }
         Update: {
-          base_attack?: number
-          base_defense?: number
-          base_hp?: number
-          base_mana?: number
-          base_speed?: number
-          created_at?: string
+          cooldown_min?: number
           description?: string
-          hp_per_level?: number
-          id?: string
-          mana_per_level?: number
+          effect?: string
+          element?: Database["public"]["Enums"]["element"]
+          icon_url?: string | null
           name?: string
-          role?: Database["public"]["Enums"]["archetype_role"]
+          portrait_url?: string | null
           slug?: string
-          sort_order?: number
-          starting_weapon?: string
-          uses_mana_potion?: boolean
         }
         Relationships: []
       }
-      characters: {
+      classes: {
         Row: {
-          archetype_id: string
-          attack: number
+          atk_per_level: number
+          awakening_desc: string
+          awakening_name: string
+          base_atk: number
+          base_def: number
+          base_hp: number
+          base_mana: number
+          base_spd: number
           created_at: string
-          current_hp: number
-          current_mana: number
-          current_xp: number
-          defense: number
+          def_per_level: number
+          description: string
+          full_url: string | null
+          hp_per_level: number
+          icon_url: string | null
+          name: string
+          parent_slug: string | null
+          portrait_url: string | null
+          role: Database["public"]["Enums"]["class_role"]
+          slug: string
+          tier: number
+        }
+        Insert: {
+          atk_per_level?: number
+          awakening_desc: string
+          awakening_name: string
+          base_atk?: number
+          base_def?: number
+          base_hp?: number
+          base_mana?: number
+          base_spd?: number
+          created_at?: string
+          def_per_level?: number
+          description: string
+          full_url?: string | null
+          hp_per_level?: number
+          icon_url?: string | null
+          name: string
+          parent_slug?: string | null
+          portrait_url?: string | null
+          role: Database["public"]["Enums"]["class_role"]
+          slug: string
+          tier?: number
+        }
+        Update: {
+          atk_per_level?: number
+          awakening_desc?: string
+          awakening_name?: string
+          base_atk?: number
+          base_def?: number
+          base_hp?: number
+          base_mana?: number
+          base_spd?: number
+          created_at?: string
+          def_per_level?: number
+          description?: string
+          full_url?: string | null
+          hp_per_level?: number
+          icon_url?: string | null
+          name?: string
+          parent_slug?: string | null
+          portrait_url?: string | null
+          role?: Database["public"]["Enums"]["class_role"]
+          slug?: string
+          tier?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "classes_parent_slug_fkey"
+            columns: ["parent_slug"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["slug"]
+          },
+        ]
+      }
+      element_matchups: {
+        Row: {
+          attacker: Database["public"]["Enums"]["element"]
+          defender: Database["public"]["Enums"]["element"]
+          multiplier: number
+        }
+        Insert: {
+          attacker: Database["public"]["Enums"]["element"]
+          defender: Database["public"]["Enums"]["element"]
+          multiplier?: number
+        }
+        Update: {
+          attacker?: Database["public"]["Enums"]["element"]
+          defender?: Database["public"]["Enums"]["element"]
+          multiplier?: number
+        }
+        Relationships: []
+      }
+      enemies: {
+        Row: {
+          atk: number
+          def: number
+          element: Database["public"]["Enums"]["element"]
+          gold_reward: number
+          hp: number
+          is_boss: boolean
+          level: number
+          name: string
+          slug: string
+          spd: number
+          sprite_url: string | null
+          xp_reward: number
+        }
+        Insert: {
+          atk: number
+          def: number
+          element?: Database["public"]["Enums"]["element"]
+          gold_reward?: number
+          hp: number
+          is_boss?: boolean
+          level?: number
+          name: string
+          slug: string
+          spd?: number
+          sprite_url?: string | null
+          xp_reward?: number
+        }
+        Update: {
+          atk?: number
+          def?: number
+          element?: Database["public"]["Enums"]["element"]
+          gold_reward?: number
+          hp?: number
+          is_boss?: boolean
+          level?: number
+          name?: string
+          slug?: string
+          spd?: number
+          sprite_url?: string | null
+          xp_reward?: number
+        }
+        Relationships: []
+      }
+      expeditions: {
+        Row: {
+          claimed_at: string | null
+          duration_min: number
+          ends_at: string
+          id: string
+          party_snapshot: Json
+          region_slug: string
+          report: Json | null
+          seed: number
+          started_at: string
+          status: Database["public"]["Enums"]["expedition_status"]
+          user_id: string
+        }
+        Insert: {
+          claimed_at?: string | null
+          duration_min: number
+          ends_at: string
+          id?: string
+          party_snapshot: Json
+          region_slug: string
+          report?: Json | null
+          seed: number
+          started_at?: string
+          status?: Database["public"]["Enums"]["expedition_status"]
+          user_id: string
+        }
+        Update: {
+          claimed_at?: string | null
+          duration_min?: number
+          ends_at?: string
+          id?: string
+          party_snapshot?: Json
+          region_slug?: string
+          report?: Json | null
+          seed?: number
+          started_at?: string
+          status?: Database["public"]["Enums"]["expedition_status"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expeditions_region_slug_fkey"
+            columns: ["region_slug"]
+            isOneToOne: false
+            referencedRelation: "regions"
+            referencedColumns: ["slug"]
+          },
+        ]
+      }
+      heroes: {
+        Row: {
+          atk: number
+          awakening_energy: number
+          class_slug: string
+          created_at: string
+          def: number
+          element: Database["public"]["Enums"]["element"]
           equipped_amuleto: string | null
           equipped_anel: string | null
           equipped_arma: string | null
@@ -124,29 +336,26 @@ export type Database = {
           equipped_peito: string | null
           equipped_pernas: string | null
           equipped_pes: string | null
+          hp: number
           id: string
-          is_active: boolean
+          is_protagonist: boolean
           level: number
-          max_hp: number
-          max_mana: number
+          mana: number
           name: string
-          skill_fist: number
-          skill_magic: number
-          skill_melee: number
-          skill_ranged: number
-          skill_shield: number
-          speed: number
+          portrait_url: string | null
+          priorities: Json
+          spd: number
           updated_at: string
           user_id: string
+          xp: number
         }
         Insert: {
-          archetype_id: string
-          attack: number
+          atk?: number
+          awakening_energy?: number
+          class_slug: string
           created_at?: string
-          current_hp: number
-          current_mana: number
-          current_xp?: number
-          defense: number
+          def?: number
+          element?: Database["public"]["Enums"]["element"]
           equipped_amuleto?: string | null
           equipped_anel?: string | null
           equipped_arma?: string | null
@@ -155,307 +364,80 @@ export type Database = {
           equipped_peito?: string | null
           equipped_pernas?: string | null
           equipped_pes?: string | null
-          id?: string
-          is_active?: boolean
-          level?: number
-          max_hp: number
-          max_mana: number
-          name: string
-          skill_fist?: number
-          skill_magic?: number
-          skill_melee?: number
-          skill_ranged?: number
-          skill_shield?: number
-          speed: number
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          archetype_id?: string
-          attack?: number
-          created_at?: string
-          current_hp?: number
-          current_mana?: number
-          current_xp?: number
-          defense?: number
-          equipped_amuleto?: string | null
-          equipped_anel?: string | null
-          equipped_arma?: string | null
-          equipped_elmo?: string | null
-          equipped_ofmao?: string | null
-          equipped_peito?: string | null
-          equipped_pernas?: string | null
-          equipped_pes?: string | null
-          id?: string
-          is_active?: boolean
-          level?: number
-          max_hp?: number
-          max_mana?: number
-          name?: string
-          skill_fist?: number
-          skill_magic?: number
-          skill_melee?: number
-          skill_ranged?: number
-          skill_shield?: number
-          speed?: number
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "characters_archetype_id_fkey"
-            columns: ["archetype_id"]
-            isOneToOne: false
-            referencedRelation: "archetypes"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "characters_equipped_amuleto_fkey"
-            columns: ["equipped_amuleto"]
-            isOneToOne: false
-            referencedRelation: "inventory"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "characters_equipped_anel_fkey"
-            columns: ["equipped_anel"]
-            isOneToOne: false
-            referencedRelation: "inventory"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "characters_equipped_arma_fkey"
-            columns: ["equipped_arma"]
-            isOneToOne: false
-            referencedRelation: "inventory"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "characters_equipped_elmo_fkey"
-            columns: ["equipped_elmo"]
-            isOneToOne: false
-            referencedRelation: "inventory"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "characters_equipped_ofmao_fkey"
-            columns: ["equipped_ofmao"]
-            isOneToOne: false
-            referencedRelation: "inventory"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "characters_equipped_peito_fkey"
-            columns: ["equipped_peito"]
-            isOneToOne: false
-            referencedRelation: "inventory"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "characters_equipped_pernas_fkey"
-            columns: ["equipped_pernas"]
-            isOneToOne: false
-            referencedRelation: "inventory"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "characters_equipped_pes_fkey"
-            columns: ["equipped_pes"]
-            isOneToOne: false
-            referencedRelation: "inventory"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      cohorts: {
-        Row: {
-          leader_character_id: string | null
-          slot2_character_id: string | null
-          slot3_character_id: string | null
-          slots_unlocked: number
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          leader_character_id?: string | null
-          slot2_character_id?: string | null
-          slot3_character_id?: string | null
-          slots_unlocked?: number
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          leader_character_id?: string | null
-          slot2_character_id?: string | null
-          slot3_character_id?: string | null
-          slots_unlocked?: number
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "cohorts_leader_character_id_fkey"
-            columns: ["leader_character_id"]
-            isOneToOne: false
-            referencedRelation: "characters"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cohorts_slot2_character_id_fkey"
-            columns: ["slot2_character_id"]
-            isOneToOne: false
-            referencedRelation: "characters"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cohorts_slot3_character_id_fkey"
-            columns: ["slot3_character_id"]
-            isOneToOne: false
-            referencedRelation: "characters"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      enemies: {
-        Row: {
-          attack: number
-          created_at: string
-          defense: number
-          gold_max: number
-          gold_min: number
-          hp: number
-          id: string
-          is_boss: boolean
-          level: number
-          name: string
-          slug: string
-          xp_reward: number
-        }
-        Insert: {
-          attack: number
-          created_at?: string
-          defense: number
-          gold_max?: number
-          gold_min?: number
-          hp: number
-          id?: string
-          is_boss?: boolean
-          level?: number
-          name: string
-          slug: string
-          xp_reward?: number
-        }
-        Update: {
-          attack?: number
-          created_at?: string
-          defense?: number
-          gold_max?: number
-          gold_min?: number
           hp?: number
           id?: string
-          is_boss?: boolean
+          is_protagonist?: boolean
           level?: number
-          name?: string
-          slug?: string
-          xp_reward?: number
-        }
-        Relationships: []
-      }
-      incursions: {
-        Row: {
-          created_at: string
-          current_wave: number
-          ended_at: string | null
-          expected_end_at: string
-          id: string
-          loop_enabled: boolean
-          mode: Database["public"]["Enums"]["incursion_mode"]
-          offline_minutes_used: number
-          rewards_json: Json
-          rng_seed: number
-          started_at: string
-          status: Database["public"]["Enums"]["incursion_status"]
-          updated_at: string
-          user_id: string
-          zone_id: string
-        }
-        Insert: {
-          created_at?: string
-          current_wave?: number
-          ended_at?: string | null
-          expected_end_at: string
-          id?: string
-          loop_enabled?: boolean
-          mode?: Database["public"]["Enums"]["incursion_mode"]
-          offline_minutes_used?: number
-          rewards_json?: Json
-          rng_seed: number
-          started_at?: string
-          status?: Database["public"]["Enums"]["incursion_status"]
+          mana?: number
+          name: string
+          portrait_url?: string | null
+          priorities?: Json
+          spd?: number
           updated_at?: string
           user_id: string
-          zone_id: string
+          xp?: number
         }
         Update: {
+          atk?: number
+          awakening_energy?: number
+          class_slug?: string
           created_at?: string
-          current_wave?: number
-          ended_at?: string | null
-          expected_end_at?: string
+          def?: number
+          element?: Database["public"]["Enums"]["element"]
+          equipped_amuleto?: string | null
+          equipped_anel?: string | null
+          equipped_arma?: string | null
+          equipped_elmo?: string | null
+          equipped_ofmao?: string | null
+          equipped_peito?: string | null
+          equipped_pernas?: string | null
+          equipped_pes?: string | null
+          hp?: number
           id?: string
-          loop_enabled?: boolean
-          mode?: Database["public"]["Enums"]["incursion_mode"]
-          offline_minutes_used?: number
-          rewards_json?: Json
-          rng_seed?: number
-          started_at?: string
-          status?: Database["public"]["Enums"]["incursion_status"]
+          is_protagonist?: boolean
+          level?: number
+          mana?: number
+          name?: string
+          portrait_url?: string | null
+          priorities?: Json
+          spd?: number
           updated_at?: string
           user_id?: string
-          zone_id?: string
+          xp?: number
         }
         Relationships: [
           {
-            foreignKeyName: "incursions_zone_id_fkey"
-            columns: ["zone_id"]
+            foreignKeyName: "heroes_class_slug_fkey"
+            columns: ["class_slug"]
             isOneToOne: false
-            referencedRelation: "zones"
-            referencedColumns: ["id"]
+            referencedRelation: "classes"
+            referencedColumns: ["slug"]
           },
         ]
       }
       inventory: {
         Row: {
-          created_at: string
-          equipped_on_character: string | null
+          acquired_at: string
           id: string
           item_id: string
           quantity: number
           user_id: string
         }
         Insert: {
-          created_at?: string
-          equipped_on_character?: string | null
+          acquired_at?: string
           id?: string
           item_id: string
           quantity?: number
           user_id: string
         }
         Update: {
-          created_at?: string
-          equipped_on_character?: string | null
+          acquired_at?: string
           id?: string
           item_id?: string
           quantity?: number
           user_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "inventory_equipped_on_character_fkey"
-            columns: ["equipped_on_character"]
-            isOneToOne: false
-            referencedRelation: "characters"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "inventory_item_id_fkey"
             columns: ["item_id"]
@@ -467,12 +449,11 @@ export type Database = {
       }
       items: {
         Row: {
-          allowed_archetypes: string[]
           attack_bonus: number
-          buyable: boolean
-          created_at: string
+          class_restriction: string[]
           defense_bonus: number
-          description: string
+          description: string | null
+          element_affinity: Database["public"]["Enums"]["element"] | null
           gold_value: number
           hp_bonus: number
           icon_url: string | null
@@ -483,16 +464,16 @@ export type Database = {
           sell_price: number
           slot: Database["public"]["Enums"]["item_slot"]
           slug: string
+          sold_in_shop: boolean
           speed_bonus: number
           tier: number
         }
         Insert: {
-          allowed_archetypes?: string[]
           attack_bonus?: number
-          buyable?: boolean
-          created_at?: string
+          class_restriction?: string[]
           defense_bonus?: number
-          description?: string
+          description?: string | null
+          element_affinity?: Database["public"]["Enums"]["element"] | null
           gold_value?: number
           hp_bonus?: number
           icon_url?: string | null
@@ -503,16 +484,16 @@ export type Database = {
           sell_price?: number
           slot: Database["public"]["Enums"]["item_slot"]
           slug: string
+          sold_in_shop?: boolean
           speed_bonus?: number
           tier?: number
         }
         Update: {
-          allowed_archetypes?: string[]
           attack_bonus?: number
-          buyable?: boolean
-          created_at?: string
+          class_restriction?: string[]
           defense_bonus?: number
-          description?: string
+          description?: string | null
+          element_affinity?: Database["public"]["Enums"]["element"] | null
           gold_value?: number
           hp_bonus?: number
           icon_url?: string | null
@@ -523,34 +504,80 @@ export type Database = {
           sell_price?: number
           slot?: Database["public"]["Enums"]["item_slot"]
           slug?: string
+          sold_in_shop?: boolean
           speed_bonus?: number
           tier?: number
         }
         Relationships: []
       }
-      offline_reserves: {
+      parties: {
         Row: {
-          hunt_minutes_left: number
-          last_tick_at: string
-          train_minutes_left: number
+          entity_slug: string | null
+          id: string
+          slot1: string | null
+          slot2: string | null
+          slot3: string | null
+          slot4: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
-          hunt_minutes_left?: number
-          last_tick_at?: string
-          train_minutes_left?: number
+          entity_slug?: string | null
+          id?: string
+          slot1?: string | null
+          slot2?: string | null
+          slot3?: string | null
+          slot4?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
-          hunt_minutes_left?: number
-          last_tick_at?: string
-          train_minutes_left?: number
+          entity_slug?: string | null
+          id?: string
+          slot1?: string | null
+          slot2?: string | null
+          slot3?: string | null
+          slot4?: string | null
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "parties_entity_slug_fkey"
+            columns: ["entity_slug"]
+            isOneToOne: false
+            referencedRelation: "ancestral_entities"
+            referencedColumns: ["slug"]
+          },
+          {
+            foreignKeyName: "parties_slot1_fkey"
+            columns: ["slot1"]
+            isOneToOne: false
+            referencedRelation: "heroes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "parties_slot2_fkey"
+            columns: ["slot2"]
+            isOneToOne: false
+            referencedRelation: "heroes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "parties_slot3_fkey"
+            columns: ["slot3"]
+            isOneToOne: false
+            referencedRelation: "heroes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "parties_slot4_fkey"
+            columns: ["slot4"]
+            isOneToOne: false
+            referencedRelation: "heroes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -588,6 +615,137 @@ export type Database = {
         }
         Relationships: []
       }
+      regions: {
+        Row: {
+          background_url: string | null
+          boss_slug: string | null
+          chapter: number
+          description: string
+          name: string
+          recommended_level: number
+          slug: string
+          sort_order: number
+        }
+        Insert: {
+          background_url?: string | null
+          boss_slug?: string | null
+          chapter?: number
+          description: string
+          name: string
+          recommended_level?: number
+          slug: string
+          sort_order?: number
+        }
+        Update: {
+          background_url?: string | null
+          boss_slug?: string | null
+          chapter?: number
+          description?: string
+          name?: string
+          recommended_level?: number
+          slug?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      stages: {
+        Row: {
+          boss_slug: string | null
+          enemy_pool: string[]
+          id: string
+          is_boss: boolean
+          region_slug: string
+          stage_number: number
+        }
+        Insert: {
+          boss_slug?: string | null
+          enemy_pool?: string[]
+          id?: string
+          is_boss?: boolean
+          region_slug: string
+          stage_number: number
+        }
+        Update: {
+          boss_slug?: string | null
+          enemy_pool?: string[]
+          id?: string
+          is_boss?: boolean
+          region_slug?: string
+          stage_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stages_boss_slug_fkey"
+            columns: ["boss_slug"]
+            isOneToOne: false
+            referencedRelation: "enemies"
+            referencedColumns: ["slug"]
+          },
+          {
+            foreignKeyName: "stages_region_slug_fkey"
+            columns: ["region_slug"]
+            isOneToOne: false
+            referencedRelation: "regions"
+            referencedColumns: ["slug"]
+          },
+        ]
+      }
+      story_chapters: {
+        Row: {
+          body: string
+          chapter_number: number
+          cover_url: string | null
+          slug: string
+          title: string
+          unlock_condition: string | null
+        }
+        Insert: {
+          body: string
+          chapter_number: number
+          cover_url?: string | null
+          slug: string
+          title: string
+          unlock_condition?: string | null
+        }
+        Update: {
+          body?: string
+          chapter_number?: number
+          cover_url?: string | null
+          slug?: string
+          title?: string
+          unlock_condition?: string | null
+        }
+        Relationships: []
+      }
+      user_entities: {
+        Row: {
+          cooldown_until: string | null
+          entity_slug: string
+          unlocked_at: string
+          user_id: string
+        }
+        Insert: {
+          cooldown_until?: string | null
+          entity_slug: string
+          unlocked_at?: string
+          user_id: string
+        }
+        Update: {
+          cooldown_until?: string | null
+          entity_slug?: string
+          unlocked_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_entities_entity_slug_fkey"
+            columns: ["entity_slug"]
+            isOneToOne: false
+            referencedRelation: "ancestral_entities"
+            referencedColumns: ["slug"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -609,6 +767,32 @@ export type Database = {
         }
         Relationships: []
       }
+      user_story_progress: {
+        Row: {
+          chapter_slug: string
+          read_at: string
+          user_id: string
+        }
+        Insert: {
+          chapter_slug: string
+          read_at?: string
+          user_id: string
+        }
+        Update: {
+          chapter_slug?: string
+          read_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_story_progress_chapter_slug_fkey"
+            columns: ["chapter_slug"]
+            isOneToOne: false
+            referencedRelation: "story_chapters"
+            referencedColumns: ["slug"]
+          },
+        ]
+      }
       wallets: {
         Row: {
           gold_balance: number
@@ -627,90 +811,6 @@ export type Database = {
           premium_balance?: number
           updated_at?: string
           user_id?: string
-        }
-        Relationships: []
-      }
-      zone_waves: {
-        Row: {
-          enemy_count: number
-          enemy_id: string
-          id: string
-          is_boss: boolean
-          wave_number: number
-          zone_id: string
-        }
-        Insert: {
-          enemy_count?: number
-          enemy_id: string
-          id?: string
-          is_boss?: boolean
-          wave_number: number
-          zone_id: string
-        }
-        Update: {
-          enemy_count?: number
-          enemy_id?: string
-          id?: string
-          is_boss?: boolean
-          wave_number?: number
-          zone_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "zone_waves_enemy_id_fkey"
-            columns: ["enemy_id"]
-            isOneToOne: false
-            referencedRelation: "enemies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "zone_waves_zone_id_fkey"
-            columns: ["zone_id"]
-            isOneToOne: false
-            referencedRelation: "zones"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      zones: {
-        Row: {
-          created_at: string
-          description: string
-          difficulty_stars: number
-          duration_minutes: number
-          id: string
-          loot_multiplier: number
-          name: string
-          required_level: number
-          slug: string
-          sort_order: number
-          xp_multiplier: number
-        }
-        Insert: {
-          created_at?: string
-          description: string
-          difficulty_stars?: number
-          duration_minutes?: number
-          id?: string
-          loot_multiplier?: number
-          name: string
-          required_level?: number
-          slug: string
-          sort_order?: number
-          xp_multiplier?: number
-        }
-        Update: {
-          created_at?: string
-          description?: string
-          difficulty_stars?: number
-          duration_minutes?: number
-          id?: string
-          loot_multiplier?: number
-          name?: string
-          required_level?: number
-          slug?: string
-          sort_order?: number
-          xp_multiplier?: number
         }
         Relationships: []
       }
@@ -736,8 +836,28 @@ export type Database = {
         | "ranger"
         | "mage_dps"
         | "mage_support"
+      class_role:
+        | "tanque"
+        | "magico"
+        | "suporte"
+        | "fisico"
+        | "lancista"
+        | "assassino"
       currency_type: "gold" | "premium"
-      expedition_status: "running" | "ready" | "claimed" | "cancelled"
+      element:
+        | "fogo"
+        | "gelo"
+        | "raio"
+        | "terra"
+        | "luz"
+        | "sombra"
+        | "arcano"
+        | "neutro"
+      expedition_status:
+        | "em_andamento"
+        | "concluida"
+        | "reivindicada"
+        | "cancelada"
       guild_role: "leader" | "officer" | "member"
       incursion_mode: "ativa" | "vigilia" | "treino"
       incursion_status: "em_andamento" | "concluida" | "falhou" | "cancelada"
@@ -750,13 +870,13 @@ export type Database = {
         | "mitico"
       item_slot:
         | "arma"
+        | "ofmao"
         | "elmo"
         | "peito"
         | "pernas"
         | "pes"
         | "amuleto"
         | "anel"
-        | "ofmao"
         | "consumivel"
         | "material"
       item_type:
@@ -911,21 +1031,44 @@ export const Constants = {
         "mage_dps",
         "mage_support",
       ],
+      class_role: [
+        "tanque",
+        "magico",
+        "suporte",
+        "fisico",
+        "lancista",
+        "assassino",
+      ],
       currency_type: ["gold", "premium"],
-      expedition_status: ["running", "ready", "claimed", "cancelled"],
+      element: [
+        "fogo",
+        "gelo",
+        "raio",
+        "terra",
+        "luz",
+        "sombra",
+        "arcano",
+        "neutro",
+      ],
+      expedition_status: [
+        "em_andamento",
+        "concluida",
+        "reivindicada",
+        "cancelada",
+      ],
       guild_role: ["leader", "officer", "member"],
       incursion_mode: ["ativa", "vigilia", "treino"],
       incursion_status: ["em_andamento", "concluida", "falhou", "cancelada"],
       item_rarity: ["comum", "incomum", "raro", "epico", "lendario", "mitico"],
       item_slot: [
         "arma",
+        "ofmao",
         "elmo",
         "peito",
         "pernas",
         "pes",
         "amuleto",
         "anel",
-        "ofmao",
         "consumivel",
         "material",
       ],

@@ -1,28 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import { Trophy } from "lucide-react";
 
-import { listRanking } from "@/lib/catalog.functions";
 import { Card, CardContent } from "@/components/ui/card";
 
 export const Route = createFileRoute("/ranking")({
   head: () => ({
     meta: [
       { title: "Ranking — Aetherfall Online" },
-      {
-        name: "description",
-        content: "Os heróis mais poderosos de Aetherfall Online, atualizados em tempo real.",
-      },
+      { name: "description", content: "Ranking global dos heróis de Aetherfall Online — em reconstrução." },
       { property: "og:title", content: "Ranking — Aetherfall Online" },
-      { property: "og:description", content: "Descubra quem lidera as incursões em Aetherfall Online." },
+      { property: "og:description", content: "O ranking retorna em breve com o ciclo Eternal Shards." },
     ],
   }),
   component: RankingPage,
 });
 
 function RankingPage() {
-  const q = useQuery({ queryKey: ["public", "ranking"], queryFn: () => listRanking() });
-
   return (
     <div className="mx-auto max-w-3xl px-4 py-16 md:px-6 md:py-24">
       <div className="text-center">
@@ -30,42 +23,11 @@ function RankingPage() {
           <Trophy className="h-7 w-7" />
         </div>
         <h1 className="mt-4 font-display text-4xl md:text-5xl">Ranking Global</h1>
-        <p className="mt-3 text-muted-foreground">Os heróis mais poderosos de Aetherfall.</p>
+        <p className="mt-3 text-muted-foreground">Em reconstrução para o ciclo Eternal Shards.</p>
       </div>
-
       <Card className="mt-8 border-border/60 bg-card/60">
-        <CardContent className="p-0">
-          {(q.data ?? []).length === 0 ? (
-            <div className="py-16 text-center text-sm text-muted-foreground">
-              Ainda não há heróis registrados. Seja o primeiro a forjar sua coorte.
-            </div>
-          ) : (
-            <ul className="divide-y divide-border/60">
-              {(q.data ?? []).map((r, i) => (
-                <li key={r.id} className="flex items-center gap-4 px-6 py-3 hover:bg-muted/40">
-                  <span
-                    className={
-                      "grid h-9 w-9 place-items-center rounded-md font-display text-sm " +
-                      (i === 0
-                        ? "bg-gold-gradient text-primary-foreground shadow-gold"
-                        : i < 3
-                          ? "bg-secondary text-secondary-foreground"
-                          : "bg-muted text-muted-foreground")
-                    }
-                  >
-                    #{i + 1}
-                  </span>
-                  <div className="flex-1">
-                    <div className="font-medium">{r.name}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {r.archetypeName} · Nível {r.level}
-                    </div>
-                  </div>
-                  <div className="font-display text-primary">{r.power.toLocaleString("pt-BR")}</div>
-                </li>
-              ))}
-            </ul>
-          )}
+        <CardContent className="py-16 text-center text-sm text-muted-foreground">
+          O ranking volta assim que os primeiros heróis forem forjados no novo sistema.
         </CardContent>
       </Card>
     </div>

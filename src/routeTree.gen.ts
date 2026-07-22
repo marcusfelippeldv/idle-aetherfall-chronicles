@@ -21,17 +21,7 @@ import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedJogoRouteImport } from './routes/_authenticated/jogo'
-import { Route as AuthenticatedCriarHeroiRouteImport } from './routes/_authenticated/criar-heroi'
-import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/_admin/route'
 import { Route as AuthenticatedJogoIndexRouteImport } from './routes/_authenticated/jogo.index'
-import { Route as AuthenticatedJogoLojaRouteImport } from './routes/_authenticated/jogo.loja'
-import { Route as AuthenticatedJogoInventarioRouteImport } from './routes/_authenticated/jogo.inventario'
-import { Route as AuthenticatedJogoHeroiRouteImport } from './routes/_authenticated/jogo.heroi'
-import { Route as AuthenticatedJogoCoorteRouteImport } from './routes/_authenticated/jogo.coorte'
-import { Route as AuthenticatedJogoCarteiraRouteImport } from './routes/_authenticated/jogo.carteira'
-import { Route as AuthenticatedJogoArenaRouteImport } from './routes/_authenticated/jogo.arena'
-import { Route as AuthenticatedAdminAdminRouteImport } from './routes/_authenticated/_admin/admin'
-import { Route as AuthenticatedAdminAdminAuditoriaRouteImport } from './routes/_authenticated/_admin/admin.auditoria'
 
 const TermosRoute = TermosRouteImport.update({
   id: '/termos',
@@ -92,63 +82,11 @@ const AuthenticatedJogoRoute = AuthenticatedJogoRouteImport.update({
   path: '/jogo',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedCriarHeroiRoute = AuthenticatedCriarHeroiRouteImport.update({
-  id: '/criar-heroi',
-  path: '/criar-heroi',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
-  id: '/_admin',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedJogoIndexRoute = AuthenticatedJogoIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AuthenticatedJogoRoute,
 } as any)
-const AuthenticatedJogoLojaRoute = AuthenticatedJogoLojaRouteImport.update({
-  id: '/loja',
-  path: '/loja',
-  getParentRoute: () => AuthenticatedJogoRoute,
-} as any)
-const AuthenticatedJogoInventarioRoute =
-  AuthenticatedJogoInventarioRouteImport.update({
-    id: '/inventario',
-    path: '/inventario',
-    getParentRoute: () => AuthenticatedJogoRoute,
-  } as any)
-const AuthenticatedJogoHeroiRoute = AuthenticatedJogoHeroiRouteImport.update({
-  id: '/heroi',
-  path: '/heroi',
-  getParentRoute: () => AuthenticatedJogoRoute,
-} as any)
-const AuthenticatedJogoCoorteRoute = AuthenticatedJogoCoorteRouteImport.update({
-  id: '/coorte',
-  path: '/coorte',
-  getParentRoute: () => AuthenticatedJogoRoute,
-} as any)
-const AuthenticatedJogoCarteiraRoute =
-  AuthenticatedJogoCarteiraRouteImport.update({
-    id: '/carteira',
-    path: '/carteira',
-    getParentRoute: () => AuthenticatedJogoRoute,
-  } as any)
-const AuthenticatedJogoArenaRoute = AuthenticatedJogoArenaRouteImport.update({
-  id: '/arena',
-  path: '/arena',
-  getParentRoute: () => AuthenticatedJogoRoute,
-} as any)
-const AuthenticatedAdminAdminRoute = AuthenticatedAdminAdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
-  getParentRoute: () => AuthenticatedAdminRouteRoute,
-} as any)
-const AuthenticatedAdminAdminAuditoriaRoute =
-  AuthenticatedAdminAdminAuditoriaRouteImport.update({
-    id: '/auditoria',
-    path: '/auditoria',
-    getParentRoute: () => AuthenticatedAdminAdminRoute,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -161,17 +99,8 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/roadmap': typeof RoadmapRoute
   '/termos': typeof TermosRoute
-  '/criar-heroi': typeof AuthenticatedCriarHeroiRoute
   '/jogo': typeof AuthenticatedJogoRouteWithChildren
-  '/admin': typeof AuthenticatedAdminAdminRouteWithChildren
-  '/jogo/arena': typeof AuthenticatedJogoArenaRoute
-  '/jogo/carteira': typeof AuthenticatedJogoCarteiraRoute
-  '/jogo/coorte': typeof AuthenticatedJogoCoorteRoute
-  '/jogo/heroi': typeof AuthenticatedJogoHeroiRoute
-  '/jogo/inventario': typeof AuthenticatedJogoInventarioRoute
-  '/jogo/loja': typeof AuthenticatedJogoLojaRoute
   '/jogo/': typeof AuthenticatedJogoIndexRoute
-  '/admin/auditoria': typeof AuthenticatedAdminAdminAuditoriaRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -184,16 +113,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/roadmap': typeof RoadmapRoute
   '/termos': typeof TermosRoute
-  '/criar-heroi': typeof AuthenticatedCriarHeroiRoute
-  '/admin': typeof AuthenticatedAdminAdminRouteWithChildren
-  '/jogo/arena': typeof AuthenticatedJogoArenaRoute
-  '/jogo/carteira': typeof AuthenticatedJogoCarteiraRoute
-  '/jogo/coorte': typeof AuthenticatedJogoCoorteRoute
-  '/jogo/heroi': typeof AuthenticatedJogoHeroiRoute
-  '/jogo/inventario': typeof AuthenticatedJogoInventarioRoute
-  '/jogo/loja': typeof AuthenticatedJogoLojaRoute
   '/jogo': typeof AuthenticatedJogoIndexRoute
-  '/admin/auditoria': typeof AuthenticatedAdminAdminAuditoriaRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -208,18 +128,8 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/roadmap': typeof RoadmapRoute
   '/termos': typeof TermosRoute
-  '/_authenticated/_admin': typeof AuthenticatedAdminRouteRouteWithChildren
-  '/_authenticated/criar-heroi': typeof AuthenticatedCriarHeroiRoute
   '/_authenticated/jogo': typeof AuthenticatedJogoRouteWithChildren
-  '/_authenticated/_admin/admin': typeof AuthenticatedAdminAdminRouteWithChildren
-  '/_authenticated/jogo/arena': typeof AuthenticatedJogoArenaRoute
-  '/_authenticated/jogo/carteira': typeof AuthenticatedJogoCarteiraRoute
-  '/_authenticated/jogo/coorte': typeof AuthenticatedJogoCoorteRoute
-  '/_authenticated/jogo/heroi': typeof AuthenticatedJogoHeroiRoute
-  '/_authenticated/jogo/inventario': typeof AuthenticatedJogoInventarioRoute
-  '/_authenticated/jogo/loja': typeof AuthenticatedJogoLojaRoute
   '/_authenticated/jogo/': typeof AuthenticatedJogoIndexRoute
-  '/_authenticated/_admin/admin/auditoria': typeof AuthenticatedAdminAdminAuditoriaRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -234,17 +144,8 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/roadmap'
     | '/termos'
-    | '/criar-heroi'
     | '/jogo'
-    | '/admin'
-    | '/jogo/arena'
-    | '/jogo/carteira'
-    | '/jogo/coorte'
-    | '/jogo/heroi'
-    | '/jogo/inventario'
-    | '/jogo/loja'
     | '/jogo/'
-    | '/admin/auditoria'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -257,16 +158,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/roadmap'
     | '/termos'
-    | '/criar-heroi'
-    | '/admin'
-    | '/jogo/arena'
-    | '/jogo/carteira'
-    | '/jogo/coorte'
-    | '/jogo/heroi'
-    | '/jogo/inventario'
-    | '/jogo/loja'
     | '/jogo'
-    | '/admin/auditoria'
   id:
     | '__root__'
     | '/'
@@ -280,18 +172,8 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/roadmap'
     | '/termos'
-    | '/_authenticated/_admin'
-    | '/_authenticated/criar-heroi'
     | '/_authenticated/jogo'
-    | '/_authenticated/_admin/admin'
-    | '/_authenticated/jogo/arena'
-    | '/_authenticated/jogo/carteira'
-    | '/_authenticated/jogo/coorte'
-    | '/_authenticated/jogo/heroi'
-    | '/_authenticated/jogo/inventario'
-    | '/_authenticated/jogo/loja'
     | '/_authenticated/jogo/'
-    | '/_authenticated/_admin/admin/auditoria'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -394,20 +276,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedJogoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/criar-heroi': {
-      id: '/_authenticated/criar-heroi'
-      path: '/criar-heroi'
-      fullPath: '/criar-heroi'
-      preLoaderRoute: typeof AuthenticatedCriarHeroiRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/_admin': {
-      id: '/_authenticated/_admin'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/jogo/': {
       id: '/_authenticated/jogo/'
       path: '/'
@@ -415,111 +283,14 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedJogoIndexRouteImport
       parentRoute: typeof AuthenticatedJogoRoute
     }
-    '/_authenticated/jogo/loja': {
-      id: '/_authenticated/jogo/loja'
-      path: '/loja'
-      fullPath: '/jogo/loja'
-      preLoaderRoute: typeof AuthenticatedJogoLojaRouteImport
-      parentRoute: typeof AuthenticatedJogoRoute
-    }
-    '/_authenticated/jogo/inventario': {
-      id: '/_authenticated/jogo/inventario'
-      path: '/inventario'
-      fullPath: '/jogo/inventario'
-      preLoaderRoute: typeof AuthenticatedJogoInventarioRouteImport
-      parentRoute: typeof AuthenticatedJogoRoute
-    }
-    '/_authenticated/jogo/heroi': {
-      id: '/_authenticated/jogo/heroi'
-      path: '/heroi'
-      fullPath: '/jogo/heroi'
-      preLoaderRoute: typeof AuthenticatedJogoHeroiRouteImport
-      parentRoute: typeof AuthenticatedJogoRoute
-    }
-    '/_authenticated/jogo/coorte': {
-      id: '/_authenticated/jogo/coorte'
-      path: '/coorte'
-      fullPath: '/jogo/coorte'
-      preLoaderRoute: typeof AuthenticatedJogoCoorteRouteImport
-      parentRoute: typeof AuthenticatedJogoRoute
-    }
-    '/_authenticated/jogo/carteira': {
-      id: '/_authenticated/jogo/carteira'
-      path: '/carteira'
-      fullPath: '/jogo/carteira'
-      preLoaderRoute: typeof AuthenticatedJogoCarteiraRouteImport
-      parentRoute: typeof AuthenticatedJogoRoute
-    }
-    '/_authenticated/jogo/arena': {
-      id: '/_authenticated/jogo/arena'
-      path: '/arena'
-      fullPath: '/jogo/arena'
-      preLoaderRoute: typeof AuthenticatedJogoArenaRouteImport
-      parentRoute: typeof AuthenticatedJogoRoute
-    }
-    '/_authenticated/_admin/admin': {
-      id: '/_authenticated/_admin/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AuthenticatedAdminAdminRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
-    }
-    '/_authenticated/_admin/admin/auditoria': {
-      id: '/_authenticated/_admin/admin/auditoria'
-      path: '/auditoria'
-      fullPath: '/admin/auditoria'
-      preLoaderRoute: typeof AuthenticatedAdminAdminAuditoriaRouteImport
-      parentRoute: typeof AuthenticatedAdminAdminRoute
-    }
   }
 }
-
-interface AuthenticatedAdminAdminRouteChildren {
-  AuthenticatedAdminAdminAuditoriaRoute: typeof AuthenticatedAdminAdminAuditoriaRoute
-}
-
-const AuthenticatedAdminAdminRouteChildren: AuthenticatedAdminAdminRouteChildren =
-  {
-    AuthenticatedAdminAdminAuditoriaRoute:
-      AuthenticatedAdminAdminAuditoriaRoute,
-  }
-
-const AuthenticatedAdminAdminRouteWithChildren =
-  AuthenticatedAdminAdminRoute._addFileChildren(
-    AuthenticatedAdminAdminRouteChildren,
-  )
-
-interface AuthenticatedAdminRouteRouteChildren {
-  AuthenticatedAdminAdminRoute: typeof AuthenticatedAdminAdminRouteWithChildren
-}
-
-const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
-  {
-    AuthenticatedAdminAdminRoute: AuthenticatedAdminAdminRouteWithChildren,
-  }
-
-const AuthenticatedAdminRouteRouteWithChildren =
-  AuthenticatedAdminRouteRoute._addFileChildren(
-    AuthenticatedAdminRouteRouteChildren,
-  )
 
 interface AuthenticatedJogoRouteChildren {
-  AuthenticatedJogoArenaRoute: typeof AuthenticatedJogoArenaRoute
-  AuthenticatedJogoCarteiraRoute: typeof AuthenticatedJogoCarteiraRoute
-  AuthenticatedJogoCoorteRoute: typeof AuthenticatedJogoCoorteRoute
-  AuthenticatedJogoHeroiRoute: typeof AuthenticatedJogoHeroiRoute
-  AuthenticatedJogoInventarioRoute: typeof AuthenticatedJogoInventarioRoute
-  AuthenticatedJogoLojaRoute: typeof AuthenticatedJogoLojaRoute
   AuthenticatedJogoIndexRoute: typeof AuthenticatedJogoIndexRoute
 }
 
 const AuthenticatedJogoRouteChildren: AuthenticatedJogoRouteChildren = {
-  AuthenticatedJogoArenaRoute: AuthenticatedJogoArenaRoute,
-  AuthenticatedJogoCarteiraRoute: AuthenticatedJogoCarteiraRoute,
-  AuthenticatedJogoCoorteRoute: AuthenticatedJogoCoorteRoute,
-  AuthenticatedJogoHeroiRoute: AuthenticatedJogoHeroiRoute,
-  AuthenticatedJogoInventarioRoute: AuthenticatedJogoInventarioRoute,
-  AuthenticatedJogoLojaRoute: AuthenticatedJogoLojaRoute,
   AuthenticatedJogoIndexRoute: AuthenticatedJogoIndexRoute,
 }
 
@@ -527,14 +298,10 @@ const AuthenticatedJogoRouteWithChildren =
   AuthenticatedJogoRoute._addFileChildren(AuthenticatedJogoRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
-  AuthenticatedCriarHeroiRoute: typeof AuthenticatedCriarHeroiRoute
   AuthenticatedJogoRoute: typeof AuthenticatedJogoRouteWithChildren
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
-  AuthenticatedCriarHeroiRoute: AuthenticatedCriarHeroiRoute,
   AuthenticatedJogoRoute: AuthenticatedJogoRouteWithChildren,
 }
 
