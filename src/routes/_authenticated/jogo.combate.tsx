@@ -237,3 +237,177 @@ function runPlayback(total: number, setStep: (n: number) => void) {
     if (i >= total) window.clearInterval(interval);
   }, 550);
 }
+
+type Region = { slug: string; name: string; recommended_level: number };
+type Stage = { id: string; region_slug: string; stage_number: number; is_boss: boolean };
+
+function IdlePanel({ regions, stages }: { regions: Region[]; stages: Stage[] }) {
+  const qc = useQueryClient();
+  const status = useServerFn(getIdleStatus);
+  const start = useServerFn(startIdleRun);
+  const stop = useServerFn(stopIdleRun);
+  const claim = useServerFn(claimIdleRewards);
+  const beat = useServerFn(heartbeatIdleRun);
+
+  const statusQ = useQuery({
+    queryKey: ["idle-status"],
+    queryFn: () => status(),
+    refetchInterval: 5000,
+    refetchOnWindowFocus: true,
+  });
+
+  const [regionSlug, setRegionSlug] = useState<string>("");
+  const [stageId, setStageId] = useState<string>("");
+  const regionStages = useMemo(() => stages.filter((s) => s.region_slug === regionSlug), [stages, regionSlug]);
+
+  const active = statusQ.data?.active ? statusQ.data : null;
+
+  // Heartbeat while the tab is open and there's an active run.
+  useEffect(() => {
+    if (!active) return;
+    const id = window.setInterval(() => {
+      beat().catch(() => {});
+    }, 20_000);
+    return () => window.clearInterval(id);
+  }, [active, beat]);
+
+  // Local tick between server polls for smooth counters.
+  const [localTickMs, setLocalTickMs] = useState<number>(0);
+  useEffect(() => {
+    if (!active) return;
+    setLocalTickMs(0);
+    const start = Date.now();
+    const id = window.setInterval(() => setLocalTickMs(Date.now() - start), 1000);
+    return () => window.clearInterval(id);
+  }, [active?.lastTickAt, active?.pendingXp, active?.pendingGold]);
+
+  const displayXp = active
+    ? Math.floor(active.pendingXp + localTickMs * active.xpPerSec * (active.offline ? active.offlineXpMultiplier : 1) / 1000)
+    : 0;
+  const displayGold = active
+    ? Math.floor(active.pendingGold + (localTickMs * active.goldPerSec) / 1000)
+    : 0;
+
+  const startMut = useMutation({
+    mutationFn: (id: string) => start({ data: { stageId: id } }),
+    onSuccess: () => {
+      toast.success("Expedição idle iniciada.");
+      qc.invalidateQueries({ queryKey: ["idle-status"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const stopMut = useMutation({
+    mutationFn: () => stop(),
+    onSuccess: () => {
+      toast.info("Expedição encerrada.");
+      qc.invalidateQueries({ queryKey: ["idle-status"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const claimMut = useMutation({
+    mutationFn: () => claim(),
+    onSuccess: (r) => {
+      toast.success(`Coletado: +${r.xp} XP · +${r.gold} ouro`);
+      qc.invalidateQueries({ queryKey: ["idle-status"] });
+      qc.invalidateQueries({ queryKey: ["my-heroes"] });
+      qc.invalidateQueries({ queryKey: ["wallet"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <Card className="mb-6 border-amber-500/30 bg-gradient-to-br from-indigo-950/40 to-violet-950/30">
+      <CardContent className="space-y-4 p-4 md:p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <InfinityIcon className="h-5 w-5 text-amber-300" />
+            <h2 className="font-display text-xl">Expedição Idle</h2>
+            {active && (
+              <Badge variant={active.offline ? "secondary" : "default"} className="gap-1">
+                {active.offline ? <WifiOff className="h-3 w-3" /> : <Wifi className="h-3 w-3" />}
+                {active.offline ? `Offline · XP ${Math.round(active.offlineXpMultiplier * 100)}%` : "Online · XP 100%"}
+              </Badge>
+            )}
+          </div>
+          {active && (
+            <div className="text-xs text-muted-foreground">
+              {active.regionName} · Estágio {active.stageNumber}{active.isBoss ? " · Chefe" : ""}
+            </div>
+          )}
+        </div>
+
+        {active ? (
+          <div className="grid gap-4 md:grid-cols-[1fr_1fr_auto] md:items-center">
+            <div className="rounded-md border border-border/50 bg-background/40 p-3">
+              <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground">
+                <Sparkles className="h-3.5 w-3.5" /> XP acumulado
+              </div>
+              <div className="mt-1 font-mono text-2xl text-amber-200">{displayXp.toLocaleString("pt-BR")}</div>
+              <div className="text-[11px] text-muted-foreground">
+                {(active.xpPerSec * 60).toFixed(1)} XP/min (base)
+              </div>
+            </div>
+            <div className="rounded-md border border-border/50 bg-background/40 p-3">
+              <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground">
+                <Coins className="h-3.5 w-3.5" /> Ouro acumulado
+              </div>
+              <div className="mt-1 font-mono text-2xl text-yellow-200">{displayGold.toLocaleString("pt-BR")}</div>
+              <div className="text-[11px] text-muted-foreground">
+                {(active.goldPerSec * 60).toFixed(1)} ouro/min
+              </div>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Button
+                onClick={() => claimMut.mutate()}
+                disabled={claimMut.isPending || (displayXp <= 0 && displayGold <= 0)}
+                className="shadow-gold"
+              >
+                <Gift className="mr-2 h-4 w-4" />
+                {claimMut.isPending ? "Coletando…" : "Coletar"}
+              </Button>
+              <Button variant="outline" onClick={() => stopMut.mutate()} disabled={stopMut.isPending}>
+                <Square className="mr-2 h-4 w-4" />
+                Parar
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="grid gap-3 md:grid-cols-[1fr_1fr_auto] md:items-end">
+            <div className="space-y-1">
+              <label className="text-xs uppercase tracking-wide text-muted-foreground">Região</label>
+              <Select value={regionSlug} onValueChange={(v) => { setRegionSlug(v); setStageId(""); }}>
+                <SelectTrigger><SelectValue placeholder="Escolha uma região" /></SelectTrigger>
+                <SelectContent>
+                  {regions.map((r) => (
+                    <SelectItem key={r.slug} value={r.slug}>{r.name} · nv. {r.recommended_level}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs uppercase tracking-wide text-muted-foreground">Estágio</label>
+              <Select value={stageId} onValueChange={setStageId} disabled={!regionSlug}>
+                <SelectTrigger><SelectValue placeholder="Escolha um estágio" /></SelectTrigger>
+                <SelectContent>
+                  {regionStages.map((s) => (
+                    <SelectItem key={s.id} value={s.id}>Estágio {s.stage_number}{s.is_boss ? " · Chefe" : ""}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <Button disabled={!stageId || startMut.isPending} onClick={() => startMut.mutate(stageId)} className="shadow-gold">
+              <InfinityIcon className="mr-2 h-4 w-4" />
+              {startMut.isPending ? "Iniciando…" : "Iniciar expedição"}
+            </Button>
+          </div>
+        )}
+
+        <p className="text-[11px] text-muted-foreground">
+          Sua party continua farmando mesmo com o jogo fechado. Enquanto offline, o XP acumula a 50% (o ouro permanece 100%). Volte e clique em <strong>Coletar</strong> para creditar as recompensas.
+        </p>
+      </CardContent>
+    </Card>
+  );
+}
