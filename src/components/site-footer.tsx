@@ -19,7 +19,6 @@ export function SiteFooter() {
         </div>
         <FooterCol title="Jogo">
           <FooterLink to="/">Início</FooterLink>
-          <FooterLink to="/classes">Classes</FooterLink>
           <FooterLink to="/roadmap">Roadmap</FooterLink>
           <FooterLink to="/ranking">Ranking</FooterLink>
         </FooterCol>

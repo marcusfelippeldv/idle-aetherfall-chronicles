@@ -14,83 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      achievement_templates: {
-        Row: {
-          active: boolean
-          category: string
-          created_at: string
-          description: string | null
-          goal_type: string
-          id: string
-          order_index: number
-          reward_gold: number
-          reward_premium: number
-          slug: string
-          threshold: number
-          title: string
-        }
-        Insert: {
-          active?: boolean
-          category?: string
-          created_at?: string
-          description?: string | null
-          goal_type: string
-          id?: string
-          order_index?: number
-          reward_gold?: number
-          reward_premium?: number
-          slug: string
-          threshold: number
-          title: string
-        }
-        Update: {
-          active?: boolean
-          category?: string
-          created_at?: string
-          description?: string | null
-          goal_type?: string
-          id?: string
-          order_index?: number
-          reward_gold?: number
-          reward_premium?: number
-          slug?: string
-          threshold?: number
-          title?: string
-        }
-        Relationships: []
-      }
-      achievements: {
-        Row: {
-          claimed_at: string | null
-          id: string
-          template_id: string
-          unlocked_at: string
-          user_id: string
-        }
-        Insert: {
-          claimed_at?: string | null
-          id?: string
-          template_id: string
-          unlocked_at?: string
-          user_id: string
-        }
-        Update: {
-          claimed_at?: string | null
-          id?: string
-          template_id?: string
-          unlocked_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "achievements_template_id_fkey"
-            columns: ["template_id"]
-            isOneToOne: false
-            referencedRelation: "achievement_templates"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       admin_audit_logs: {
         Row: {
           action: string
@@ -127,544 +50,334 @@ export type Database = {
         }
         Relationships: []
       }
+      archetypes: {
+        Row: {
+          base_attack: number
+          base_defense: number
+          base_hp: number
+          base_mana: number
+          base_speed: number
+          created_at: string
+          description: string
+          hp_per_level: number
+          id: string
+          mana_per_level: number
+          name: string
+          role: Database["public"]["Enums"]["archetype_role"]
+          slug: string
+          sort_order: number
+          starting_weapon: string
+          uses_mana_potion: boolean
+        }
+        Insert: {
+          base_attack: number
+          base_defense: number
+          base_hp: number
+          base_mana: number
+          base_speed: number
+          created_at?: string
+          description: string
+          hp_per_level: number
+          id?: string
+          mana_per_level: number
+          name: string
+          role: Database["public"]["Enums"]["archetype_role"]
+          slug: string
+          sort_order?: number
+          starting_weapon: string
+          uses_mana_potion?: boolean
+        }
+        Update: {
+          base_attack?: number
+          base_defense?: number
+          base_hp?: number
+          base_mana?: number
+          base_speed?: number
+          created_at?: string
+          description?: string
+          hp_per_level?: number
+          id?: string
+          mana_per_level?: number
+          name?: string
+          role?: Database["public"]["Enums"]["archetype_role"]
+          slug?: string
+          sort_order?: number
+          starting_weapon?: string
+          uses_mana_potion?: boolean
+        }
+        Relationships: []
+      }
       characters: {
         Row: {
+          archetype_id: string
           attack: number
-          class_id: string
           created_at: string
           current_hp: number
+          current_mana: number
           current_xp: number
-          defeated_bosses: string[]
           defense: number
           id: string
           is_active: boolean
-          last_combat: Json | null
           level: number
           max_hp: number
+          max_mana: number
           name: string
-          power: number
+          skill_fist: number
+          skill_magic: number
+          skill_melee: number
+          skill_ranged: number
+          skill_shield: number
           speed: number
           updated_at: string
           user_id: string
         }
         Insert: {
-          attack?: number
-          class_id: string
+          archetype_id: string
+          attack: number
           created_at?: string
-          current_hp?: number
+          current_hp: number
+          current_mana: number
           current_xp?: number
-          defeated_bosses?: string[]
-          defense?: number
+          defense: number
           id?: string
           is_active?: boolean
-          last_combat?: Json | null
           level?: number
-          max_hp?: number
+          max_hp: number
+          max_mana: number
           name: string
-          power?: number
-          speed?: number
+          skill_fist?: number
+          skill_magic?: number
+          skill_melee?: number
+          skill_ranged?: number
+          skill_shield?: number
+          speed: number
           updated_at?: string
           user_id: string
         }
         Update: {
+          archetype_id?: string
           attack?: number
-          class_id?: string
           created_at?: string
           current_hp?: number
+          current_mana?: number
           current_xp?: number
-          defeated_bosses?: string[]
           defense?: number
           id?: string
           is_active?: boolean
-          last_combat?: Json | null
           level?: number
           max_hp?: number
+          max_mana?: number
           name?: string
-          power?: number
+          skill_fist?: number
+          skill_magic?: number
+          skill_melee?: number
+          skill_ranged?: number
+          skill_shield?: number
           speed?: number
           updated_at?: string
           user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "characters_class_id_fkey"
-            columns: ["class_id"]
+            foreignKeyName: "characters_archetype_id_fkey"
+            columns: ["archetype_id"]
             isOneToOne: false
-            referencedRelation: "classes"
+            referencedRelation: "archetypes"
             referencedColumns: ["id"]
           },
         ]
       }
-      chat_messages: {
+      cohorts: {
         Row: {
-          channel_key: string
-          character_name: string
-          content: string
-          created_at: string
-          id: number
+          leader_character_id: string | null
+          slot2_character_id: string | null
+          slot3_character_id: string | null
+          slots_unlocked: number
+          updated_at: string
           user_id: string
         }
         Insert: {
-          channel_key: string
-          character_name: string
-          content: string
-          created_at?: string
-          id?: number
+          leader_character_id?: string | null
+          slot2_character_id?: string | null
+          slot3_character_id?: string | null
+          slots_unlocked?: number
+          updated_at?: string
           user_id: string
         }
         Update: {
-          channel_key?: string
-          character_name?: string
-          content?: string
-          created_at?: string
-          id?: number
-          user_id?: string
-        }
-        Relationships: []
-      }
-      classes: {
-        Row: {
-          active: boolean
-          base_attack: number
-          base_defense: number
-          base_hp: number
-          base_speed: number
-          created_at: string
-          description: string
-          icon_url: string | null
-          id: string
-          name: string
-          order_index: number
-          slug: string
-        }
-        Insert: {
-          active?: boolean
-          base_attack?: number
-          base_defense?: number
-          base_hp?: number
-          base_speed?: number
-          created_at?: string
-          description: string
-          icon_url?: string | null
-          id?: string
-          name: string
-          order_index?: number
-          slug: string
-        }
-        Update: {
-          active?: boolean
-          base_attack?: number
-          base_defense?: number
-          base_hp?: number
-          base_speed?: number
-          created_at?: string
-          description?: string
-          icon_url?: string | null
-          id?: string
-          name?: string
-          order_index?: number
-          slug?: string
-        }
-        Relationships: []
-      }
-      currency_transactions: {
-        Row: {
-          amount: number
-          balance_after: number
-          balance_before: number
-          created_at: string
-          currency_type: Database["public"]["Enums"]["currency_type"]
-          description: string | null
-          id: string
-          source_id: string | null
-          source_type: string
-          transaction_kind: Database["public"]["Enums"]["transaction_kind"]
-          user_id: string
-        }
-        Insert: {
-          amount: number
-          balance_after: number
-          balance_before: number
-          created_at?: string
-          currency_type: Database["public"]["Enums"]["currency_type"]
-          description?: string | null
-          id?: string
-          source_id?: string | null
-          source_type: string
-          transaction_kind: Database["public"]["Enums"]["transaction_kind"]
-          user_id: string
-        }
-        Update: {
-          amount?: number
-          balance_after?: number
-          balance_before?: number
-          created_at?: string
-          currency_type?: Database["public"]["Enums"]["currency_type"]
-          description?: string | null
-          id?: string
-          source_id?: string | null
-          source_type?: string
-          transaction_kind?: Database["public"]["Enums"]["transaction_kind"]
-          user_id?: string
-        }
-        Relationships: []
-      }
-      daily_quest_templates: {
-        Row: {
-          active: boolean
-          created_at: string
-          description: string | null
-          goal_type: string
-          id: string
-          reward_gold: number
-          reward_season_xp: number
-          reward_xp: number
-          slug: string
-          target: number
-          title: string
-          weight: number
-        }
-        Insert: {
-          active?: boolean
-          created_at?: string
-          description?: string | null
-          goal_type: string
-          id?: string
-          reward_gold?: number
-          reward_season_xp?: number
-          reward_xp?: number
-          slug: string
-          target: number
-          title: string
-          weight?: number
-        }
-        Update: {
-          active?: boolean
-          created_at?: string
-          description?: string | null
-          goal_type?: string
-          id?: string
-          reward_gold?: number
-          reward_season_xp?: number
-          reward_xp?: number
-          slug?: string
-          target?: number
-          title?: string
-          weight?: number
-        }
-        Relationships: []
-      }
-      daily_quests: {
-        Row: {
-          claimed_at: string | null
-          created_at: string
-          id: string
-          progress: number
-          quest_date: string
-          target: number
-          template_id: string
-          user_id: string
-        }
-        Insert: {
-          claimed_at?: string | null
-          created_at?: string
-          id?: string
-          progress?: number
-          quest_date?: string
-          target: number
-          template_id: string
-          user_id: string
-        }
-        Update: {
-          claimed_at?: string | null
-          created_at?: string
-          id?: string
-          progress?: number
-          quest_date?: string
-          target?: number
-          template_id?: string
+          leader_character_id?: string | null
+          slot2_character_id?: string | null
+          slot3_character_id?: string | null
+          slots_unlocked?: number
+          updated_at?: string
           user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "daily_quests_template_id_fkey"
-            columns: ["template_id"]
+            foreignKeyName: "cohorts_leader_character_id_fkey"
+            columns: ["leader_character_id"]
             isOneToOne: false
-            referencedRelation: "daily_quest_templates"
+            referencedRelation: "characters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cohorts_slot2_character_id_fkey"
+            columns: ["slot2_character_id"]
+            isOneToOne: false
+            referencedRelation: "characters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cohorts_slot3_character_id_fkey"
+            columns: ["slot3_character_id"]
+            isOneToOne: false
+            referencedRelation: "characters"
             referencedColumns: ["id"]
           },
         ]
       }
       enemies: {
         Row: {
-          active: boolean
           attack: number
+          created_at: string
           defense: number
           gold_max: number
           gold_min: number
           hp: number
           id: string
-          image_url: string | null
           is_boss: boolean
           level: number
           name: string
-          region_id: string
+          slug: string
           xp_reward: number
         }
         Insert: {
-          active?: boolean
-          attack?: number
-          defense?: number
+          attack: number
+          created_at?: string
+          defense: number
           gold_max?: number
           gold_min?: number
-          hp?: number
+          hp: number
           id?: string
-          image_url?: string | null
           is_boss?: boolean
           level?: number
           name: string
-          region_id: string
+          slug: string
           xp_reward?: number
         }
         Update: {
-          active?: boolean
           attack?: number
+          created_at?: string
           defense?: number
           gold_max?: number
           gold_min?: number
           hp?: number
           id?: string
-          image_url?: string | null
           is_boss?: boolean
           level?: number
           name?: string
-          region_id?: string
+          slug?: string
           xp_reward?: number
         }
-        Relationships: [
-          {
-            foreignKeyName: "enemies_region_id_fkey"
-            columns: ["region_id"]
-            isOneToOne: false
-            referencedRelation: "regions"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
-      expeditions: {
-        Row: {
-          character_id: string
-          claimed_at: string | null
-          duration_minutes: number
-          expected_end_at: string
-          generated_gold: number
-          generated_xp: number
-          id: string
-          region_id: string
-          result_data: Json | null
-          rng_seed: number
-          started_at: string
-          status: Database["public"]["Enums"]["expedition_status"]
-        }
-        Insert: {
-          character_id: string
-          claimed_at?: string | null
-          duration_minutes: number
-          expected_end_at: string
-          generated_gold?: number
-          generated_xp?: number
-          id?: string
-          region_id: string
-          result_data?: Json | null
-          rng_seed?: number
-          started_at?: string
-          status?: Database["public"]["Enums"]["expedition_status"]
-        }
-        Update: {
-          character_id?: string
-          claimed_at?: string | null
-          duration_minutes?: number
-          expected_end_at?: string
-          generated_gold?: number
-          generated_xp?: number
-          id?: string
-          region_id?: string
-          result_data?: Json | null
-          rng_seed?: number
-          started_at?: string
-          status?: Database["public"]["Enums"]["expedition_status"]
-        }
-        Relationships: [
-          {
-            foreignKeyName: "expeditions_character_id_fkey"
-            columns: ["character_id"]
-            isOneToOne: false
-            referencedRelation: "characters"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "expeditions_region_id_fkey"
-            columns: ["region_id"]
-            isOneToOne: false
-            referencedRelation: "regions"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      guild_invites: {
+      incursions: {
         Row: {
           created_at: string
-          expires_at: string
-          guild_id: string
+          current_wave: number
+          ended_at: string | null
+          expected_end_at: string
           id: string
-          invited_by: string
-          invited_user_id: string
+          loop_enabled: boolean
+          mode: Database["public"]["Enums"]["incursion_mode"]
+          offline_minutes_used: number
+          rewards_json: Json
+          rng_seed: number
+          started_at: string
+          status: Database["public"]["Enums"]["incursion_status"]
+          updated_at: string
+          user_id: string
+          zone_id: string
         }
         Insert: {
           created_at?: string
-          expires_at?: string
-          guild_id: string
+          current_wave?: number
+          ended_at?: string | null
+          expected_end_at: string
           id?: string
-          invited_by: string
-          invited_user_id: string
+          loop_enabled?: boolean
+          mode?: Database["public"]["Enums"]["incursion_mode"]
+          offline_minutes_used?: number
+          rewards_json?: Json
+          rng_seed: number
+          started_at?: string
+          status?: Database["public"]["Enums"]["incursion_status"]
+          updated_at?: string
+          user_id: string
+          zone_id: string
         }
         Update: {
           created_at?: string
-          expires_at?: string
-          guild_id?: string
+          current_wave?: number
+          ended_at?: string | null
+          expected_end_at?: string
           id?: string
-          invited_by?: string
-          invited_user_id?: string
+          loop_enabled?: boolean
+          mode?: Database["public"]["Enums"]["incursion_mode"]
+          offline_minutes_used?: number
+          rewards_json?: Json
+          rng_seed?: number
+          started_at?: string
+          status?: Database["public"]["Enums"]["incursion_status"]
+          updated_at?: string
+          user_id?: string
+          zone_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "guild_invites_guild_id_fkey"
-            columns: ["guild_id"]
+            foreignKeyName: "incursions_zone_id_fkey"
+            columns: ["zone_id"]
             isOneToOne: false
-            referencedRelation: "guilds"
+            referencedRelation: "zones"
             referencedColumns: ["id"]
           },
         ]
       }
-      guild_members: {
+      inventory: {
         Row: {
-          character_id: string | null
-          contribution: number
-          guild_id: string
+          created_at: string
+          equipped_on_character: string | null
           id: string
-          joined_at: string
-          role: Database["public"]["Enums"]["guild_role"]
+          item_id: string
+          quantity: number
           user_id: string
         }
         Insert: {
-          character_id?: string | null
-          contribution?: number
-          guild_id: string
+          created_at?: string
+          equipped_on_character?: string | null
           id?: string
-          joined_at?: string
-          role?: Database["public"]["Enums"]["guild_role"]
+          item_id: string
+          quantity?: number
           user_id: string
         }
         Update: {
-          character_id?: string | null
-          contribution?: number
-          guild_id?: string
+          created_at?: string
+          equipped_on_character?: string | null
           id?: string
-          joined_at?: string
-          role?: Database["public"]["Enums"]["guild_role"]
+          item_id?: string
+          quantity?: number
           user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "guild_members_character_id_fkey"
-            columns: ["character_id"]
+            foreignKeyName: "inventory_equipped_on_character_fkey"
+            columns: ["equipped_on_character"]
             isOneToOne: false
             referencedRelation: "characters"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "guild_members_guild_id_fkey"
-            columns: ["guild_id"]
-            isOneToOne: false
-            referencedRelation: "guilds"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      guilds: {
-        Row: {
-          created_at: string
-          description: string
-          emblem: string
-          id: string
-          leader_id: string
-          member_count: number
-          name: string
-          tag: string
-          total_power: number
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          description?: string
-          emblem?: string
-          id?: string
-          leader_id: string
-          member_count?: number
-          name: string
-          tag: string
-          total_power?: number
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          description?: string
-          emblem?: string
-          id?: string
-          leader_id?: string
-          member_count?: number
-          name?: string
-          tag?: string
-          total_power?: number
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      inventory_items: {
-        Row: {
-          acquired_at: string
-          character_id: string
-          equipped: boolean
-          id: string
-          item_id: string
-          quantity: number
-        }
-        Insert: {
-          acquired_at?: string
-          character_id: string
-          equipped?: boolean
-          id?: string
-          item_id: string
-          quantity?: number
-        }
-        Update: {
-          acquired_at?: string
-          character_id?: string
-          equipped?: boolean
-          id?: string
-          item_id?: string
-          quantity?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "inventory_items_character_id_fkey"
-            columns: ["character_id"]
-            isOneToOne: false
-            referencedRelation: "characters"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "inventory_items_item_id_fkey"
+            foreignKeyName: "inventory_item_id_fkey"
             columns: ["item_id"]
             isOneToOne: false
             referencedRelation: "items"
@@ -674,147 +387,76 @@ export type Database = {
       }
       items: {
         Row: {
-          active: boolean
           attack_bonus: number
+          created_at: string
           defense_bonus: number
           description: string
+          gold_value: number
           hp_bonus: number
           id: string
-          image_url: string | null
-          item_type: Database["public"]["Enums"]["item_type"]
+          mana_bonus: number
           name: string
           rarity: Database["public"]["Enums"]["item_rarity"]
-          required_level: number
-          sell_price: number
+          slot: Database["public"]["Enums"]["item_slot"]
           slug: string
           speed_bonus: number
+          tier: number
         }
         Insert: {
-          active?: boolean
           attack_bonus?: number
-          defense_bonus?: number
-          description: string
-          hp_bonus?: number
-          id?: string
-          image_url?: string | null
-          item_type: Database["public"]["Enums"]["item_type"]
-          name: string
-          rarity?: Database["public"]["Enums"]["item_rarity"]
-          required_level?: number
-          sell_price?: number
-          slug: string
-          speed_bonus?: number
-        }
-        Update: {
-          active?: boolean
-          attack_bonus?: number
+          created_at?: string
           defense_bonus?: number
           description?: string
+          gold_value?: number
           hp_bonus?: number
           id?: string
-          image_url?: string | null
-          item_type?: Database["public"]["Enums"]["item_type"]
+          mana_bonus?: number
+          name: string
+          rarity?: Database["public"]["Enums"]["item_rarity"]
+          slot: Database["public"]["Enums"]["item_slot"]
+          slug: string
+          speed_bonus?: number
+          tier?: number
+        }
+        Update: {
+          attack_bonus?: number
+          created_at?: string
+          defense_bonus?: number
+          description?: string
+          gold_value?: number
+          hp_bonus?: number
+          id?: string
+          mana_bonus?: number
           name?: string
           rarity?: Database["public"]["Enums"]["item_rarity"]
-          required_level?: number
-          sell_price?: number
+          slot?: Database["public"]["Enums"]["item_slot"]
           slug?: string
           speed_bonus?: number
+          tier?: number
         }
         Relationships: []
       }
-      orders: {
+      offline_reserves: {
         Row: {
-          amount_cents: number
-          created_at: string
-          currency: string
-          delivered_at: string | null
-          id: string
-          paid_at: string | null
-          payment_provider: string | null
-          product_id: string
-          provider_order_id: string | null
-          status: Database["public"]["Enums"]["order_status"]
+          hunt_minutes_left: number
+          last_tick_at: string
+          train_minutes_left: number
+          updated_at: string
           user_id: string
         }
         Insert: {
-          amount_cents: number
-          created_at?: string
-          currency?: string
-          delivered_at?: string | null
-          id?: string
-          paid_at?: string | null
-          payment_provider?: string | null
-          product_id: string
-          provider_order_id?: string | null
-          status?: Database["public"]["Enums"]["order_status"]
+          hunt_minutes_left?: number
+          last_tick_at?: string
+          train_minutes_left?: number
+          updated_at?: string
           user_id: string
         }
         Update: {
-          amount_cents?: number
-          created_at?: string
-          currency?: string
-          delivered_at?: string | null
-          id?: string
-          paid_at?: string | null
-          payment_provider?: string | null
-          product_id?: string
-          provider_order_id?: string | null
-          status?: Database["public"]["Enums"]["order_status"]
+          hunt_minutes_left?: number
+          last_tick_at?: string
+          train_minutes_left?: number
+          updated_at?: string
           user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "orders_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      products: {
-        Row: {
-          active: boolean
-          created_at: string
-          currency: string
-          description: string
-          id: string
-          metadata: Json
-          name: string
-          order_index: number
-          premium_amount: number
-          price_cents: number
-          product_kind: Database["public"]["Enums"]["product_kind"]
-          slug: string
-        }
-        Insert: {
-          active?: boolean
-          created_at?: string
-          currency?: string
-          description: string
-          id?: string
-          metadata?: Json
-          name: string
-          order_index?: number
-          premium_amount?: number
-          price_cents: number
-          product_kind: Database["public"]["Enums"]["product_kind"]
-          slug: string
-        }
-        Update: {
-          active?: boolean
-          created_at?: string
-          currency?: string
-          description?: string
-          id?: string
-          metadata?: Json
-          name?: string
-          order_index?: number
-          premium_amount?: number
-          price_cents?: number
-          product_kind?: Database["public"]["Enums"]["product_kind"]
-          slug?: string
         }
         Relationships: []
       }
@@ -851,358 +493,6 @@ export type Database = {
           last_login_at?: string | null
           updated_at?: string
           username?: string
-        }
-        Relationships: []
-      }
-      raid_contributions: {
-        Row: {
-          character_id: string
-          created_at: string
-          damage: number
-          hits: number
-          id: string
-          last_hit_at: string | null
-          raid_id: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          character_id: string
-          created_at?: string
-          damage?: number
-          hits?: number
-          id?: string
-          last_hit_at?: string | null
-          raid_id: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          character_id?: string
-          created_at?: string
-          damage?: number
-          hits?: number
-          id?: string
-          last_hit_at?: string | null
-          raid_id?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "raid_contributions_character_id_fkey"
-            columns: ["character_id"]
-            isOneToOne: false
-            referencedRelation: "characters"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "raid_contributions_raid_id_fkey"
-            columns: ["raid_id"]
-            isOneToOne: false
-            referencedRelation: "raids"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      raid_rewards: {
-        Row: {
-          claimed_at: string | null
-          created_at: string
-          crystals: number
-          gold: number
-          id: string
-          raid_id: string
-          user_id: string
-          xp: number
-        }
-        Insert: {
-          claimed_at?: string | null
-          created_at?: string
-          crystals?: number
-          gold?: number
-          id?: string
-          raid_id: string
-          user_id: string
-          xp?: number
-        }
-        Update: {
-          claimed_at?: string | null
-          created_at?: string
-          crystals?: number
-          gold?: number
-          id?: string
-          raid_id?: string
-          user_id?: string
-          xp?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "raid_rewards_raid_id_fkey"
-            columns: ["raid_id"]
-            isOneToOne: false
-            referencedRelation: "raids"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      raid_templates: {
-        Row: {
-          active: boolean
-          created_at: string
-          description: string
-          id: string
-          min_level: number
-          name: string
-          order_index: number
-          reward_crystals: number
-          reward_gold: number
-          reward_xp: number
-          slug: string
-          total_hp: number
-          updated_at: string
-          window_hours: number
-        }
-        Insert: {
-          active?: boolean
-          created_at?: string
-          description?: string
-          id?: string
-          min_level?: number
-          name: string
-          order_index?: number
-          reward_crystals?: number
-          reward_gold?: number
-          reward_xp?: number
-          slug: string
-          total_hp: number
-          updated_at?: string
-          window_hours?: number
-        }
-        Update: {
-          active?: boolean
-          created_at?: string
-          description?: string
-          id?: string
-          min_level?: number
-          name?: string
-          order_index?: number
-          reward_crystals?: number
-          reward_gold?: number
-          reward_xp?: number
-          slug?: string
-          total_hp?: number
-          updated_at?: string
-          window_hours?: number
-        }
-        Relationships: []
-      }
-      raids: {
-        Row: {
-          created_at: string
-          current_hp: number
-          defeated_at: string | null
-          ends_at: string
-          guild_id: string | null
-          id: string
-          settled_at: string | null
-          starts_at: string
-          status: Database["public"]["Enums"]["raid_status"]
-          template_id: string
-          total_hp: number
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          current_hp: number
-          defeated_at?: string | null
-          ends_at: string
-          guild_id?: string | null
-          id?: string
-          settled_at?: string | null
-          starts_at?: string
-          status?: Database["public"]["Enums"]["raid_status"]
-          template_id: string
-          total_hp: number
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          current_hp?: number
-          defeated_at?: string | null
-          ends_at?: string
-          guild_id?: string | null
-          id?: string
-          settled_at?: string | null
-          starts_at?: string
-          status?: Database["public"]["Enums"]["raid_status"]
-          template_id?: string
-          total_hp?: number
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "raids_guild_id_fkey"
-            columns: ["guild_id"]
-            isOneToOne: false
-            referencedRelation: "guilds"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "raids_template_id_fkey"
-            columns: ["template_id"]
-            isOneToOne: false
-            referencedRelation: "raid_templates"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      regions: {
-        Row: {
-          active: boolean
-          background_url: string | null
-          created_at: string
-          description: string
-          id: string
-          name: string
-          order_index: number
-          required_level: number
-          slug: string
-        }
-        Insert: {
-          active?: boolean
-          background_url?: string | null
-          created_at?: string
-          description: string
-          id?: string
-          name: string
-          order_index?: number
-          required_level?: number
-          slug: string
-        }
-        Update: {
-          active?: boolean
-          background_url?: string | null
-          created_at?: string
-          description?: string
-          id?: string
-          name?: string
-          order_index?: number
-          required_level?: number
-          slug?: string
-        }
-        Relationships: []
-      }
-      season_progress: {
-        Row: {
-          claimed_levels: number[]
-          id: string
-          season_id: string
-          season_xp: number
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          claimed_levels?: number[]
-          id?: string
-          season_id: string
-          season_xp?: number
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          claimed_levels?: number[]
-          id?: string
-          season_id?: string
-          season_xp?: number
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "season_progress_season_id_fkey"
-            columns: ["season_id"]
-            isOneToOne: false
-            referencedRelation: "seasons"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      season_rewards: {
-        Row: {
-          id: string
-          level: number
-          reward_gold: number
-          reward_item_id: string | null
-          reward_premium: number
-          season_id: string
-          xp_required: number
-        }
-        Insert: {
-          id?: string
-          level: number
-          reward_gold?: number
-          reward_item_id?: string | null
-          reward_premium?: number
-          season_id: string
-          xp_required: number
-        }
-        Update: {
-          id?: string
-          level?: number
-          reward_gold?: number
-          reward_item_id?: string | null
-          reward_premium?: number
-          season_id?: string
-          xp_required?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "season_rewards_reward_item_id_fkey"
-            columns: ["reward_item_id"]
-            isOneToOne: false
-            referencedRelation: "items"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "season_rewards_season_id_fkey"
-            columns: ["season_id"]
-            isOneToOne: false
-            referencedRelation: "seasons"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      seasons: {
-        Row: {
-          active: boolean
-          created_at: string
-          description: string | null
-          ends_at: string
-          id: string
-          name: string
-          slug: string
-          starts_at: string
-        }
-        Insert: {
-          active?: boolean
-          created_at?: string
-          description?: string | null
-          ends_at: string
-          id?: string
-          name: string
-          slug: string
-          starts_at: string
-        }
-        Update: {
-          active?: boolean
-          created_at?: string
-          description?: string | null
-          ends_at?: string
-          id?: string
-          name?: string
-          slug?: string
-          starts_at?: string
         }
         Relationships: []
       }
@@ -1248,6 +538,90 @@ export type Database = {
         }
         Relationships: []
       }
+      zone_waves: {
+        Row: {
+          enemy_count: number
+          enemy_id: string
+          id: string
+          is_boss: boolean
+          wave_number: number
+          zone_id: string
+        }
+        Insert: {
+          enemy_count?: number
+          enemy_id: string
+          id?: string
+          is_boss?: boolean
+          wave_number: number
+          zone_id: string
+        }
+        Update: {
+          enemy_count?: number
+          enemy_id?: string
+          id?: string
+          is_boss?: boolean
+          wave_number?: number
+          zone_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "zone_waves_enemy_id_fkey"
+            columns: ["enemy_id"]
+            isOneToOne: false
+            referencedRelation: "enemies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "zone_waves_zone_id_fkey"
+            columns: ["zone_id"]
+            isOneToOne: false
+            referencedRelation: "zones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      zones: {
+        Row: {
+          created_at: string
+          description: string
+          difficulty_stars: number
+          duration_minutes: number
+          id: string
+          loot_multiplier: number
+          name: string
+          required_level: number
+          slug: string
+          sort_order: number
+          xp_multiplier: number
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          difficulty_stars?: number
+          duration_minutes?: number
+          id?: string
+          loot_multiplier?: number
+          name: string
+          required_level?: number
+          slug: string
+          sort_order?: number
+          xp_multiplier?: number
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          difficulty_stars?: number
+          duration_minutes?: number
+          id?: string
+          loot_multiplier?: number
+          name?: string
+          required_level?: number
+          slug?: string
+          sort_order?: number
+          xp_multiplier?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -1260,19 +634,39 @@ export type Database = {
         }
         Returns: boolean
       }
-      is_guild_member: {
-        Args: { _guild_id: string; _user_id: string }
-        Returns: boolean
-      }
-      my_guild_id: { Args: { _user_id: string }; Returns: string }
     }
     Enums: {
       account_status: "active" | "suspended" | "banned"
       app_role: "user" | "moderator" | "admin"
+      archetype_role:
+        | "tank_melee"
+        | "tank_agile"
+        | "ranger"
+        | "mage_dps"
+        | "mage_support"
       currency_type: "gold" | "premium"
       expedition_status: "running" | "ready" | "claimed" | "cancelled"
       guild_role: "leader" | "officer" | "member"
-      item_rarity: "common" | "uncommon" | "rare" | "epic" | "legendary"
+      incursion_mode: "ativa" | "vigilia" | "treino"
+      incursion_status: "em_andamento" | "concluida" | "falhou" | "cancelada"
+      item_rarity:
+        | "comum"
+        | "incomum"
+        | "raro"
+        | "epico"
+        | "lendario"
+        | "mitico"
+      item_slot:
+        | "arma"
+        | "elmo"
+        | "peito"
+        | "pernas"
+        | "pes"
+        | "amuleto"
+        | "anel"
+        | "ofmao"
+        | "consumivel"
+        | "material"
       item_type:
         | "weapon"
         | "armor"
@@ -1418,10 +812,31 @@ export const Constants = {
     Enums: {
       account_status: ["active", "suspended", "banned"],
       app_role: ["user", "moderator", "admin"],
+      archetype_role: [
+        "tank_melee",
+        "tank_agile",
+        "ranger",
+        "mage_dps",
+        "mage_support",
+      ],
       currency_type: ["gold", "premium"],
       expedition_status: ["running", "ready", "claimed", "cancelled"],
       guild_role: ["leader", "officer", "member"],
-      item_rarity: ["common", "uncommon", "rare", "epic", "legendary"],
+      incursion_mode: ["ativa", "vigilia", "treino"],
+      incursion_status: ["em_andamento", "concluida", "falhou", "cancelada"],
+      item_rarity: ["comum", "incomum", "raro", "epico", "lendario", "mitico"],
+      item_slot: [
+        "arma",
+        "elmo",
+        "peito",
+        "pernas",
+        "pes",
+        "amuleto",
+        "anel",
+        "ofmao",
+        "consumivel",
+        "material",
+      ],
       item_type: [
         "weapon",
         "armor",

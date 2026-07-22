@@ -24,7 +24,6 @@ import {
 
 const NAV = [
   { to: "/", label: "Início" },
-  { to: "/classes", label: "Classes" },
   { to: "/roadmap", label: "Roadmap" },
   { to: "/ranking", label: "Ranking" },
 ];
