@@ -43,6 +43,9 @@ import {
   unequipItem,
 } from "@/lib/inventory.functions";
 import { fightBoss } from "@/lib/combat.functions";
+import { CombatStage } from "@/components/arena/CombatStage";
+import { PatrolScene } from "@/components/arena/PatrolScene";
+import { AnimatedNumber } from "@/components/ui/animated-number";
 
 export const Route = createFileRoute("/_authenticated/jogo/arena")({
   head: () => ({
@@ -135,7 +138,7 @@ function ArenaPage() {
         </TabsList>
 
         <TabsContent value="expedicoes" className="mt-6">
-          <ExpeditionsPanel character={character} expedition={expedition} />
+          <ExpeditionsPanel character={character} expedition={expedition} classSlug={character.classes?.slug} />
         </TabsContent>
         <TabsContent value="inventario" className="mt-6">
           <InventoryPanel />
@@ -183,12 +186,12 @@ function HeroHeader({ character, wallet }: { character: any; wallet: any }) {
         <div className="grid content-start gap-2 md:text-right">
           <div className="flex items-center gap-2 md:justify-end">
             <Coins className="h-4 w-4 text-amber-400" />
-            <span className="font-display text-xl">{Number(wallet?.gold_balance ?? 0).toLocaleString("pt-BR")}</span>
+            <AnimatedNumber value={Number(wallet?.gold_balance ?? 0)} className="font-display text-xl" />
             <span className="text-xs text-muted-foreground">ouro</span>
           </div>
           <div className="flex items-center gap-2 md:justify-end">
             <Gem className="h-4 w-4 text-violet-400" />
-            <span className="font-display text-xl">{Number(wallet?.premium_balance ?? 0).toLocaleString("pt-BR")}</span>
+            <AnimatedNumber value={Number(wallet?.premium_balance ?? 0)} className="font-display text-xl" />
             <span className="text-xs text-muted-foreground">cristais</span>
           </div>
         </div>
@@ -209,7 +212,7 @@ function StatChip({ icon, label, value }: { icon: React.ReactNode; label: string
 
 /* --------------------------- Expeditions --------------------------- */
 
-function ExpeditionsPanel({ character, expedition }: { character: any; expedition: any }) {
+function ExpeditionsPanel({ character, expedition, classSlug }: { character: any; expedition: any; classSlug?: string }) {
   const qc = useQueryClient();
   const regionsFn = useServerFn(listRegions);
   const startFn = useServerFn(startExpedition);
@@ -248,7 +251,7 @@ function ExpeditionsPanel({ character, expedition }: { character: any; expeditio
   });
 
   if (expedition) {
-    return <ActiveExpeditionCard expedition={expedition} onClaim={() => claimMut.mutate(expedition.id)} onCancel={() => cancelMut.mutate(expedition.id)} loading={claimMut.isPending || cancelMut.isPending} />;
+    return <ActiveExpeditionCard expedition={expedition} classSlug={classSlug} onClaim={() => claimMut.mutate(expedition.id)} onCancel={() => cancelMut.mutate(expedition.id)} loading={claimMut.isPending || cancelMut.isPending} />;
   }
 
   const durations = [1, 5, 15, 30];
@@ -295,7 +298,7 @@ function ExpeditionsPanel({ character, expedition }: { character: any; expeditio
   );
 }
 
-function ActiveExpeditionCard({ expedition, onClaim, onCancel, loading }: { expedition: any; onClaim: () => void; onCancel: () => void; loading: boolean }) {
+function ActiveExpeditionCard({ expedition, onClaim, onCancel, loading, classSlug }: { expedition: any; onClaim: () => void; onCancel: () => void; loading: boolean; classSlug?: string }) {
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 1000);
@@ -324,6 +327,7 @@ function ActiveExpeditionCard({ expedition, onClaim, onCancel, loading }: { expe
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
+        <PatrolScene regionSlug={region?.slug} classSlug={classSlug} progress={pct / 100} />
         <Progress value={pct} className="h-2" />
         <p className="text-sm text-muted-foreground">
           Seu herói explora <strong className="text-foreground">{region?.name}</strong> por {expedition.duration_minutes} minutos.
@@ -438,11 +442,14 @@ function BossPanel({ character }: { character: any }) {
   const fightFn = useServerFn(fightBoss);
   const regionsQ = useQuery({ queryKey: ["catalog", "regions"], queryFn: () => regionsFn() });
   const [log, setLog] = useState<any>(character.last_combat ?? null);
+  const [replayKey, setReplayKey] = useState(0);
+  const [showRaw, setShowRaw] = useState(false);
 
   const fightMut = useMutation({
     mutationFn: (regionId: string) => fightFn({ data: { regionId } }),
     onSuccess: (r) => {
       setLog(r);
+      setReplayKey((k) => k + 1);
       qc.invalidateQueries({ queryKey: ["me", "character"] });
       qc.invalidateQueries({ queryKey: ["me", "profile"] });
       if (r.winner === "hero") toast.success(`Vitória contra ${r.bossName}!`);
@@ -452,6 +459,11 @@ function BossPanel({ character }: { character: any }) {
   });
 
   const defeated: string[] = character.defeated_bosses ?? [];
+  const regionSlug = log
+    ? (regionsQ.data ?? []).find((r) => r.id === log.regionId)?.slug
+    : undefined;
+  const classSlug = character.classes?.slug;
+  const enrichedLog = log ? { ...log, regionSlug } : null;
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
@@ -475,30 +487,48 @@ function BossPanel({ character }: { character: any }) {
           );
         })}
       </div>
-      <Card className="border-border/60 bg-card/60">
-        <CardHeader>
-          <CardTitle className="font-display text-lg">Log de combate</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {!log ? (
-            <p className="text-sm text-muted-foreground">Nenhum combate ainda.</p>
-          ) : (
-            <div className="space-y-2 text-xs font-mono max-h-96 overflow-y-auto">
-              <p className="text-primary">
-                {log.heroName} vs {log.bossName} — {log.winner === "hero" ? "VITÓRIA" : "DERROTA"}
-              </p>
-              {log.turns.map((t: any, i: number) => (
-                <p key={i} className={t.actor === "hero" ? "text-emerald-300" : "text-rose-300"}>
-                  T{i + 1} · {t.actor === "hero" ? log.heroName : log.bossName} causa {t.damage}{t.crit ? " (CRÍTICO!)" : ""} · alvo HP: {t.targetHpAfter}
-                </p>
-              ))}
-              {log.winner === "hero" && (
-                <p className="text-amber-300 pt-2">+{log.rewardXp} XP · +{log.rewardGold} ouro{log.unlocked ? " · nova região desbloqueada" : ""}</p>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <div className="space-y-3">
+        {enrichedLog ? (
+          <>
+            <CombatStage
+              key={replayKey}
+              log={enrichedLog}
+              heroMaxHp={character.max_hp}
+              classSlug={classSlug}
+              onReplay={() => setReplayKey((k) => k + 1)}
+            />
+            <button
+              type="button"
+              onClick={() => setShowRaw((v) => !v)}
+              className="text-[11px] uppercase tracking-widest text-muted-foreground hover:text-primary"
+            >
+              {showRaw ? "Ocultar" : "Ver"} log detalhado
+            </button>
+            {showRaw && (
+              <Card className="border-border/60 bg-card/60">
+                <CardContent className="p-4">
+                  <div className="space-y-1 text-xs font-mono max-h-72 overflow-y-auto">
+                    <p className="text-primary">
+                      {enrichedLog.heroName} vs {enrichedLog.bossName} — {enrichedLog.winner === "hero" ? "VITÓRIA" : "DERROTA"}
+                    </p>
+                    {enrichedLog.turns.map((t: any, i: number) => (
+                      <p key={i} className={t.actor === "hero" ? "text-emerald-300" : "text-rose-300"}>
+                        T{i + 1} · {t.actor === "hero" ? enrichedLog.heroName : enrichedLog.bossName} causa {t.damage}{t.crit ? " (CRÍTICO!)" : ""} · alvo HP: {t.targetHpAfter}
+                      </p>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </>
+        ) : (
+          <Card className="border-dashed border-border/60 bg-card/40">
+            <CardContent className="p-10 text-center text-sm text-muted-foreground">
+              Escolha um chefe à esquerda para começar o duelo. O combate acontece em tempo real na arena.
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
 }
