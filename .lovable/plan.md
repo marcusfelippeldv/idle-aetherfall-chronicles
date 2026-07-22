@@ -1,64 +1,90 @@
-# Etapa 4 — Retenção
+# Etapa 5 — Social
 
-Pagamentos ficam adiados (a loja de cristais continua com botão "Em breve"). Foco desta etapa: dar motivos para o jogador voltar todo dia e progredir a longo prazo.
+Última etapa do roadmap. Objetivo: transformar Aetherfall Online em um mundo compartilhado com guildas, comunicação em tempo real e conteúdo cooperativo (raids assíncronas).
 
-## O que o jogador vai poder fazer
+## O que o jogador vai receber
 
-1. **Missões diárias** — 3 tarefas por dia (ex: "Complete 2 expedições", "Derrote 1 chefe", "Venda 5 itens"). Ao concluir, resgata ouro + XP. Reset automático à meia-noite (fuso do servidor, UTC).
-2. **Conquistas permanentes** — marcos de longo prazo (ex: "Primeiro chefe derrotado", "Nível 10", "100 expedições concluídas"). Cada uma dá cristais como recompensa única.
-3. **Ranking expandido** — a página `/ranking` atual (top 50 por poder) ganha abas: **Poder**, **Nível**, **Chefes derrotados**, **Ouro acumulado**. Filtro público, sem login.
-4. **Passe de temporada** — barra de XP de temporada (30 dias), com 10 níveis e recompensas em ouro/cristais/itens a cada nível. XP de temporada vem de expedições e chefes.
+- **Guildas**: criar, entrar, sair, gerenciar membros e ver o mural da guilda.
+- **Chat**: canal global do reino + canal privado da guilda, em tempo real.
+- **Raids assíncronas**: chefes de elite que exigem contribuição de vários heróis ao longo de horas; recompensas distribuídas conforme dano causado.
+- **Ranking de guildas**: nova aba no ranking com poder somado dos membros.
 
-## Ações desta etapa
+## Banco de dados (nova migração)
 
-### Banco de dados (1 migração)
-- `daily_quest_templates` (catálogo fixo: slug, título, tipo de meta, valor, recompensa em ouro/xp).
-- `daily_quests` (instância por usuário/dia: user_id, template_id, progress, target, claimed_at, quest_date).
-- `achievement_templates` (catálogo: slug, título, descrição, tipo, threshold, recompensa em cristais).
-- `achievements` (user_id, template_id, unlocked_at, claimed_at).
-- `seasons` (id, name, starts_at, ends_at, active).
-- `season_progress` (user_id, season_id, xp, claimed_levels int[]).
-- `season_rewards` (season_id, level, gold, premium, item_id).
-- Seed: ~8 templates de missão diária, ~15 conquistas, 1 temporada ativa de 30 dias com 10 níveis de recompensa.
-- Grants + RLS: usuário lê/atualiza só o próprio; templates e temporadas são públicos (SELECT anônimo).
+Tabelas novas em `public` (todas com GRANTs + RLS + policies):
 
-### Server functions
-- `src/lib/quests.functions.ts`
-  - `getDailyQuests()` — busca ou gera as 3 missões do dia via seleção determinística (seed = user_id + data).
-  - `claimDailyQuest({ questId })` — valida progress ≥ target, credita ouro/xp, marca claimed.
-- `src/lib/achievements.functions.ts`
-  - `getMyAchievements()` — lista com estado (locked/unlocked/claimed).
-  - `claimAchievement({ achievementId })` — credita cristais.
-- `src/lib/season.functions.ts`
-  - `getSeasonStatus()` — temporada atual + progresso + níveis pendentes.
-  - `claimSeasonLevel({ level })` — libera recompensa quando XP suficiente.
-- `src/lib/catalog.functions.ts` — expande `listRanking` para aceitar `sortBy` (power|level|bosses|gold).
+- `guilds`: nome único, tag (3-5 chars), descrição, emblema, dono, `member_count`, `total_power`, timestamps.
+- `guild_members`: `guild_id`, `user_id`, `character_id`, `role` (`leader` | `officer` | `member`), `joined_at`, contribuição total.
+- `guild_invites`: convites pendentes com expiração.
+- `chat_channels`: registro dos canais (`global`, `guild:<id>`).
+- `chat_messages`: `channel_key`, `user_id`, `character_name`, `content`, `created_at` (retenção lógica: só últimos 200 por canal na UI).
+- `raid_templates`: chefes de raid (HP total, janela em horas, recompensas base).
+- `raids`: instância ativa de uma raid (template, `guild_id` opcional para raids exclusivas, `starts_at`, `ends_at`, `current_hp`, status).
+- `raid_contributions`: `raid_id`, `character_id`, dano acumulado, última investida, cooldown.
+- `raid_rewards`: entregas calculadas ao fim da raid.
 
-### Hooks de progresso (dentro de server functions existentes)
-- `claimExpedition` (expedition.functions): incrementa progresso das missões "completar expedições", "coletar ouro" e adiciona XP de temporada.
-- `fightBoss` (combat.functions): incrementa "derrotar chefe" e desbloqueia conquistas de chefes.
-- `sellItem` (inventory.functions): incrementa "vender itens".
-- Verificação de conquistas por threshold roda dentro dessas mesmas funções (função utilitária `checkAchievements(supabase, userId, event)`).
+Enums novos: `guild_role`, `raid_status` (`active` | `defeated` | `expired` | `settled`).
 
-### UI (pt-BR, mantendo tema escuro dourado/arcano)
-- **Nova rota `/jogo/diario`**: cards das 3 missões com barras de progresso e botão "Resgatar".
-- **Nova rota `/jogo/conquistas`**: grid com estado (bloqueada, desbloqueada, resgatada), ordenadas por categoria.
-- **Nova rota `/jogo/temporada`**: barra grande de XP, trilha visual dos 10 níveis com recompensas.
-- **`/jogo/arena`**: acrescenta 3 botões no header (Diário, Conquistas, Temporada) + badge com contador de missões prontas para resgate.
-- **`/ranking`**: adiciona `Tabs` com os 4 critérios; loader recebe `?sort=` via `useSearch`.
+Índices: `guild_members(user_id)`, `chat_messages(channel_key, created_at desc)`, `raid_contributions(raid_id, damage desc)`.
 
-## Segurança
-- Toda validação (progress, threshold, saldo de XP de temporada, meia-noite UTC) roda no servidor sob `requireSupabaseAuth`.
-- Idempotência: `claimed_at` impede resgate duplicado; `claimed_levels` (array) idem para temporada.
-- Reset diário: `quest_date = current_date` no servidor; sem `updated_at` do cliente.
-- Templates e temporadas: SELECT público via cliente `anon` (leitura fria, sem PII).
+Seed: 3 chefes de raid iniciais (ex.: Leviatã do Véu, Titã de Obsidiana, Fênix Umbral) com HP e recompensas balanceadas para grupos pequenos.
 
-## Detalhes técnicos
-- Missões diárias geradas sob demanda (não em cron): primeira chamada do dia insere as 3 linhas com `ON CONFLICT (user_id, quest_date) DO NOTHING`.
-- Ranking usa índices existentes em `characters(power desc)`, `characters(level desc)`; adiciono índices para `defeated_bosses` e uma view materializada não é necessária neste volume.
-- XP de temporada: coluna `season_xp` em `season_progress`; ganho = xp da expedição / 2 (ajustável no seed).
+## RLS (regras em linguagem simples)
+
+- Qualquer jogador autenticado lê guildas, membros públicos e ranking de guilda.
+- Só o líder edita a guilda; líder/oficiais aceitam convites e removem membros; membros saem de si mesmos.
+- Chat global: leitura para autenticados; inserção só do próprio usuário.
+- Chat de guilda: leitura e escrita apenas para membros daquela guilda.
+- Raids: leitura pública; contribuição só do dono do personagem e respeitando cooldown/janela.
+
+## Server functions (novas)
+
+Client-safe (`src/lib/*.functions.ts`):
+
+- `guild.functions.ts`: `listGuilds`, `getMyGuild`, `createGuild` (custo em cristais), `joinGuild`, `leaveGuild`, `kickMember`, `promoteMember`, `updateGuild`.
+- `chat.functions.ts`: `listMessages({ channel })`, `sendMessage({ channel, content })` com rate limit (ex.: 1 msg/2s por usuário, 500 chars, filtro básico).
+- `raid.functions.ts`: `listActiveRaids`, `getRaidDetails`, `attackRaid` (aplica cooldown de 5-10 min, calcula dano usando as fórmulas existentes de `formulas.server.ts`, grava contribuição), `claimRaidRewards` (após `settled`).
+
+Server-only helpers em `src/lib/social.server.ts`: recomputo de `member_count`/`total_power`, liquidação de raid (rateio proporcional ao dano), integração com `progression.server.ts` para XP de temporada e conquistas de raid/guilda.
+
+## Realtime (chat e raid)
+
+- Chat: assinar `chat_messages` filtrando por `channel_key` via Supabase Realtime no cliente, com fallback em polling (5s) se o socket cair.
+- Raid: assinar mudanças de `raids.current_hp` para atualizar a barra em tempo real.
+- Nenhuma escrita direta do cliente no banco — realtime é só leitura; escrita passa sempre pelas server functions (mantém antifraude).
+
+## UI (novas rotas em pt-BR)
+
+- `src/routes/_authenticated/jogo.guilda.tsx`: se sem guilda, lista de guildas + botão "Fundar guilda" (modal com custo em cristais). Com guilda: painel com membros, papéis, mural e ações de gestão conforme papel.
+- `src/routes/_authenticated/jogo.chat.tsx`: layout com abas Global/Guilda, lista de mensagens com auto-scroll e input com contador de caracteres.
+- `src/routes/_authenticated/jogo.raides.tsx`: cards das raids ativas (barra de HP, tempo restante, top contribuintes) e detalhe com botão "Investir" (mostra cooldown), log das últimas investidas e recompensas previstas.
+- `src/routes/ranking.tsx`: nova aba "Guildas" (poder total, membros, líder).
+- `src/routes/_authenticated/jogo.arena.tsx`: adicionar atalhos no header para Guilda, Chat e Raides. Ordem final: Diário · Conquistas · Temporada · Guilda · Chat · Raides · Loja · Carteira (pode virar dropdown "Social" se ficar apertado).
+- Cada rota nova ganha seu próprio `head()` com título, descrição, `og:title` e `og:description` em pt-BR.
+
+## Integração com sistemas existentes
+
+- Ganhos em raid disparam `progression.server.ts` (missões diárias tipo "contribua com raid", conquistas "primeira raid vencida", XP de temporada).
+- Fundar guilda debita cristais via `wallets` + `currency_transactions` (mesma pipeline da Loja/Carteira), aparecendo no extrato.
+- Nenhuma alteração no combate/expedição já existentes além dos hooks de progresso.
+
+## Antifraude / segurança
+
+- Toda escrita passa por server function; realtime é read-only.
+- Cooldowns e limites de dano validados no servidor.
+- Chat: rate limit por usuário, tamanho máximo, sanitização (sem HTML), lista simples de palavras bloqueadas.
+- Sem PII em `chat_messages` — só `character_name` público.
+
+## Ordem de execução
+
+1. Migração SQL (tabelas, enums, GRANTs, RLS, policies, seed de raids).
+2. Server functions (`guild`, `chat`, `raid`) + `social.server.ts`.
+3. Hooks de progresso (raid vencida, guilda fundada).
+4. Rotas de UI: Guilda → Chat → Raides → aba de ranking → atalhos no header da Arena.
+5. Verificação: `bun run build`, smoke test das rotas novas e leitura das policies via linter.
 
 ## Fora do escopo desta etapa
-- Integração com Stripe/Paddle (adiada conforme pedido).
-- Guildas, chat, raids (Etapa 5).
-- Notificações push / e-mail de missões prontas.
+
+- Integração real de pagamentos Stripe/Paddle (fica para o passo seguinte, como combinado).
+- Guerras de guilda / PvP direto (pode virar Etapa 6 futura).
+- Moderação avançada de chat (denúncias, banimentos administrativos além do painel admin atual).
