@@ -1,44 +1,66 @@
+## GitHub
 
-## Objetivo
+Não consigo conectar o GitHub por você — a autorização precisa acontecer na sua conta. Passo a passo:
 
-Substituir o placeholder atual de `src/routes/index.tsx` por uma landing completa em pt-BR na direção **Éter Nobre — cards portrait**, mantendo paleta, tipografia e layout aprovados.
+1. No editor Lovable, clique no **+** (canto inferior esquerdo do chat) → **GitHub → Connect project**
+2. Autorize o app do Lovable
+3. Escolha a conta/org e clique **Create Repository**
 
-## Escopo
+A sincronização é bidirecional e automática depois disso.
 
-Arquivo tocado: `src/routes/index.tsx` (reescrita completa) + acréscimo de tokens no `src/styles.css`. Sem alterações de backend, banco, rotas ou header/footer globais.
+## Idle offline nas batalhas (50% XP quando offline)
 
-## Seções da nova página
+Objetivo: a party fica farmando o estágio selecionado 24/7. Ao voltar, o jogador vê o loot acumulado. Enquanto está online e na aba de combate, o loop roda em tempo real com XP cheio; enquanto offline, acumula com XP reduzido a 50% (ouro fica cheio).
 
-1. **Hero cinematográfico** — pattern radial (roxo → azul-noite) + grão sutil, título "AETHERFALL" em Syne dourado com halo, subtítulo do ciclo Eternal Shards, dois CTAs: `Criar conta` → `/cadastro` (roxo com faixa inferior mais escura) e `Entrar` → `/login` (contorno roxo).
-2. **Arquétipos jogáveis (6)** — grid 3×2 de cards em `aspect-[3/4]` com retrato de cada classe (importando `src/assets/classes/{guardiao,espadachim,arqueiro,arcanista,vidente,punho}.jpg`), gradiente inferior escuro, nome em Syne + tagline em roxo caps. Hover: borda roxa acesa.
-3. **Pilares do mundo (5)** — cards numerados 01–05: Party de 4, IA por Prioridades, Incursões Regionais, Chefes Mundiais, Economia & Raridade.
-4. **Roadmap — Eternal Shards** — timeline vertical alinhada aos marcos reais entregues: Fase 1 (Fundação — classes, party) concluída, Fase 2 (Combate & Prioridades) concluída, Fase 3 (Economia, Missões, Social) em curso, Fase 4 (PvP & Guildas ativas) próxima.
-5. **CTA final + rodapé leve** — chamada "Sua party aguarda" com botão `Criar conta`, seguida de linha discreta com copyright.
+### Modelo de dados (nova migração)
 
-## Design tokens
+Nova tabela `idle_runs` (uma linha ativa por usuário):
+- `user_id` (PK, FK auth.users)
+- `stage_id` (FK stages)
+- `started_at`, `last_tick_at`, `last_seen_at` timestamptz
+- `pending_xp` bigint, `pending_gold` bigint, `pending_drops` jsonb (fila de itens por hero)
+- RLS: dono lê/escreve; GRANTs padrão authenticated + service_role.
 
-Adicionar em `src/styles.css` (`:root` + `@theme inline`) os quatro hex da paleta Éter Nobre como tokens semânticos:
-- `--aether-night: #0B1024`
-- `--aether-violet-deep: #1B1147`
-- `--aether-violet: #6A3DF5`
-- `--aether-gold: #F4C15A`
+Novo campo em `heroes`: `xp bigint default 0`, `level int default 1` (se ainda não existir com esses nomes — verificar antes na migração).
 
-Mapear para utilitários (`bg-aether-*`, `text-aether-*`, `border-aether-*`) e usar em vez de hex inline. Fontes Syne e Plus Jakarta Sans já carregam via `__root.tsx` — apenas verificar; caso falte, incluir o `<link>` no head do root (fora do escopo se já presente).
+### Rate de recompensas
 
-## Metadata
+Derivado do `simulate()` já existente: rodamos uma simulação "amostral" do estágio para estimar `xp_per_min` e `gold_per_min` (média de xp/gold por vitória × vitórias/min estimadas pelo tempo médio de turnos). Cacheado em memória do handler por stage_id.
 
-Manter/atualizar `head()` do route: título "Aetherfall Online — RPG idle épico", description curta em pt-BR, `og:title`, `og:description`, `og:type=website`, `twitter:card=summary_large_image`. Sem `og:image` até haver uma arte fixa.
+Alternativa mais simples e determinística: usar `stages.xp_reward` e `stages.gold_reward` (ou os campos existentes nos inimigos) × taxa fixa (ex.: 1 clear a cada 20s para estágio normal, 60s para boss). Vou usar essa — mais previsível e sem custo de simular.
 
-## Animações
+### Server functions (`src/lib/idle.functions.ts`)
 
-Somente CSS/Tailwind: transições de hover nos cards de classes e pilares, `drop-shadow` pulsando levemente no título via keyframe em `styles.css`. Nada de framer-motion nesta página para manter leve.
+- `startIdleRun({ stageId })` — cria/atualiza a linha em `idle_runs`, zera pending, seta `last_tick_at = now()`.
+- `getIdleStatus()` — lê a linha ativa, calcula `elapsed = now - last_tick_at`, aplica taxa e o multiplicador de XP (0.5 se `now - last_seen_at > 60s`, senão 1.0), retorna `{ stage, pendingXp, pendingGold, pendingDrops, ratePerMin, offlineMultiplier, sinceMs }`. **Não persiste** — é read-only, o cálculo é feito a cada chamada.
+- `heartbeat()` — atualiza `last_seen_at = now()` (chamado a cada 20s pela UI enquanto a aba está aberta).
+- `claimIdleRewards()` — dentro de uma transação: recomputa o pending como em `getIdleStatus`, credita XP nos heróis da party (aplicando level-up conforme curva já existente ou nova: `xp_to_next = 100 * level^1.5`), credita ouro na `wallets`, insere drops no `inventory`, atualiza `last_tick_at = now()` e zera pending. Também dispara `bumpMetric` para missões/conquistas relevantes (`stage_cleared`, `gold_earned`).
+- `stopIdleRun()` — reivindica e deleta a linha.
 
-## Fora de escopo
+### UI (rota `/jogo/combate`)
 
-- Redesign do header/footer, das rotas de autenticação ou do dashboard `/jogo`.
-- Novas artes: reaproveitar retratos existentes das 6 classes.
-- Backend: nenhuma migração ou server function nesta iteração.
+Adicionar painel "Expedição idle":
+- Selector de estágio (reusa `listStages`).
+- Botão **Iniciar expedição** / **Parar**.
+- Card com contadores animados (usa `AnimatedNumber` já existente) mostrando XP e ouro acumulados em tempo real (poll a cada 3s + tick local por segundo entre polls).
+- Badge "Modo offline (−50% XP)" quando `offlineMultiplier < 1`.
+- Botão **Coletar recompensas** que chama `claimIdleRewards` e mostra toast com o total + drops.
+- `heartbeat` em `setInterval(20_000)` enquanto a rota estiver montada.
 
-## Verificação
+O combate ativo turno-a-turno (`simulateFight`) continua disponível como "batalha manual" para o jogador assistir a animação de uma luta específica — a idle roda em paralelo.
 
-Após implementar: `bunx tsgo --noEmit` e captura Playwright em `/` (viewport 1280×1800) para validar o hero, o grid dos 6 arquétipos, os 5 pilares e a timeline.
+### Detalhes técnicos
+
+- Cálculo de `elapsed` é dividido em janela online (até `last_seen_at + 60s`) × 1.0 e janela offline × 0.5 para XP, para não penalizar quem fechou a aba há 2 minutos com o total de 50% no período inteiro.
+- Drops offline: para não inflar a jsonb, limitamos a `pendingDrops` a N=50 itens; excedente vira ouro equivalente.
+- Segurança: `claimIdleRewards` recalcula do servidor — cliente nunca envia valores. `last_tick_at` só avança no claim; assim mesmo se o cliente spammar `getIdleStatus`, nada é creditado.
+- Sem cron/pg_cron: recompensa é lazy, computada só quando o jogador volta ou coleta.
+
+### Arquivos afetados
+
+- Nova migração: `idle_runs` + GRANTs + RLS + policies + índice em `user_id`.
+- Novo: `src/lib/idle.functions.ts`.
+- Editado: `src/routes/_authenticated/jogo.combate.tsx` (painel idle).
+- Editado: `src/lib/progression.server.ts` só se precisar de nova métrica.
+
+Confirma que posso seguir com a taxa fixa por estágio (mais simples) em vez de derivar do simulador? E o timeout de 60s para considerar "offline" está bom?
