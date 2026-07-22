@@ -96,7 +96,7 @@ function GameDashboard() {
             para ganhar XP, ouro e equipamentos raros.
           </p>
           <Button asChild size="lg">
-            <Link to="/jogo/novo">Criar herói</Link>
+            <Link to="/criar-heroi">Criar herói</Link>
           </Button>
         </CardContent>
       </Card>

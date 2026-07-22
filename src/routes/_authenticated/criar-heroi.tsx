@@ -23,7 +23,7 @@ export const Route = createFileRoute("/_authenticated/criar-heroi")({
   component: NewCharacterPage,
 });
 
-function NewCharacterPage() {
+export function NewCharacterPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const classesFn = useServerFn(listClasses);
@@ -106,37 +106,37 @@ function NewCharacterPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={submit} className="space-y-4">
-          <div>
-            <div className="flex items-end justify-between gap-3">
-              <Label htmlFor="name">Nome</Label>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => setName(randomHeroName())}
-              >
-                <Dices className="h-4 w-4" /> Aleatório
-              </Button>
+            <div>
+              <div className="flex items-end justify-between gap-3">
+                <Label htmlFor="name">Nome</Label>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setName(randomHeroName())}
+                >
+                  <Dices className="h-4 w-4" /> Aleatório
+                </Button>
+              </div>
+              <Input
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Ex.: Kaelen Nightbringer"
+                maxLength={20}
+              />
+              <p className="mt-1 text-xs text-muted-foreground">3 a 20 caracteres.</p>
             </div>
-            <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Ex.: Kaelen Nightbringer"
-              maxLength={20}
-            />
-            <p className="mt-1 text-xs text-muted-foreground">3 a 20 caracteres.</p>
-          </div>
-          <div className="rounded-md border border-border/60 bg-background/40 px-4 py-3 text-sm text-muted-foreground">
-            Classe selecionada: <span className="font-medium text-foreground">{selectedClass?.name ?? "carregando…"}</span>
-          </div>
-          <Button
-            type="submit"
-            size="lg"
-            disabled={classesQ.isLoading || !name.trim() || !classId || mut.isPending}
-          >
-            {mut.isPending ? "Criando…" : "Iniciar jornada"}
-          </Button>
+            <div className="rounded-md border border-border/60 bg-background/40 px-4 py-3 text-sm text-muted-foreground">
+              Classe selecionada: <span className="font-medium text-foreground">{selectedClass?.name ?? "carregando…"}</span>
+            </div>
+            <Button
+              type="submit"
+              size="lg"
+              disabled={classesQ.isLoading || !name.trim() || !classId || mut.isPending}
+            >
+              {mut.isPending ? "Criando…" : "Iniciar jornada"}
+            </Button>
           </form>
         </CardContent>
       </Card>
