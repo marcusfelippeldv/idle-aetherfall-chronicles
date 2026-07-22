@@ -1,5 +1,5 @@
 import { Link, useRouter } from "@tanstack/react-router";
-import { Menu, Sparkles, LogOut, LayoutDashboard, Shield, Swords, Users, Backpack, Coins, Trophy } from "lucide-react";
+import { Menu, Sparkles, LogOut, LayoutDashboard } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
