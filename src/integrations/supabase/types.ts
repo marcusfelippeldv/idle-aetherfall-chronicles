@@ -14,16 +14,639 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      admin_audit_logs: {
+        Row: {
+          action: string
+          admin_user_id: string
+          created_at: string
+          id: string
+          justification: string
+          new_data: Json | null
+          previous_data: Json | null
+          target_id: string | null
+          target_type: string
+        }
+        Insert: {
+          action: string
+          admin_user_id: string
+          created_at?: string
+          id?: string
+          justification: string
+          new_data?: Json | null
+          previous_data?: Json | null
+          target_id?: string | null
+          target_type: string
+        }
+        Update: {
+          action?: string
+          admin_user_id?: string
+          created_at?: string
+          id?: string
+          justification?: string
+          new_data?: Json | null
+          previous_data?: Json | null
+          target_id?: string | null
+          target_type?: string
+        }
+        Relationships: []
+      }
+      characters: {
+        Row: {
+          attack: number
+          class_id: string
+          created_at: string
+          current_hp: number
+          current_xp: number
+          defense: number
+          id: string
+          is_active: boolean
+          level: number
+          max_hp: number
+          name: string
+          power: number
+          speed: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attack?: number
+          class_id: string
+          created_at?: string
+          current_hp?: number
+          current_xp?: number
+          defense?: number
+          id?: string
+          is_active?: boolean
+          level?: number
+          max_hp?: number
+          name: string
+          power?: number
+          speed?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attack?: number
+          class_id?: string
+          created_at?: string
+          current_hp?: number
+          current_xp?: number
+          defense?: number
+          id?: string
+          is_active?: boolean
+          level?: number
+          max_hp?: number
+          name?: string
+          power?: number
+          speed?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "characters_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      classes: {
+        Row: {
+          active: boolean
+          base_attack: number
+          base_defense: number
+          base_hp: number
+          base_speed: number
+          created_at: string
+          description: string
+          icon_url: string | null
+          id: string
+          name: string
+          order_index: number
+          slug: string
+        }
+        Insert: {
+          active?: boolean
+          base_attack?: number
+          base_defense?: number
+          base_hp?: number
+          base_speed?: number
+          created_at?: string
+          description: string
+          icon_url?: string | null
+          id?: string
+          name: string
+          order_index?: number
+          slug: string
+        }
+        Update: {
+          active?: boolean
+          base_attack?: number
+          base_defense?: number
+          base_hp?: number
+          base_speed?: number
+          created_at?: string
+          description?: string
+          icon_url?: string | null
+          id?: string
+          name?: string
+          order_index?: number
+          slug?: string
+        }
+        Relationships: []
+      }
+      currency_transactions: {
+        Row: {
+          amount: number
+          balance_after: number
+          balance_before: number
+          created_at: string
+          currency_type: Database["public"]["Enums"]["currency_type"]
+          description: string | null
+          id: string
+          source_id: string | null
+          source_type: string
+          transaction_kind: Database["public"]["Enums"]["transaction_kind"]
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          balance_after: number
+          balance_before: number
+          created_at?: string
+          currency_type: Database["public"]["Enums"]["currency_type"]
+          description?: string | null
+          id?: string
+          source_id?: string | null
+          source_type: string
+          transaction_kind: Database["public"]["Enums"]["transaction_kind"]
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          balance_after?: number
+          balance_before?: number
+          created_at?: string
+          currency_type?: Database["public"]["Enums"]["currency_type"]
+          description?: string | null
+          id?: string
+          source_id?: string | null
+          source_type?: string
+          transaction_kind?: Database["public"]["Enums"]["transaction_kind"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      enemies: {
+        Row: {
+          active: boolean
+          attack: number
+          defense: number
+          gold_max: number
+          gold_min: number
+          hp: number
+          id: string
+          image_url: string | null
+          is_boss: boolean
+          level: number
+          name: string
+          region_id: string
+          xp_reward: number
+        }
+        Insert: {
+          active?: boolean
+          attack?: number
+          defense?: number
+          gold_max?: number
+          gold_min?: number
+          hp?: number
+          id?: string
+          image_url?: string | null
+          is_boss?: boolean
+          level?: number
+          name: string
+          region_id: string
+          xp_reward?: number
+        }
+        Update: {
+          active?: boolean
+          attack?: number
+          defense?: number
+          gold_max?: number
+          gold_min?: number
+          hp?: number
+          id?: string
+          image_url?: string | null
+          is_boss?: boolean
+          level?: number
+          name?: string
+          region_id?: string
+          xp_reward?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enemies_region_id_fkey"
+            columns: ["region_id"]
+            isOneToOne: false
+            referencedRelation: "regions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      expeditions: {
+        Row: {
+          character_id: string
+          claimed_at: string | null
+          duration_minutes: number
+          expected_end_at: string
+          generated_gold: number
+          generated_xp: number
+          id: string
+          region_id: string
+          result_data: Json | null
+          started_at: string
+          status: Database["public"]["Enums"]["expedition_status"]
+        }
+        Insert: {
+          character_id: string
+          claimed_at?: string | null
+          duration_minutes: number
+          expected_end_at: string
+          generated_gold?: number
+          generated_xp?: number
+          id?: string
+          region_id: string
+          result_data?: Json | null
+          started_at?: string
+          status?: Database["public"]["Enums"]["expedition_status"]
+        }
+        Update: {
+          character_id?: string
+          claimed_at?: string | null
+          duration_minutes?: number
+          expected_end_at?: string
+          generated_gold?: number
+          generated_xp?: number
+          id?: string
+          region_id?: string
+          result_data?: Json | null
+          started_at?: string
+          status?: Database["public"]["Enums"]["expedition_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expeditions_character_id_fkey"
+            columns: ["character_id"]
+            isOneToOne: false
+            referencedRelation: "characters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expeditions_region_id_fkey"
+            columns: ["region_id"]
+            isOneToOne: false
+            referencedRelation: "regions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_items: {
+        Row: {
+          acquired_at: string
+          character_id: string
+          equipped: boolean
+          id: string
+          item_id: string
+          quantity: number
+        }
+        Insert: {
+          acquired_at?: string
+          character_id: string
+          equipped?: boolean
+          id?: string
+          item_id: string
+          quantity?: number
+        }
+        Update: {
+          acquired_at?: string
+          character_id?: string
+          equipped?: boolean
+          id?: string
+          item_id?: string
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_items_character_id_fkey"
+            columns: ["character_id"]
+            isOneToOne: false
+            referencedRelation: "characters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_items_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      items: {
+        Row: {
+          active: boolean
+          attack_bonus: number
+          defense_bonus: number
+          description: string
+          hp_bonus: number
+          id: string
+          image_url: string | null
+          item_type: Database["public"]["Enums"]["item_type"]
+          name: string
+          rarity: Database["public"]["Enums"]["item_rarity"]
+          required_level: number
+          sell_price: number
+          slug: string
+          speed_bonus: number
+        }
+        Insert: {
+          active?: boolean
+          attack_bonus?: number
+          defense_bonus?: number
+          description: string
+          hp_bonus?: number
+          id?: string
+          image_url?: string | null
+          item_type: Database["public"]["Enums"]["item_type"]
+          name: string
+          rarity?: Database["public"]["Enums"]["item_rarity"]
+          required_level?: number
+          sell_price?: number
+          slug: string
+          speed_bonus?: number
+        }
+        Update: {
+          active?: boolean
+          attack_bonus?: number
+          defense_bonus?: number
+          description?: string
+          hp_bonus?: number
+          id?: string
+          image_url?: string | null
+          item_type?: Database["public"]["Enums"]["item_type"]
+          name?: string
+          rarity?: Database["public"]["Enums"]["item_rarity"]
+          required_level?: number
+          sell_price?: number
+          slug?: string
+          speed_bonus?: number
+        }
+        Relationships: []
+      }
+      orders: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          currency: string
+          delivered_at: string | null
+          id: string
+          paid_at: string | null
+          payment_provider: string | null
+          product_id: string
+          provider_order_id: string | null
+          status: Database["public"]["Enums"]["order_status"]
+          user_id: string
+        }
+        Insert: {
+          amount_cents: number
+          created_at?: string
+          currency?: string
+          delivered_at?: string | null
+          id?: string
+          paid_at?: string | null
+          payment_provider?: string | null
+          product_id: string
+          provider_order_id?: string | null
+          status?: Database["public"]["Enums"]["order_status"]
+          user_id: string
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          currency?: string
+          delivered_at?: string | null
+          id?: string
+          paid_at?: string | null
+          payment_provider?: string | null
+          product_id?: string
+          provider_order_id?: string | null
+          status?: Database["public"]["Enums"]["order_status"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          active: boolean
+          created_at: string
+          currency: string
+          description: string
+          id: string
+          metadata: Json
+          name: string
+          order_index: number
+          premium_amount: number
+          price_cents: number
+          product_kind: Database["public"]["Enums"]["product_kind"]
+          slug: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          currency?: string
+          description: string
+          id?: string
+          metadata?: Json
+          name: string
+          order_index?: number
+          premium_amount?: number
+          price_cents: number
+          product_kind: Database["public"]["Enums"]["product_kind"]
+          slug: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          currency?: string
+          description?: string
+          id?: string
+          metadata?: Json
+          name?: string
+          order_index?: number
+          premium_amount?: number
+          price_cents?: number
+          product_kind?: Database["public"]["Enums"]["product_kind"]
+          slug?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          account_status: Database["public"]["Enums"]["account_status"]
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          email: string
+          id: string
+          last_login_at: string | null
+          updated_at: string
+          username: string
+        }
+        Insert: {
+          account_status?: Database["public"]["Enums"]["account_status"]
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          email: string
+          id: string
+          last_login_at?: string | null
+          updated_at?: string
+          username: string
+        }
+        Update: {
+          account_status?: Database["public"]["Enums"]["account_status"]
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          email?: string
+          id?: string
+          last_login_at?: string | null
+          updated_at?: string
+          username?: string
+        }
+        Relationships: []
+      }
+      regions: {
+        Row: {
+          active: boolean
+          background_url: string | null
+          created_at: string
+          description: string
+          id: string
+          name: string
+          order_index: number
+          required_level: number
+          slug: string
+        }
+        Insert: {
+          active?: boolean
+          background_url?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          name: string
+          order_index?: number
+          required_level?: number
+          slug: string
+        }
+        Update: {
+          active?: boolean
+          background_url?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          name?: string
+          order_index?: number
+          required_level?: number
+          slug?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      wallets: {
+        Row: {
+          gold_balance: number
+          premium_balance: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          gold_balance?: number
+          premium_balance?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          gold_balance?: number
+          premium_balance?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      account_status: "active" | "suspended" | "banned"
+      app_role: "user" | "moderator" | "admin"
+      currency_type: "gold" | "premium"
+      expedition_status: "running" | "ready" | "claimed" | "cancelled"
+      item_rarity: "common" | "uncommon" | "rare" | "epic" | "legendary"
+      item_type:
+        | "weapon"
+        | "armor"
+        | "helmet"
+        | "accessory"
+        | "material"
+        | "consumable"
+      order_status: "pending" | "paid" | "delivered" | "refunded" | "cancelled"
+      product_kind:
+        | "premium_pack"
+        | "season_pass"
+        | "founder_pack"
+        | "subscription"
+      transaction_kind: "credit" | "debit"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +773,28 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      account_status: ["active", "suspended", "banned"],
+      app_role: ["user", "moderator", "admin"],
+      currency_type: ["gold", "premium"],
+      expedition_status: ["running", "ready", "claimed", "cancelled"],
+      item_rarity: ["common", "uncommon", "rare", "epic", "legendary"],
+      item_type: [
+        "weapon",
+        "armor",
+        "helmet",
+        "accessory",
+        "material",
+        "consumable",
+      ],
+      order_status: ["pending", "paid", "delivered", "refunded", "cancelled"],
+      product_kind: [
+        "premium_pack",
+        "season_pass",
+        "founder_pack",
+        "subscription",
+      ],
+      transaction_kind: ["credit", "debit"],
+    },
   },
 } as const
