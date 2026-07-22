@@ -1,8 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Coins, Gem, ShieldCheck, Sparkles, ArrowRight } from "lucide-react";
+import { Coins, Gem, ShieldCheck, Sparkles, Swords } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,15 +12,13 @@ import {
   getMyProfile,
   getMyRoles,
 } from "@/lib/admin.functions";
+import { getMyCharacter } from "@/lib/character.functions";
 
 export const Route = createFileRoute("/_authenticated/jogo")({
   head: () => ({
     meta: [
       { title: "Painel — Aetherfall Online" },
-      {
-        name: "description",
-        content: "Painel do jogador Aetherfall Online.",
-      },
+      { name: "description", content: "Painel do jogador Aetherfall Online." },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -30,16 +28,12 @@ export const Route = createFileRoute("/_authenticated/jogo")({
 function GameDashboard() {
   const profileFn = useServerFn(getMyProfile);
   const rolesFn = useServerFn(getMyRoles);
+  const characterFn = useServerFn(getMyCharacter);
   const bootstrap = useServerFn(claimBootstrapAdmin);
 
-  const profileQ = useQuery({
-    queryKey: ["me", "profile"],
-    queryFn: () => profileFn(),
-  });
-  const rolesQ = useQuery({
-    queryKey: ["me", "roles"],
-    queryFn: () => rolesFn(),
-  });
+  const profileQ = useQuery({ queryKey: ["me", "profile"], queryFn: () => profileFn() });
+  const rolesQ = useQuery({ queryKey: ["me", "roles"], queryFn: () => rolesFn() });
+  const characterQ = useQuery({ queryKey: ["me", "character"], queryFn: () => characterFn() });
 
   const bootstrapMut = useMutation({
     mutationFn: () => bootstrap(),
@@ -47,15 +41,19 @@ function GameDashboard() {
       if (r.granted) {
         toast.success("Você agora é administrador do projeto.");
         rolesQ.refetch();
-      } else {
-        toast.info("Um administrador já existe.");
-      }
+      } else toast.info("Um administrador já existe.");
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
   });
 
   const roles = rolesQ.data?.roles ?? [];
   const isAdmin = roles.includes("admin");
+  const character = characterQ.data?.character;
+
+  // Se já tem herói, manda para a arena.
+  if (characterQ.isSuccess && character) {
+    return <Navigate to="/jogo/arena" replace />;
+  }
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 md:px-6 md:py-14">
@@ -68,8 +66,7 @@ function GameDashboard() {
             Olá, {profileQ.data?.profile?.display_name ?? "herói"}
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Etapa 01 concluída. O ciclo de jogo (personagem, expedições,
-            inventário) chega na Etapa 02.
+            Crie seu herói para começar a explorar Aetherfall.
           </p>
         </div>
         {isAdmin ? (
@@ -82,46 +79,26 @@ function GameDashboard() {
       </header>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <StatCard
-          icon={<Coins className="h-5 w-5" />}
-          label="Ouro"
-          value={profileQ.data?.wallet.gold_balance ?? 0}
-        />
-        <StatCard
-          icon={<Gem className="h-5 w-5" />}
-          label="Cristais"
-          value={profileQ.data?.wallet.premium_balance ?? 0}
-        />
-        <StatCard
-          icon={<Sparkles className="h-5 w-5" />}
-          label="Personagens"
-          value={0}
-          hint="Etapa 02"
-        />
+        <StatCard icon={<Coins className="h-5 w-5" />} label="Ouro" value={profileQ.data?.wallet.gold_balance ?? 0} />
+        <StatCard icon={<Gem className="h-5 w-5" />} label="Cristais" value={profileQ.data?.wallet.premium_balance ?? 0} />
+        <StatCard icon={<Sparkles className="h-5 w-5" />} label="Herói" value={0} hint="Nenhum criado" />
       </div>
 
-      <Card className="mt-8 border-border/60 bg-card/60">
+      <Card className="mt-8 border-primary/40 bg-gradient-to-br from-card via-card to-primary/10">
         <CardHeader>
-          <CardTitle className="font-display text-xl">
-            Próximos passos
+          <CardTitle className="flex items-center gap-2 font-display text-2xl">
+            <Swords className="h-6 w-6 text-primary" />
+            Comece sua jornada
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3 text-sm text-muted-foreground">
-          <p>
-            Sua conta foi criada com sucesso. As mecânicas de personagem,
-            expedições Idle, inventário e loja serão liberadas nas próximas
-            etapas do desenvolvimento.
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Escolha uma classe, dê um nome ao seu herói e envie-o em expedições
+            para ganhar XP, ouro e equipamentos raros.
           </p>
-          <div className="flex flex-wrap gap-2 pt-2">
-            <Button asChild variant="outline" size="sm">
-              <Link to="/classes">
-                Ver classes disponíveis <ArrowRight className="ml-1 h-4 w-4" />
-              </Link>
-            </Button>
-            <Button asChild variant="outline" size="sm">
-              <Link to="/roadmap">Roadmap completo</Link>
-            </Button>
-          </div>
+          <Button asChild size="lg">
+            <Link to="/jogo/novo">Criar herói</Link>
+          </Button>
         </CardContent>
       </Card>
 
@@ -136,10 +113,7 @@ function GameDashboard() {
                 única vez.
               </p>
             </div>
-            <Button
-              onClick={() => bootstrapMut.mutate()}
-              disabled={bootstrapMut.isPending}
-            >
+            <Button onClick={() => bootstrapMut.mutate()} disabled={bootstrapMut.isPending}>
               {bootstrapMut.isPending ? "Concedendo…" : "Tornar-me admin"}
             </Button>
           </CardContent>
@@ -155,17 +129,7 @@ function GameDashboard() {
   );
 }
 
-function StatCard({
-  icon,
-  label,
-  value,
-  hint,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: number;
-  hint?: string;
-}) {
+function StatCard({ icon, label, value, hint }: { icon: React.ReactNode; label: string; value: number; hint?: string }) {
   return (
     <Card className="border-border/60 bg-card/60">
       <CardContent className="flex items-center gap-4 p-6">
@@ -173,17 +137,9 @@ function StatCard({
           {icon}
         </div>
         <div>
-          <p className="text-xs uppercase tracking-wider text-muted-foreground">
-            {label}
-          </p>
-          <p className="font-display text-2xl">
-            {value.toLocaleString("pt-BR")}
-          </p>
-          {hint ? (
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-              {hint}
-            </p>
-          ) : null}
+          <p className="text-xs uppercase tracking-wider text-muted-foreground">{label}</p>
+          <p className="font-display text-2xl">{value.toLocaleString("pt-BR")}</p>
+          {hint ? <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{hint}</p> : null}
         </div>
       </CardContent>
     </Card>
