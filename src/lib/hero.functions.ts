@@ -9,6 +9,24 @@ const createSchema = z.object({
   classSlug: z.string().trim().min(2).max(40),
 });
 
+const COMPANION_MAP: Record<string, string[]> = {
+  guardiao: ["vidente", "arqueiro", "arcanista"],
+  espadachim: ["guardiao", "vidente", "arcanista"],
+  arqueiro: ["guardiao", "vidente", "punho"],
+  arcanista: ["guardiao", "vidente", "arqueiro"],
+  vidente: ["guardiao", "espadachim", "arcanista"],
+  punho: ["guardiao", "vidente", "arcanista"],
+};
+
+const COMPANION_NAMES: Record<string, string[]> = {
+  guardiao: ["Bram", "Kaeloth", "Ilya"],
+  espadachim: ["Sylas", "Renn", "Aeris"],
+  arqueiro: ["Lyra", "Fenn", "Cyra"],
+  arcanista: ["Ordin", "Vaelis", "Mira"],
+  vidente: ["Elowen", "Séraphine", "Nyx"],
+  punho: ["Rurik", "Tama", "Zhen"],
+};
+
 function publicClient() {
   return createClient<Database>(
     process.env.SUPABASE_URL!,
@@ -33,55 +51,125 @@ export const getMyHeroes = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("heroes")
-      .select("id, name, class_slug, is_protagonist, level, hp, mana, atk, def, spd")
+      .select("id, name, class_slug, is_protagonist, level, hp, mana, atk, def, spd, awakening_energy")
       .eq("user_id", context.userId)
+      .order("is_protagonist", { ascending: false })
       .order("created_at", { ascending: true });
     if (error) throw new Error(error.message);
     return data ?? [];
+  });
+
+export const getMyParty = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase
+      .from("parties")
+      .select("id, slot1, slot2, slot3, slot4, entity_slug")
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    return data;
+  });
+
+const setSlotSchema = z.object({
+  slot: z.enum(["slot1", "slot2", "slot3", "slot4"]),
+  heroId: z.string().uuid().nullable(),
+});
+
+export const setPartySlot = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => setSlotSchema.parse(data))
+  .handler(async ({ data, context }) => {
+    const { data: party, error: pErr } = await context.supabase
+      .from("parties")
+      .select("id, slot1, slot2, slot3, slot4")
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    if (pErr) throw new Error(pErr.message);
+    if (!party) throw new Error("Party inexistente.");
+
+    // If assigning a hero, make sure it isn't already elsewhere — swap if so.
+    const patch: Record<string, string | null> = { [data.slot]: data.heroId };
+    if (data.heroId) {
+      for (const s of ["slot1", "slot2", "slot3", "slot4"] as const) {
+        if (s !== data.slot && party[s] === data.heroId) {
+          patch[s] = party[data.slot] ?? null;
+        }
+      }
+    }
+
+    const { error: uErr } = await context.supabase
+      .from("parties")
+      .update(patch)
+      .eq("id", party.id);
+    if (uErr) throw new Error(uErr.message);
+    return { ok: true };
   });
 
 export const createProtagonist = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => createSchema.parse(data))
   .handler(async ({ data, context }) => {
-    // Prevent duplicate protagonist
     const { data: existing } = await context.supabase
       .from("heroes")
       .select("id")
       .eq("user_id", context.userId)
       .eq("is_protagonist", true)
       .maybeSingle();
-    if (existing) throw new Error("Você já criou seu protagonista.");
+    if (existing) throw new Error("Você já criou seu Condutor.");
 
-    const { data: cls, error: clsErr } = await context.supabase
+    const companionSlugs = COMPANION_MAP[data.classSlug] ?? ["guardiao", "vidente", "arqueiro"];
+    const allSlugs = [data.classSlug, ...companionSlugs];
+
+    const { data: classes, error: clsErr } = await context.supabase
       .from("classes")
       .select("slug, base_hp, base_mana, base_atk, base_def, base_spd")
-      .eq("slug", data.classSlug)
-      .eq("tier", 1)
-      .maybeSingle();
+      .in("slug", allSlugs)
+      .eq("tier", 1);
     if (clsErr) throw new Error(clsErr.message);
-    if (!cls) throw new Error("Classe inválida.");
+    const bySlug = new Map(classes?.map((c) => [c.slug, c]) ?? []);
+    if (!bySlug.has(data.classSlug)) throw new Error("Classe inválida.");
+
+    const rows = allSlugs.map((slug, idx) => {
+      const c = bySlug.get(slug)!;
+      const isProt = idx === 0;
+      const compName = COMPANION_NAMES[data.classSlug]?.[idx - 1] ?? `Companheiro ${idx}`;
+      return {
+        user_id: context.userId,
+        name: isProt ? data.name : compName,
+        class_slug: slug,
+        element: "neutro" as const,
+        is_protagonist: isProt,
+        level: 1,
+        xp: 0,
+        hp: c.base_hp,
+        mana: c.base_mana,
+        atk: c.base_atk,
+        def: c.base_def,
+        spd: c.base_spd,
+        awakening_energy: 0,
+        priorities: [],
+      };
+    });
 
     const { data: inserted, error: insErr } = await context.supabase
       .from("heroes")
-      .insert({
-        user_id: context.userId,
-        name: data.name,
-        class_slug: cls.slug,
-        element: "neutro",
-        is_protagonist: true,
-        level: 1,
-        xp: 0,
-        hp: cls.base_hp,
-        mana: cls.base_mana,
-        atk: cls.base_atk,
-        def: cls.base_def,
-        spd: cls.base_spd,
-        awakening_energy: 0,
-        priorities: [],
-      })
-      .select("id")
-      .single();
+      .insert(rows)
+      .select("id, is_protagonist, created_at")
+      .order("is_protagonist", { ascending: false })
+      .order("created_at", { ascending: true });
     if (insErr) throw new Error(insErr.message);
-    return { id: inserted.id };
+    if (!inserted || inserted.length < 4) throw new Error("Falha ao criar heróis.");
+
+    const [h1, h2, h3, h4] = inserted;
+    const { error: partyErr } = await context.supabase.from("parties").insert({
+      user_id: context.userId,
+      slot1: h1.id,
+      slot2: h2.id,
+      slot3: h3.id,
+      slot4: h4.id,
+    });
+    if (partyErr) throw new Error(partyErr.message);
+
+    return { id: h1.id };
   });
