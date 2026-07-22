@@ -35,6 +35,8 @@ import { Route as AuthenticatedJogoCarteiraRouteImport } from './routes/_authent
 import { Route as AuthenticatedJogoArenaRouteImport } from './routes/_authenticated/jogo.arena'
 import { Route as AuthenticatedAdminAdminRouteImport } from './routes/_authenticated/_admin/admin'
 import { Route as AuthenticatedAdminAdminJogadoresRouteImport } from './routes/_authenticated/_admin/admin.jogadores'
+import { Route as AuthenticatedAdminAdminHeroisRouteImport } from './routes/_authenticated/_admin/admin.herois'
+import { Route as AuthenticatedAdminAdminAuditoriaRouteImport } from './routes/_authenticated/_admin/admin.auditoria'
 
 const TermosRoute = TermosRouteImport.update({
   id: '/termos',
@@ -168,6 +170,18 @@ const AuthenticatedAdminAdminJogadoresRoute =
     path: '/jogadores',
     getParentRoute: () => AuthenticatedAdminAdminRoute,
   } as any)
+const AuthenticatedAdminAdminHeroisRoute =
+  AuthenticatedAdminAdminHeroisRouteImport.update({
+    id: '/herois',
+    path: '/herois',
+    getParentRoute: () => AuthenticatedAdminAdminRoute,
+  } as any)
+const AuthenticatedAdminAdminAuditoriaRoute =
+  AuthenticatedAdminAdminAuditoriaRouteImport.update({
+    id: '/auditoria',
+    path: '/auditoria',
+    getParentRoute: () => AuthenticatedAdminAdminRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -193,6 +207,8 @@ export interface FileRoutesByFullPath {
   '/jogo/novo': typeof AuthenticatedJogoNovoRoute
   '/jogo/raides': typeof AuthenticatedJogoRaidesRoute
   '/jogo/temporada': typeof AuthenticatedJogoTemporadaRoute
+  '/admin/auditoria': typeof AuthenticatedAdminAdminAuditoriaRoute
+  '/admin/herois': typeof AuthenticatedAdminAdminHeroisRoute
   '/admin/jogadores': typeof AuthenticatedAdminAdminJogadoresRoute
 }
 export interface FileRoutesByTo {
@@ -219,6 +235,8 @@ export interface FileRoutesByTo {
   '/jogo/novo': typeof AuthenticatedJogoNovoRoute
   '/jogo/raides': typeof AuthenticatedJogoRaidesRoute
   '/jogo/temporada': typeof AuthenticatedJogoTemporadaRoute
+  '/admin/auditoria': typeof AuthenticatedAdminAdminAuditoriaRoute
+  '/admin/herois': typeof AuthenticatedAdminAdminHeroisRoute
   '/admin/jogadores': typeof AuthenticatedAdminAdminJogadoresRoute
 }
 export interface FileRoutesById {
@@ -248,6 +266,8 @@ export interface FileRoutesById {
   '/_authenticated/jogo/novo': typeof AuthenticatedJogoNovoRoute
   '/_authenticated/jogo/raides': typeof AuthenticatedJogoRaidesRoute
   '/_authenticated/jogo/temporada': typeof AuthenticatedJogoTemporadaRoute
+  '/_authenticated/_admin/admin/auditoria': typeof AuthenticatedAdminAdminAuditoriaRoute
+  '/_authenticated/_admin/admin/herois': typeof AuthenticatedAdminAdminHeroisRoute
   '/_authenticated/_admin/admin/jogadores': typeof AuthenticatedAdminAdminJogadoresRoute
 }
 export interface FileRouteTypes {
@@ -276,6 +296,8 @@ export interface FileRouteTypes {
     | '/jogo/novo'
     | '/jogo/raides'
     | '/jogo/temporada'
+    | '/admin/auditoria'
+    | '/admin/herois'
     | '/admin/jogadores'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -302,6 +324,8 @@ export interface FileRouteTypes {
     | '/jogo/novo'
     | '/jogo/raides'
     | '/jogo/temporada'
+    | '/admin/auditoria'
+    | '/admin/herois'
     | '/admin/jogadores'
   id:
     | '__root__'
@@ -330,6 +354,8 @@ export interface FileRouteTypes {
     | '/_authenticated/jogo/novo'
     | '/_authenticated/jogo/raides'
     | '/_authenticated/jogo/temporada'
+    | '/_authenticated/_admin/admin/auditoria'
+    | '/_authenticated/_admin/admin/herois'
     | '/_authenticated/_admin/admin/jogadores'
   fileRoutesById: FileRoutesById
 }
@@ -532,15 +558,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAdminJogadoresRouteImport
       parentRoute: typeof AuthenticatedAdminAdminRoute
     }
+    '/_authenticated/_admin/admin/herois': {
+      id: '/_authenticated/_admin/admin/herois'
+      path: '/herois'
+      fullPath: '/admin/herois'
+      preLoaderRoute: typeof AuthenticatedAdminAdminHeroisRouteImport
+      parentRoute: typeof AuthenticatedAdminAdminRoute
+    }
+    '/_authenticated/_admin/admin/auditoria': {
+      id: '/_authenticated/_admin/admin/auditoria'
+      path: '/auditoria'
+      fullPath: '/admin/auditoria'
+      preLoaderRoute: typeof AuthenticatedAdminAdminAuditoriaRouteImport
+      parentRoute: typeof AuthenticatedAdminAdminRoute
+    }
   }
 }
 
 interface AuthenticatedAdminAdminRouteChildren {
+  AuthenticatedAdminAdminAuditoriaRoute: typeof AuthenticatedAdminAdminAuditoriaRoute
+  AuthenticatedAdminAdminHeroisRoute: typeof AuthenticatedAdminAdminHeroisRoute
   AuthenticatedAdminAdminJogadoresRoute: typeof AuthenticatedAdminAdminJogadoresRoute
 }
 
 const AuthenticatedAdminAdminRouteChildren: AuthenticatedAdminAdminRouteChildren =
   {
+    AuthenticatedAdminAdminAuditoriaRoute:
+      AuthenticatedAdminAdminAuditoriaRoute,
+    AuthenticatedAdminAdminHeroisRoute: AuthenticatedAdminAdminHeroisRoute,
     AuthenticatedAdminAdminJogadoresRoute:
       AuthenticatedAdminAdminJogadoresRoute,
   }
