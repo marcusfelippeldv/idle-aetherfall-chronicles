@@ -218,5 +218,18 @@ export const sellItem = createServerFn({ method: "POST" })
       });
     }
 
+    try {
+      const { trackProgress, checkAchievements } = await import(
+        "@/lib/progression.server"
+      );
+      await trackProgress(context.supabase, context.userId, {
+        kind: "item_sold",
+        quantity: inv.quantity,
+      });
+      await checkAchievements(context.supabase, context.userId);
+    } catch (e) {
+      console.error("progression hooks (sell)", e);
+    }
+
     return { ok: true, gold: total };
   });
