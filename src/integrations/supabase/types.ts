@@ -1119,6 +1119,13 @@ export type Database = {
         }
         Returns: boolean
       }
+      hit_world_boss: {
+        Args: { _damage: number; _slug: string }
+        Returns: {
+          killed: boolean
+          remaining_hp: number
+        }[]
+      }
     }
     Enums: {
       account_status: "active" | "suspended" | "banned"
