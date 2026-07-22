@@ -109,6 +109,7 @@ export const simulateFight = createServerFn({ method: "POST" })
       .in("class_slug", classSlugs);
     const abilitiesByClass = new Map<string, Awaited<ReturnType<typeof import("./combat.server").simulate>> extends never ? never : never>() as unknown as Map<string, import("./combat.server").AbilityDef[]>;
     for (const a of abilitiesRaw ?? []) {
+      if (!a.class_slug) continue;
       const list = abilitiesByClass.get(a.class_slug) ?? [];
       list.push({
         slug: a.slug,
@@ -122,6 +123,7 @@ export const simulateFight = createServerFn({ method: "POST" })
       });
       abilitiesByClass.set(a.class_slug, list);
     }
+
 
     const { data: matchupsRaw } = await supabase.from("element_matchups").select("attacker, defender, multiplier");
     const matchups = new Map<string, number>();
