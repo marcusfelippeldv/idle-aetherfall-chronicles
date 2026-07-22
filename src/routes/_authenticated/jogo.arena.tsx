@@ -223,6 +223,14 @@ function ActiveIncursionCard({ incursion, character }: { incursion: any; charact
     onSuccess: (r: any) => {
       toast.success(`+${r.xp} XP · +${r.gold} ouro`);
       if (r.leveledUp) toast.success(`Nível ${r.newLevel}!`, { icon: "✨" });
+      const drops = (r.drops ?? []) as Array<{ name: string; rarity: string }>;
+      if (drops.length) {
+        const rare = drops.filter((d) => d.rarity !== "comum");
+        toast.success(
+          `Loot: ${drops.map((d) => d.name).join(", ")}`,
+          { description: rare.length ? `${rare.length} item(ns) raros ou melhores!` : undefined },
+        );
+      }
       invalidate();
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
