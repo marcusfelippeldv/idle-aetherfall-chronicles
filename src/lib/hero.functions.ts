@@ -88,8 +88,12 @@ export const setPartySlot = createServerFn({ method: "POST" })
     if (pErr) throw new Error(pErr.message);
     if (!party) throw new Error("Party inexistente.");
 
-    // If assigning a hero, make sure it isn't already elsewhere — swap if so.
-    const patch: Record<string, string | null> = { [data.slot]: data.heroId };
+    const patch: {
+      slot1?: string | null;
+      slot2?: string | null;
+      slot3?: string | null;
+      slot4?: string | null;
+    } = { [data.slot]: data.heroId };
     if (data.heroId) {
       for (const s of ["slot1", "slot2", "slot3", "slot4"] as const) {
         if (s !== data.slot && party[s] === data.heroId) {
