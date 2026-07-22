@@ -195,6 +195,33 @@ export type Database = {
           },
         ]
       }
+      chat_messages: {
+        Row: {
+          channel_key: string
+          character_name: string
+          content: string
+          created_at: string
+          id: number
+          user_id: string
+        }
+        Insert: {
+          channel_key: string
+          character_name: string
+          content: string
+          created_at?: string
+          id?: number
+          user_id: string
+        }
+        Update: {
+          channel_key?: string
+          character_name?: string
+          content?: string
+          created_at?: string
+          id?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       classes: {
         Row: {
           active: boolean
@@ -484,6 +511,125 @@ export type Database = {
           },
         ]
       }
+      guild_invites: {
+        Row: {
+          created_at: string
+          expires_at: string
+          guild_id: string
+          id: string
+          invited_by: string
+          invited_user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          guild_id: string
+          id?: string
+          invited_by: string
+          invited_user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          guild_id?: string
+          id?: string
+          invited_by?: string
+          invited_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guild_invites_guild_id_fkey"
+            columns: ["guild_id"]
+            isOneToOne: false
+            referencedRelation: "guilds"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guild_members: {
+        Row: {
+          character_id: string | null
+          contribution: number
+          guild_id: string
+          id: string
+          joined_at: string
+          role: Database["public"]["Enums"]["guild_role"]
+          user_id: string
+        }
+        Insert: {
+          character_id?: string | null
+          contribution?: number
+          guild_id: string
+          id?: string
+          joined_at?: string
+          role?: Database["public"]["Enums"]["guild_role"]
+          user_id: string
+        }
+        Update: {
+          character_id?: string | null
+          contribution?: number
+          guild_id?: string
+          id?: string
+          joined_at?: string
+          role?: Database["public"]["Enums"]["guild_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guild_members_character_id_fkey"
+            columns: ["character_id"]
+            isOneToOne: false
+            referencedRelation: "characters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guild_members_guild_id_fkey"
+            columns: ["guild_id"]
+            isOneToOne: false
+            referencedRelation: "guilds"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guilds: {
+        Row: {
+          created_at: string
+          description: string
+          emblem: string
+          id: string
+          leader_id: string
+          member_count: number
+          name: string
+          tag: string
+          total_power: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          emblem?: string
+          id?: string
+          leader_id: string
+          member_count?: number
+          name: string
+          tag: string
+          total_power?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          emblem?: string
+          id?: string
+          leader_id?: string
+          member_count?: number
+          name?: string
+          tag?: string
+          total_power?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       inventory_items: {
         Row: {
           acquired_at: string
@@ -708,6 +854,209 @@ export type Database = {
         }
         Relationships: []
       }
+      raid_contributions: {
+        Row: {
+          character_id: string
+          created_at: string
+          damage: number
+          hits: number
+          id: string
+          last_hit_at: string | null
+          raid_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          character_id: string
+          created_at?: string
+          damage?: number
+          hits?: number
+          id?: string
+          last_hit_at?: string | null
+          raid_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          character_id?: string
+          created_at?: string
+          damage?: number
+          hits?: number
+          id?: string
+          last_hit_at?: string | null
+          raid_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "raid_contributions_character_id_fkey"
+            columns: ["character_id"]
+            isOneToOne: false
+            referencedRelation: "characters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "raid_contributions_raid_id_fkey"
+            columns: ["raid_id"]
+            isOneToOne: false
+            referencedRelation: "raids"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      raid_rewards: {
+        Row: {
+          claimed_at: string | null
+          created_at: string
+          crystals: number
+          gold: number
+          id: string
+          raid_id: string
+          user_id: string
+          xp: number
+        }
+        Insert: {
+          claimed_at?: string | null
+          created_at?: string
+          crystals?: number
+          gold?: number
+          id?: string
+          raid_id: string
+          user_id: string
+          xp?: number
+        }
+        Update: {
+          claimed_at?: string | null
+          created_at?: string
+          crystals?: number
+          gold?: number
+          id?: string
+          raid_id?: string
+          user_id?: string
+          xp?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "raid_rewards_raid_id_fkey"
+            columns: ["raid_id"]
+            isOneToOne: false
+            referencedRelation: "raids"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      raid_templates: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string
+          id: string
+          min_level: number
+          name: string
+          order_index: number
+          reward_crystals: number
+          reward_gold: number
+          reward_xp: number
+          slug: string
+          total_hp: number
+          updated_at: string
+          window_hours: number
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string
+          id?: string
+          min_level?: number
+          name: string
+          order_index?: number
+          reward_crystals?: number
+          reward_gold?: number
+          reward_xp?: number
+          slug: string
+          total_hp: number
+          updated_at?: string
+          window_hours?: number
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string
+          id?: string
+          min_level?: number
+          name?: string
+          order_index?: number
+          reward_crystals?: number
+          reward_gold?: number
+          reward_xp?: number
+          slug?: string
+          total_hp?: number
+          updated_at?: string
+          window_hours?: number
+        }
+        Relationships: []
+      }
+      raids: {
+        Row: {
+          created_at: string
+          current_hp: number
+          defeated_at: string | null
+          ends_at: string
+          guild_id: string | null
+          id: string
+          settled_at: string | null
+          starts_at: string
+          status: Database["public"]["Enums"]["raid_status"]
+          template_id: string
+          total_hp: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_hp: number
+          defeated_at?: string | null
+          ends_at: string
+          guild_id?: string | null
+          id?: string
+          settled_at?: string | null
+          starts_at?: string
+          status?: Database["public"]["Enums"]["raid_status"]
+          template_id: string
+          total_hp: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_hp?: number
+          defeated_at?: string | null
+          ends_at?: string
+          guild_id?: string | null
+          id?: string
+          settled_at?: string | null
+          starts_at?: string
+          status?: Database["public"]["Enums"]["raid_status"]
+          template_id?: string
+          total_hp?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "raids_guild_id_fkey"
+            columns: ["guild_id"]
+            isOneToOne: false
+            referencedRelation: "guilds"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "raids_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "raid_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       regions: {
         Row: {
           active: boolean
@@ -911,12 +1260,18 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_guild_member: {
+        Args: { _guild_id: string; _user_id: string }
+        Returns: boolean
+      }
+      my_guild_id: { Args: { _user_id: string }; Returns: string }
     }
     Enums: {
       account_status: "active" | "suspended" | "banned"
       app_role: "user" | "moderator" | "admin"
       currency_type: "gold" | "premium"
       expedition_status: "running" | "ready" | "claimed" | "cancelled"
+      guild_role: "leader" | "officer" | "member"
       item_rarity: "common" | "uncommon" | "rare" | "epic" | "legendary"
       item_type:
         | "weapon"
@@ -932,6 +1287,7 @@ export type Database = {
         | "founder_pack"
         | "subscription"
         | "shop_item"
+      raid_status: "active" | "defeated" | "expired" | "settled"
       transaction_kind: "credit" | "debit"
     }
     CompositeTypes: {
@@ -1064,6 +1420,7 @@ export const Constants = {
       app_role: ["user", "moderator", "admin"],
       currency_type: ["gold", "premium"],
       expedition_status: ["running", "ready", "claimed", "cancelled"],
+      guild_role: ["leader", "officer", "member"],
       item_rarity: ["common", "uncommon", "rare", "epic", "legendary"],
       item_type: [
         "weapon",
@@ -1081,6 +1438,7 @@ export const Constants = {
         "subscription",
         "shop_item",
       ],
+      raid_status: ["active", "defeated", "expired", "settled"],
       transaction_kind: ["credit", "debit"],
     },
   },
