@@ -23,7 +23,11 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedJogoRouteImport } from './routes/_authenticated/jogo'
 import { Route as AuthenticatedCriarHeroiRouteImport } from './routes/_authenticated/criar-heroi'
 import { Route as AuthenticatedJogoIndexRouteImport } from './routes/_authenticated/jogo.index'
+import { Route as AuthenticatedJogoSocialRouteImport } from './routes/_authenticated/jogo.social'
 import { Route as AuthenticatedJogoPrioridadesRouteImport } from './routes/_authenticated/jogo.prioridades'
+import { Route as AuthenticatedJogoMissoesRouteImport } from './routes/_authenticated/jogo.missoes'
+import { Route as AuthenticatedJogoLojaRouteImport } from './routes/_authenticated/jogo.loja'
+import { Route as AuthenticatedJogoInventarioRouteImport } from './routes/_authenticated/jogo.inventario'
 import { Route as AuthenticatedJogoEquipeRouteImport } from './routes/_authenticated/jogo.equipe'
 import { Route as AuthenticatedJogoCombateRouteImport } from './routes/_authenticated/jogo.combate'
 
@@ -96,10 +100,32 @@ const AuthenticatedJogoIndexRoute = AuthenticatedJogoIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedJogoRoute,
 } as any)
+const AuthenticatedJogoSocialRoute = AuthenticatedJogoSocialRouteImport.update({
+  id: '/social',
+  path: '/social',
+  getParentRoute: () => AuthenticatedJogoRoute,
+} as any)
 const AuthenticatedJogoPrioridadesRoute =
   AuthenticatedJogoPrioridadesRouteImport.update({
     id: '/prioridades',
     path: '/prioridades',
+    getParentRoute: () => AuthenticatedJogoRoute,
+  } as any)
+const AuthenticatedJogoMissoesRoute =
+  AuthenticatedJogoMissoesRouteImport.update({
+    id: '/missoes',
+    path: '/missoes',
+    getParentRoute: () => AuthenticatedJogoRoute,
+  } as any)
+const AuthenticatedJogoLojaRoute = AuthenticatedJogoLojaRouteImport.update({
+  id: '/loja',
+  path: '/loja',
+  getParentRoute: () => AuthenticatedJogoRoute,
+} as any)
+const AuthenticatedJogoInventarioRoute =
+  AuthenticatedJogoInventarioRouteImport.update({
+    id: '/inventario',
+    path: '/inventario',
     getParentRoute: () => AuthenticatedJogoRoute,
   } as any)
 const AuthenticatedJogoEquipeRoute = AuthenticatedJogoEquipeRouteImport.update({
@@ -129,7 +155,11 @@ export interface FileRoutesByFullPath {
   '/jogo': typeof AuthenticatedJogoRouteWithChildren
   '/jogo/combate': typeof AuthenticatedJogoCombateRoute
   '/jogo/equipe': typeof AuthenticatedJogoEquipeRoute
+  '/jogo/inventario': typeof AuthenticatedJogoInventarioRoute
+  '/jogo/loja': typeof AuthenticatedJogoLojaRoute
+  '/jogo/missoes': typeof AuthenticatedJogoMissoesRoute
   '/jogo/prioridades': typeof AuthenticatedJogoPrioridadesRoute
+  '/jogo/social': typeof AuthenticatedJogoSocialRoute
   '/jogo/': typeof AuthenticatedJogoIndexRoute
 }
 export interface FileRoutesByTo {
@@ -146,7 +176,11 @@ export interface FileRoutesByTo {
   '/criar-heroi': typeof AuthenticatedCriarHeroiRoute
   '/jogo/combate': typeof AuthenticatedJogoCombateRoute
   '/jogo/equipe': typeof AuthenticatedJogoEquipeRoute
+  '/jogo/inventario': typeof AuthenticatedJogoInventarioRoute
+  '/jogo/loja': typeof AuthenticatedJogoLojaRoute
+  '/jogo/missoes': typeof AuthenticatedJogoMissoesRoute
   '/jogo/prioridades': typeof AuthenticatedJogoPrioridadesRoute
+  '/jogo/social': typeof AuthenticatedJogoSocialRoute
   '/jogo': typeof AuthenticatedJogoIndexRoute
 }
 export interface FileRoutesById {
@@ -166,7 +200,11 @@ export interface FileRoutesById {
   '/_authenticated/jogo': typeof AuthenticatedJogoRouteWithChildren
   '/_authenticated/jogo/combate': typeof AuthenticatedJogoCombateRoute
   '/_authenticated/jogo/equipe': typeof AuthenticatedJogoEquipeRoute
+  '/_authenticated/jogo/inventario': typeof AuthenticatedJogoInventarioRoute
+  '/_authenticated/jogo/loja': typeof AuthenticatedJogoLojaRoute
+  '/_authenticated/jogo/missoes': typeof AuthenticatedJogoMissoesRoute
   '/_authenticated/jogo/prioridades': typeof AuthenticatedJogoPrioridadesRoute
+  '/_authenticated/jogo/social': typeof AuthenticatedJogoSocialRoute
   '/_authenticated/jogo/': typeof AuthenticatedJogoIndexRoute
 }
 export interface FileRouteTypes {
@@ -186,7 +224,11 @@ export interface FileRouteTypes {
     | '/jogo'
     | '/jogo/combate'
     | '/jogo/equipe'
+    | '/jogo/inventario'
+    | '/jogo/loja'
+    | '/jogo/missoes'
     | '/jogo/prioridades'
+    | '/jogo/social'
     | '/jogo/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -203,7 +245,11 @@ export interface FileRouteTypes {
     | '/criar-heroi'
     | '/jogo/combate'
     | '/jogo/equipe'
+    | '/jogo/inventario'
+    | '/jogo/loja'
+    | '/jogo/missoes'
     | '/jogo/prioridades'
+    | '/jogo/social'
     | '/jogo'
   id:
     | '__root__'
@@ -222,7 +268,11 @@ export interface FileRouteTypes {
     | '/_authenticated/jogo'
     | '/_authenticated/jogo/combate'
     | '/_authenticated/jogo/equipe'
+    | '/_authenticated/jogo/inventario'
+    | '/_authenticated/jogo/loja'
+    | '/_authenticated/jogo/missoes'
     | '/_authenticated/jogo/prioridades'
+    | '/_authenticated/jogo/social'
     | '/_authenticated/jogo/'
   fileRoutesById: FileRoutesById
 }
@@ -340,11 +390,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedJogoIndexRouteImport
       parentRoute: typeof AuthenticatedJogoRoute
     }
+    '/_authenticated/jogo/social': {
+      id: '/_authenticated/jogo/social'
+      path: '/social'
+      fullPath: '/jogo/social'
+      preLoaderRoute: typeof AuthenticatedJogoSocialRouteImport
+      parentRoute: typeof AuthenticatedJogoRoute
+    }
     '/_authenticated/jogo/prioridades': {
       id: '/_authenticated/jogo/prioridades'
       path: '/prioridades'
       fullPath: '/jogo/prioridades'
       preLoaderRoute: typeof AuthenticatedJogoPrioridadesRouteImport
+      parentRoute: typeof AuthenticatedJogoRoute
+    }
+    '/_authenticated/jogo/missoes': {
+      id: '/_authenticated/jogo/missoes'
+      path: '/missoes'
+      fullPath: '/jogo/missoes'
+      preLoaderRoute: typeof AuthenticatedJogoMissoesRouteImport
+      parentRoute: typeof AuthenticatedJogoRoute
+    }
+    '/_authenticated/jogo/loja': {
+      id: '/_authenticated/jogo/loja'
+      path: '/loja'
+      fullPath: '/jogo/loja'
+      preLoaderRoute: typeof AuthenticatedJogoLojaRouteImport
+      parentRoute: typeof AuthenticatedJogoRoute
+    }
+    '/_authenticated/jogo/inventario': {
+      id: '/_authenticated/jogo/inventario'
+      path: '/inventario'
+      fullPath: '/jogo/inventario'
+      preLoaderRoute: typeof AuthenticatedJogoInventarioRouteImport
       parentRoute: typeof AuthenticatedJogoRoute
     }
     '/_authenticated/jogo/equipe': {
@@ -367,14 +445,22 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedJogoRouteChildren {
   AuthenticatedJogoCombateRoute: typeof AuthenticatedJogoCombateRoute
   AuthenticatedJogoEquipeRoute: typeof AuthenticatedJogoEquipeRoute
+  AuthenticatedJogoInventarioRoute: typeof AuthenticatedJogoInventarioRoute
+  AuthenticatedJogoLojaRoute: typeof AuthenticatedJogoLojaRoute
+  AuthenticatedJogoMissoesRoute: typeof AuthenticatedJogoMissoesRoute
   AuthenticatedJogoPrioridadesRoute: typeof AuthenticatedJogoPrioridadesRoute
+  AuthenticatedJogoSocialRoute: typeof AuthenticatedJogoSocialRoute
   AuthenticatedJogoIndexRoute: typeof AuthenticatedJogoIndexRoute
 }
 
 const AuthenticatedJogoRouteChildren: AuthenticatedJogoRouteChildren = {
   AuthenticatedJogoCombateRoute: AuthenticatedJogoCombateRoute,
   AuthenticatedJogoEquipeRoute: AuthenticatedJogoEquipeRoute,
+  AuthenticatedJogoInventarioRoute: AuthenticatedJogoInventarioRoute,
+  AuthenticatedJogoLojaRoute: AuthenticatedJogoLojaRoute,
+  AuthenticatedJogoMissoesRoute: AuthenticatedJogoMissoesRoute,
   AuthenticatedJogoPrioridadesRoute: AuthenticatedJogoPrioridadesRoute,
+  AuthenticatedJogoSocialRoute: AuthenticatedJogoSocialRoute,
   AuthenticatedJogoIndexRoute: AuthenticatedJogoIndexRoute,
 }
 

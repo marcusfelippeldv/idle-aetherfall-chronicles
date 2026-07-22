@@ -6,6 +6,10 @@ const tabs = [
   { to: "/jogo/equipe", label: "Equipe" },
   { to: "/jogo/prioridades", label: "Prioridades" },
   { to: "/jogo/combate", label: "Combate" },
+  { to: "/jogo/loja", label: "Loja" },
+  { to: "/jogo/inventario", label: "Inventário" },
+  { to: "/jogo/missoes", label: "Missões" },
+  { to: "/jogo/social", label: "Social" },
 ];
 
 
