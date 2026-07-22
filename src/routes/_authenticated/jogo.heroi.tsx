@@ -245,4 +245,4 @@ function StatLine({
   );
 }
 
-function _unused() { return <Coins />; } // manter import
+
