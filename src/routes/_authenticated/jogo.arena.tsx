@@ -212,7 +212,7 @@ function StatChip({ icon, label, value }: { icon: React.ReactNode; label: string
 
 /* --------------------------- Expeditions --------------------------- */
 
-function ExpeditionsPanel({ character, expedition }: { character: any; expedition: any }) {
+function ExpeditionsPanel({ character, expedition, classSlug }: { character: any; expedition: any; classSlug?: string }) {
   const qc = useQueryClient();
   const regionsFn = useServerFn(listRegions);
   const startFn = useServerFn(startExpedition);
