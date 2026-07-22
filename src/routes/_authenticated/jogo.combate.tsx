@@ -1,18 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Swords, Trophy, Skull } from "lucide-react";
+import { Swords, Trophy, Skull, Infinity as InfinityIcon, Coins, Sparkles, WifiOff, Wifi, Square, Gift } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { listStages, simulateFight } from "@/lib/combat.functions";
 import type { CombatResult, CombatSnapshot } from "@/lib/combat/types";
 import { ABILITY_LABELS } from "@/lib/combat/defaults";
+import { claimIdleRewards, getIdleStatus, heartbeatIdleRun, startIdleRun, stopIdleRun } from "@/lib/idle.functions";
 
 export const Route = createFileRoute("/_authenticated/jogo/combate")({
   head: () => ({
