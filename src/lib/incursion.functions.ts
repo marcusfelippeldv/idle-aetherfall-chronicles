@@ -97,7 +97,7 @@ export const claimIncursion = createServerFn({ method: "POST" })
       .eq("user_id", context.userId)
       .maybeSingle();
     if (!inc) throw new Error("Incursão não encontrada.");
-    if (inc.status !== "running") throw new Error("Esta incursão já foi encerrada.");
+    if (inc.status !== "em_andamento") throw new Error("Esta incursão já foi encerrada.");
 
     const now = Date.now();
     const end = new Date(inc.expected_end_at).getTime();
