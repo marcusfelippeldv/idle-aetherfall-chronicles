@@ -1,90 +1,66 @@
-# Etapa 5 — Social
+# Etapa 6 — Arena Animada
 
-Última etapa do roadmap. Objetivo: transformar Aetherfall Online em um mundo compartilhado com guildas, comunicação em tempo real e conteúdo cooperativo (raids assíncronas).
+Hoje o combate contra chefe e as expedições retornam apenas um log de texto. Esta etapa transforma esses momentos em cenas animadas para o jogador **ver** o herói lutando, os inimigos caindo e as recompensas pingando — sem mudar nenhuma regra de servidor (as fórmulas continuam autoritativas).
 
-## O que o jogador vai receber
+## O que muda para o jogador
 
-- **Guildas**: criar, entrar, sair, gerenciar membros e ver o mural da guilda.
-- **Chat**: canal global do reino + canal privado da guilda, em tempo real.
-- **Raids assíncronas**: chefes de elite que exigem contribuição de vários heróis ao longo de horas; recompensas distribuídas conforme dano causado.
-- **Ranking de guildas**: nova aba no ranking com poder somado dos membros.
+1. **Cena de batalha contra chefe** (`/jogo/arena` → aba Combate)
+   - Ao clicar em "Enfrentar chefe", em vez de um log de texto surge um palco animado: herói à esquerda, chefe à direita, barras de HP grandes no topo.
+   - Os turnos do log retornado pelo servidor são reproduzidos em sequência (~450 ms por turno): o atacante avança, o defensor tremula, número de dano voa (vermelho, ou dourado gigante em CRÍTICO), a barra de HP desce animada.
+   - Ao final: flash de vitória com raios dourados + chuva de XP/ouro, ou tela de derrota em tom carmesim. Botão "Rever combate" e "Lutar novamente".
+   - O log textual antigo fica disponível recolhido em "Ver detalhes".
 
-## Banco de dados (nova migração)
+2. **Patrulha idle animada** (aba Expedições, card de expedição ativa)
+   - Silhueta do herói caminhando (loop de bob vertical) sobre um cenário paralaxe da região (3 camadas com velocidades diferentes).
+   - Inimigos aparecem da direita a cada X segundos (proporcional ao tempo total), recebem um "swoosh" de ataque, somem em partículas e um contador "+1 abate" incrementa.
+   - Pop-ups flutuantes de drops raros (com cor por raridade) quando o timer cruza marcos.
+   - Barra de progresso substituída por trilha com marcadores de recompensa.
 
-Tabelas novas em `public` (todas com GRANTs + RLS + policies):
+3. **Micro-animações globais**
+   - HP/XP nos headers com transição suave (tween de números).
+   - Cintilação sutil em botões primários prontos para ação (colheita disponível, chefe ao alcance).
+   - Toast de vitória com confete dourado curto.
 
-- `guilds`: nome único, tag (3-5 chars), descrição, emblema, dono, `member_count`, `total_power`, timestamps.
-- `guild_members`: `guild_id`, `user_id`, `character_id`, `role` (`leader` | `officer` | `member`), `joined_at`, contribuição total.
-- `guild_invites`: convites pendentes com expiração.
-- `chat_channels`: registro dos canais (`global`, `guild:<id>`).
-- `chat_messages`: `channel_key`, `user_id`, `character_name`, `content`, `created_at` (retenção lógica: só últimos 200 por canal na UI).
-- `raid_templates`: chefes de raid (HP total, janela em horas, recompensas base).
-- `raids`: instância ativa de uma raid (template, `guild_id` opcional para raids exclusivas, `starts_at`, `ends_at`, `current_hp`, status).
-- `raid_contributions`: `raid_id`, `character_id`, dano acumulado, última investida, cooldown.
-- `raid_rewards`: entregas calculadas ao fim da raid.
+## Arquitetura técnica
 
-Enums novos: `guild_role`, `raid_status` (`active` | `defeated` | `expired` | `settled`).
+**Sem migração de banco. Sem novas server functions.** Toda a lógica visual mora no cliente e consome os dados que já existem (`character.last_combat.turns`, `expedition.expected_end_at`, `region.name`).
 
-Índices: `guild_members(user_id)`, `chat_messages(channel_key, created_at desc)`, `raid_contributions(raid_id, damage desc)`.
+### Novos arquivos
+- `src/components/arena/CombatStage.tsx` — palco de combate. Props: `log` (o `last_combat`), `onReplay`. Usa `framer-motion` (já não instalado — adicionar) para animar sprites, dano flutuante, shake e barras. Máquina de estados por turno com `useEffect` + timers, respeitando `prefers-reduced-motion`.
+- `src/components/arena/HpBar.tsx` — barra estilizada com gradiente por facção e tween de largura.
+- `src/components/arena/FloatingNumber.tsx` — número de dano/cura que sobe e some.
+- `src/components/arena/PatrolScene.tsx` — cenário paralaxe da expedição. Recebe `region.slug` e `progress` (0-1) e reproduz loop de andar + spawn de inimigos determinístico por seed local (para ser suave, não precisa bater com servidor).
+- `src/components/arena/CharacterSprite.tsx` — silhueta SVG por classe (Guardião, Arcanista, Caçador, Clérigo, Duelista) com pose idle/attack/hurt. SVGs inline, coloridos com tokens do design system.
+- `src/components/arena/EnemySprite.tsx` — silhueta SVG genérica com variação por `region.slug` (florestal, deserto, arcano, etc.).
+- `src/components/arena/VictoryBurst.tsx` — flash de raios + partículas douradas (SVG + motion), 1.2 s.
+- `src/components/ui/animated-number.tsx` — hook + componente para tween de números (usado em HP, ouro, XP nos headers).
 
-Seed: 3 chefes de raid iniciais (ex.: Leviatã do Véu, Titã de Obsidiana, Fênix Umbral) com HP e recompensas balanceadas para grupos pequenos.
+### Arquivos alterados
+- `src/routes/_authenticated/jogo.arena.tsx`
+  - `BossPanel`: substituir o card "Log de combate" pelo `<CombatStage log={log} />`. Quando não há log, mostrar cartaz do chefe com arte pulsando ("Pronto para o duelo").
+  - `ActiveExpeditionCard`: envolver o topo do card com `<PatrolScene region={region} progress={progress} />` (altura ~180 px), mantendo a barra de progresso e o botão de colheita abaixo.
+  - `HeroHeader`: trocar leitura direta de HP/ouro/cristais por `<AnimatedNumber />`.
+- `src/styles.css` — adicionar keyframes `arena-shake`, `arena-float-up`, `arena-parallax-scroll` e tokens `--rarity-common/uncommon/rare/epic/legendary` (se ainda não existirem).
 
-## RLS (regras em linguagem simples)
+### Dependências novas
+- `framer-motion` (peer-friendly com React 19, ~50 kB gzip). Usado apenas nos componentes acima.
 
-- Qualquer jogador autenticado lê guildas, membros públicos e ranking de guilda.
-- Só o líder edita a guilda; líder/oficiais aceitam convites e removem membros; membros saem de si mesmos.
-- Chat global: leitura para autenticados; inserção só do próprio usuário.
-- Chat de guilda: leitura e escrita apenas para membros daquela guilda.
-- Raids: leitura pública; contribuição só do dono do personagem e respeitando cooldown/janela.
-
-## Server functions (novas)
-
-Client-safe (`src/lib/*.functions.ts`):
-
-- `guild.functions.ts`: `listGuilds`, `getMyGuild`, `createGuild` (custo em cristais), `joinGuild`, `leaveGuild`, `kickMember`, `promoteMember`, `updateGuild`.
-- `chat.functions.ts`: `listMessages({ channel })`, `sendMessage({ channel, content })` com rate limit (ex.: 1 msg/2s por usuário, 500 chars, filtro básico).
-- `raid.functions.ts`: `listActiveRaids`, `getRaidDetails`, `attackRaid` (aplica cooldown de 5-10 min, calcula dano usando as fórmulas existentes de `formulas.server.ts`, grava contribuição), `claimRaidRewards` (após `settled`).
-
-Server-only helpers em `src/lib/social.server.ts`: recomputo de `member_count`/`total_power`, liquidação de raid (rateio proporcional ao dano), integração com `progression.server.ts` para XP de temporada e conquistas de raid/guilda.
-
-## Realtime (chat e raid)
-
-- Chat: assinar `chat_messages` filtrando por `channel_key` via Supabase Realtime no cliente, com fallback em polling (5s) se o socket cair.
-- Raid: assinar mudanças de `raids.current_hp` para atualizar a barra em tempo real.
-- Nenhuma escrita direta do cliente no banco — realtime é só leitura; escrita passa sempre pelas server functions (mantém antifraude).
-
-## UI (novas rotas em pt-BR)
-
-- `src/routes/_authenticated/jogo.guilda.tsx`: se sem guilda, lista de guildas + botão "Fundar guilda" (modal com custo em cristais). Com guilda: painel com membros, papéis, mural e ações de gestão conforme papel.
-- `src/routes/_authenticated/jogo.chat.tsx`: layout com abas Global/Guilda, lista de mensagens com auto-scroll e input com contador de caracteres.
-- `src/routes/_authenticated/jogo.raides.tsx`: cards das raids ativas (barra de HP, tempo restante, top contribuintes) e detalhe com botão "Investir" (mostra cooldown), log das últimas investidas e recompensas previstas.
-- `src/routes/ranking.tsx`: nova aba "Guildas" (poder total, membros, líder).
-- `src/routes/_authenticated/jogo.arena.tsx`: adicionar atalhos no header para Guilda, Chat e Raides. Ordem final: Diário · Conquistas · Temporada · Guilda · Chat · Raides · Loja · Carteira (pode virar dropdown "Social" se ficar apertado).
-- Cada rota nova ganha seu próprio `head()` com título, descrição, `og:title` e `og:description` em pt-BR.
-
-## Integração com sistemas existentes
-
-- Ganhos em raid disparam `progression.server.ts` (missões diárias tipo "contribua com raid", conquistas "primeira raid vencida", XP de temporada).
-- Fundar guilda debita cristais via `wallets` + `currency_transactions` (mesma pipeline da Loja/Carteira), aparecendo no extrato.
-- Nenhuma alteração no combate/expedição já existentes além dos hooks de progresso.
-
-## Antifraude / segurança
-
-- Toda escrita passa por server function; realtime é read-only.
-- Cooldowns e limites de dano validados no servidor.
-- Chat: rate limit por usuário, tamanho máximo, sanitização (sem HTML), lista simples de palavras bloqueadas.
-- Sem PII em `chat_messages` — só `character_name` público.
-
-## Ordem de execução
-
-1. Migração SQL (tabelas, enums, GRANTs, RLS, policies, seed de raids).
-2. Server functions (`guild`, `chat`, `raid`) + `social.server.ts`.
-3. Hooks de progresso (raid vencida, guilda fundada).
-4. Rotas de UI: Guilda → Chat → Raides → aba de ranking → atalhos no header da Arena.
-5. Verificação: `bun run build`, smoke test das rotas novas e leitura das policies via linter.
+### Acessibilidade e performance
+- Todo componente animado respeita `useReducedMotion()`: modo reduzido salta direto ao estado final (log estático + resultado).
+- Sem `backdropFilter`; blurs pesados evitados.
+- Animações desmontam ao trocar de aba (cleanup dos timers).
+- Sprites são SVG inline (< 4 kB cada), sem requisições extras.
 
 ## Fora do escopo desta etapa
+- Ilustrações realistas / arte gerada por IA (usaremos silhuetas SVG estilizadas alinhadas ao design system).
+- Animações no chat, guilda, raides (podem virar Etapa 7 se quiser).
+- Trilha sonora / SFX de combate.
+- Mudanças em fórmulas, drops ou balanceamento.
 
-- Integração real de pagamentos Stripe/Paddle (fica para o passo seguinte, como combinado).
-- Guerras de guilda / PvP direto (pode virar Etapa 6 futura).
-- Moderação avançada de chat (denúncias, banimentos administrativos além do painel admin atual).
+## Checklist de entrega
+1. Instalar `framer-motion`.
+2. Criar os 7 componentes em `src/components/arena/` + `AnimatedNumber`.
+3. Adicionar keyframes/tokens em `src/styles.css`.
+4. Refatorar `BossPanel`, `ActiveExpeditionCard` e `HeroHeader`.
+5. Testar: combate vitorioso, combate derrotado, expedição em andamento, modo `prefers-reduced-motion`.
+6. `tsgo --noEmit` limpo.
