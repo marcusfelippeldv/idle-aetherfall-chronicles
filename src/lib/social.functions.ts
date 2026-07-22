@@ -24,8 +24,14 @@ export const myGuild = createServerFn({ method: "GET" })
     const { data: m } = await context.supabase.from("guild_members").select("guild_id, role").eq("user_id", context.userId).maybeSingle();
     if (!m) return null;
     const { data: g } = await context.supabase.from("guilds").select("id, name, tag, description, member_count, leader_id").eq("id", m.guild_id).maybeSingle();
-    const { data: members } = await context.supabase.from("guild_members").select("user_id, role, joined_at, profiles:user_id(username, display_name)").eq("guild_id", m.guild_id);
-    return { guild: g, membership: m, members: members ?? [] };
+    const { data: members } = await context.supabase.from("guild_members").select("user_id, role, joined_at").eq("guild_id", m.guild_id);
+    const ids = (members ?? []).map((x) => x.user_id);
+    const { data: profiles } = ids.length
+      ? await context.supabase.from("profiles").select("id, username, display_name").in("id", ids)
+      : { data: [] as { id: string; username: string; display_name: string | null }[] };
+    const byId = new Map((profiles ?? []).map((p) => [p.id, p]));
+    const enriched = (members ?? []).map((mem) => ({ ...mem, profile: byId.get(mem.user_id) ?? null }));
+    return { guild: g, membership: m, members: enriched };
   });
 
 const createGuildSchema = z.object({

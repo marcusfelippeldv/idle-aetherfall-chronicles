@@ -65,7 +65,7 @@ function GuildaPanel() {
             <ul className="max-h-40 space-y-1 overflow-y-auto text-xs">
               {mineQ.data.members.map((m) => (
                 <li key={m.user_id} className="flex justify-between">
-                  <span>{m.profiles?.display_name ?? m.profiles?.username ?? "—"}</span>
+                  <span>{m.profile?.display_name ?? m.profile?.username ?? "—"}</span>
                   <span className="text-muted-foreground">{m.role}</span>
                 </li>
               ))}
