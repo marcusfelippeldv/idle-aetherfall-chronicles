@@ -53,8 +53,10 @@ export const createCharacter = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ context, data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
     // 1 herói ativo por conta (garantido também por unique index).
-    const { data: existing } = await context.supabase
+    const { data: existing } = await supabaseAdmin
       .from("characters")
       .select("id")
       .eq("user_id", context.userId)
@@ -62,15 +64,16 @@ export const createCharacter = createServerFn({ method: "POST" })
       .maybeSingle();
     if (existing) throw new Error("Você já possui um herói ativo.");
 
-    const { data: cls } = await context.supabase
+    const { data: cls, error: classError } = await supabaseAdmin
       .from("classes")
       .select("id, base_hp, base_attack, base_defense, base_speed")
       .eq("id", data.classId)
       .eq("active", true)
       .maybeSingle();
+    if (classError) throw new Error(classError.message);
     if (!cls) throw new Error("Classe inválida.");
 
-    const { data: character, error } = await context.supabase
+    const { data: character, error } = await supabaseAdmin
       .from("characters")
       .insert({
         user_id: context.userId,

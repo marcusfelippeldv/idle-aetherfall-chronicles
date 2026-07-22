@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Heart, Shield, Swords, Wind } from "lucide-react";
+import { Dices, Heart, Shield, Swords, Wind } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -28,10 +28,20 @@ function NewCharacterPage() {
   const qc = useQueryClient();
   const classesFn = useServerFn(listClasses);
   const createFn = useServerFn(createCharacter);
-  const [name, setName] = useState("");
+  const [name, setName] = useState(() => randomHeroName());
   const [classId, setClassId] = useState<string | null>(null);
 
   const classesQ = useQuery({ queryKey: ["catalog", "classes"], queryFn: () => classesFn() });
+  const selectedClass = useMemo(
+    () => (classesQ.data ?? []).find((c) => c.id === classId) ?? null,
+    [classesQ.data, classId],
+  );
+
+  useEffect(() => {
+    if (!classId && classesQ.data?.[0]?.id) {
+      setClassId(classesQ.data[0].id);
+    }
+  }, [classId, classesQ.data]);
 
   const mut = useMutation({
     mutationFn: (input: { name: string; classId: string }) => createFn({ data: input }),
@@ -42,6 +52,20 @@ function NewCharacterPage() {
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
   });
+
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    const trimmed = name.trim();
+    if (!trimmed) {
+      toast.error("Digite um nome para o herói.");
+      return;
+    }
+    if (!classId) {
+      toast.error("Escolha uma classe para o herói.");
+      return;
+    }
+    mut.mutate({ name: trimmed, classId });
+  }
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 md:px-6 md:py-14">
@@ -80,9 +104,20 @@ function NewCharacterPage() {
         <CardHeader>
           <CardTitle className="font-display">Nome do herói</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent asChild>
+          <form onSubmit={submit} className="space-y-4 p-6 pt-0">
           <div>
-            <Label htmlFor="name">Nome</Label>
+            <div className="flex items-end justify-between gap-3">
+              <Label htmlFor="name">Nome</Label>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setName(randomHeroName())}
+              >
+                <Dices className="h-4 w-4" /> Aleatório
+              </Button>
+            </div>
             <Input
               id="name"
               value={name}
@@ -92,17 +127,27 @@ function NewCharacterPage() {
             />
             <p className="mt-1 text-xs text-muted-foreground">3 a 20 caracteres.</p>
           </div>
+          <div className="rounded-md border border-border/60 bg-background/40 px-4 py-3 text-sm text-muted-foreground">
+            Classe selecionada: <span className="font-medium text-foreground">{selectedClass?.name ?? "carregando…"}</span>
+          </div>
           <Button
+            type="submit"
             size="lg"
-            disabled={!name.trim() || !classId || mut.isPending}
-            onClick={() => mut.mutate({ name: name.trim(), classId: classId! })}
+            disabled={classesQ.isLoading || !name.trim() || !classId || mut.isPending}
           >
             {mut.isPending ? "Criando…" : "Iniciar jornada"}
           </Button>
+          </form>
         </CardContent>
       </Card>
     </div>
   );
+}
+
+function randomHeroName() {
+  const titles = ["Ari", "Kael", "Luma", "Nero", "Talon", "Vera", "Zyn", "Orin"];
+  const suffix = Math.floor(1000 + Math.random() * 9000);
+  return `${titles[Math.floor(Math.random() * titles.length)]} ${suffix}`;
 }
 
 function Stat({ icon, value }: { icon: React.ReactNode; value: number }) {
