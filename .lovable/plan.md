@@ -1,50 +1,44 @@
-## Etapa 2 (final) — Prioridades, Iniciativa e Combate
 
-Fecha a Etapa 2 do ciclo Eternal Shards: cada herói ganha uma lista de prioridades (regras de IA idle), o motor de combate por iniciativa entra em cena, e uma nova aba **Combate** permite testar a party contra inimigos das regiões iniciais.
+## Objetivo
 
-### 1. Editor de prioridades (por herói)
+Substituir o placeholder atual de `src/routes/index.tsx` por uma landing completa em pt-BR na direção **Éter Nobre — cards portrait**, mantendo paleta, tipografia e layout aprovados.
 
-- Nova aba **Prioridades** em `/jogo/prioridades` listando os 4 heróis da party.
-- Para cada herói, uma lista ordenada (drag-to-reorder simples via botões ↑/↓) de regras do tipo:
-  - `{ ability: "basic" | "skill_1" | "skill_2" | "awakening" | "defend", target: "lowest_hp_ally" | "lowest_hp_enemy" | "highest_atk_enemy" | "self" | "random_enemy", condition?: "hp<50%" | "mana>=cost" | "awakening_ready" | "always" }`
-- Persistência: coluna `heroes.priorities jsonb` já existe — grava via nova server fn `updateHeroPriorities`.
-- Um botão "Restaurar padrão" gera prioridades sensatas por role da classe (tanque defende quando HP<40%, suporte cura menor HP, DPS ataca maior ameaça, etc.).
+## Escopo
 
-### 2. Motor de combate por iniciativa
+Arquivo tocado: `src/routes/index.tsx` (reescrita completa) + acréscimo de tokens no `src/styles.css`. Sem alterações de backend, banco, rotas ou header/footer globais.
 
-- Novo módulo `src/lib/combat.server.ts` (server-only, importado só por functions):
-  - Turnos ordenados por `spd` decrescente com desempate por posição.
-  - Aplica dano com fórmula `max(1, atk * mult - def * 0.5)`, com multiplicador por elemento consultando `element_matchups`.
-  - Consome mana das habilidades, acumula `awakening_energy` (+10 por ação, +25 ao receber dano; dispara quando ≥100).
-  - Executa a primeira regra de prioridade cujo `condition` for verdadeiro; fallback = ataque básico no inimigo com menor HP.
-  - Retorna um `CombatLog` estruturado: `{ turn, actor, ability, targets, damage, healing, status, snapshot }[]` + `outcome: "victory" | "defeat"` + recompensas.
-- Server fn `simulateFight({ stageSlug })`:
-  - Middleware `requireSupabaseAuth`.
-  - Lê party + heróis do usuário, lê `stages` + `enemies` da região correspondente.
-  - Roda o combate e devolve o log (sem persistir mudanças ainda — expedições persistentes ficam para a Etapa 3).
+## Seções da nova página
 
-### 3. Tela de Combate
+1. **Hero cinematográfico** — pattern radial (roxo → azul-noite) + grão sutil, título "AETHERFALL" em Syne dourado com halo, subtítulo do ciclo Eternal Shards, dois CTAs: `Criar conta` → `/cadastro` (roxo com faixa inferior mais escura) e `Entrar` → `/login` (contorno roxo).
+2. **Arquétipos jogáveis (6)** — grid 3×2 de cards em `aspect-[3/4]` com retrato de cada classe (importando `src/assets/classes/{guardiao,espadachim,arqueiro,arcanista,vidente,punho}.jpg`), gradiente inferior escuro, nome em Syne + tagline em roxo caps. Hover: borda roxa acesa.
+3. **Pilares do mundo (5)** — cards numerados 01–05: Party de 4, IA por Prioridades, Incursões Regionais, Chefes Mundiais, Economia & Raridade.
+4. **Roadmap — Eternal Shards** — timeline vertical alinhada aos marcos reais entregues: Fase 1 (Fundação — classes, party) concluída, Fase 2 (Combate & Prioridades) concluída, Fase 3 (Economia, Missões, Social) em curso, Fase 4 (PvP & Guildas ativas) próxima.
+5. **CTA final + rodapé leve** — chamada "Sua party aguarda" com botão `Criar conta`, seguida de linha discreta com copyright.
 
-- Nova aba **Combate** em `/jogo/combate`:
-  - Seletor de região → estágio (dropdown alimentado por `regions` + `stages`).
-  - Botão "Iniciar combate" chama `simulateFight`.
-  - Renderiza o `CombatLog` com animação turno-a-turno reaproveitando `CombatStage` existente (adaptado para 4v1..3): barras de HP/MP animadas, floaters de dano, destaque do herói ativo.
-  - Painel lateral com resultado (vitória/derrota) e recompensas simuladas.
+## Design tokens
 
-### 4. Ajustes menores
+Adicionar em `src/styles.css` (`:root` + `@theme inline`) os quatro hex da paleta Éter Nobre como tokens semânticos:
+- `--aether-night: #0B1024`
+- `--aether-violet-deep: #1B1147`
+- `--aether-violet: #6A3DF5`
+- `--aether-gold: #F4C15A`
 
-- `jogo.tsx`: adicionar abas **Prioridades** e **Combate**.
-- `createProtagonist`: já inicializa `priorities: []` — passar a gerar defaults por role no mesmo insert, para o jogador ter algo utilizável de cara.
-- Botão "Restaurar padrão" reaproveita a mesma função em `src/lib/combat/defaults.ts` (client-safe).
+Mapear para utilitários (`bg-aether-*`, `text-aether-*`, `border-aether-*`) e usar em vez de hex inline. Fontes Syne e Plus Jakarta Sans já carregam via `__root.tsx` — apenas verificar; caso falte, incluir o `<link>` no head do root (fora do escopo se já presente).
 
-### Detalhes técnicos
+## Metadata
 
-- Server functions ficam em `src/lib/hero.functions.ts` (`updateHeroPriorities`) e novo `src/lib/combat.functions.ts` (`simulateFight`, `listStages`), todas com `requireSupabaseAuth`.
-- `combat.server.ts` fica fora do grafo do cliente (sufixo `.server.ts` bloqueia import client-side).
-- Nenhuma alteração de schema — todas as colunas necessárias (`priorities`, `awakening_energy`, `element_matchups`, `stages`, `enemies`) já existem.
-- Tipos de log/prioridade centralizados em `src/lib/combat/types.ts` para reuso client + server.
+Manter/atualizar `head()` do route: título "Aetherfall Online — RPG idle épico", description curta em pt-BR, `og:title`, `og:description`, `og:type=website`, `twitter:card=summary_large_image`. Sem `og:image` até haver uma arte fixa.
 
-### Fora do escopo desta etapa
+## Animações
 
-- Persistência de expedições idle contínuas, drops reais no inventário, XP/level-up pós-combate → Etapa 3 (Economia + Progressão).
-- Habilidades customizadas por herói além do conjunto base da classe → Etapa 4.
+Somente CSS/Tailwind: transições de hover nos cards de classes e pilares, `drop-shadow` pulsando levemente no título via keyframe em `styles.css`. Nada de framer-motion nesta página para manter leve.
+
+## Fora de escopo
+
+- Redesign do header/footer, das rotas de autenticação ou do dashboard `/jogo`.
+- Novas artes: reaproveitar retratos existentes das 6 classes.
+- Backend: nenhuma migração ou server function nesta iteração.
+
+## Verificação
+
+Após implementar: `bunx tsgo --noEmit` e captura Playwright em `/` (viewport 1280×1800) para validar o hero, o grid dos 6 arquétipos, os 5 pilares e a timeline.
